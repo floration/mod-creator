@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it } from "vitest";
-import { createProject, generate, itemIconArt, loadProject, oggChannels, parseStructure, plan, registeredItems, resolveRef, writeStructure } from "../src/index.js";
+import { createProject, generate, itemIconArt, loadProject, oggChannels, parseStructure, plan, registeredItems, resolveRef, vanillaOrePreset, writeStructure } from "../src/index.js";
 
 const RUBY = fileURLToPath(new URL("../../../examples/ruby", import.meta.url));
 const AZUREGROVE = fileURLToPath(new URL("../../../examples/azuregrove", import.meta.url));
@@ -615,5 +615,31 @@ describe("resolveRef", () => {
     ["#gems", "#ruby:gems"],
   ])("%s -> %s", (ref, expected) => {
     expect(resolveRef("ruby", ref)).toBe(expected);
+  });
+});
+
+describe("vanilla ore presets", () => {
+  it("turns the game's placed and configured features into ore fields", () => {
+    const geode = vanillaOrePreset(
+      "minecraft:amethyst_geode",
+      { placement: [{ type: "minecraft:rarity_filter", chance: 24 }, { type: "minecraft:height_range", height: { type: "minecraft:uniform", min_inclusive: { above_bottom: 6 }, max_inclusive: { absolute: 30 } } }] },
+      {
+        type: "minecraft:geode",
+        blocks: { outer_layer_provider: { id: "minecraft:smooth_basalt" }, middle_layer_provider: { id: "minecraft:calcite" }, alternate_inner_layer_provider: { id: "minecraft:budding_amethyst" }, inner_placements: ["minecraft:amethyst_cluster"] },
+        crack: { generate_crack_chance: 0.95 },
+        use_alternate_layer0_chance: 0.083,
+      },
+    );
+    expect(geode?.ore).toMatchObject({ shape: "geode", chunksPerVein: 24, minY: -58, maxY: 30, geode: { buddingBlock: "minecraft:budding_amethyst", crystals: ["minecraft:amethyst_cluster"] } });
+
+    // Nether heights count from Y 0, and a feature with no count places one per chunk.
+    const debris = vanillaOrePreset(
+      "minecraft:ore_debris_small",
+      { placement: [{ type: "minecraft:height_range", height: { type: "minecraft:uniform", min_inclusive: { above_bottom: 8 }, max_inclusive: { below_top: 8 } } }] },
+      { type: "minecraft:scattered_ore", size: 2, discard_chance_on_air_exposure: 1, targets: [{ target: { predicate_type: "minecraft:tag_match", tag: "minecraft:base_stone_nether" } }] },
+    );
+    expect(debris?.ore).toMatchObject({ shape: "scattered", replaces: "netherrack", minY: 8, maxY: 247, veinsPerChunk: 1, airExposureSkip: 1 });
+
+    expect(vanillaOrePreset("minecraft:trees_plains", { placement: [] }, { type: "minecraft:tree" })).toBeNull();
   });
 });
