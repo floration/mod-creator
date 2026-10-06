@@ -16,8 +16,10 @@ import {
   type Draft,
   type Errors,
 } from "./forms";
-import { mobSheetLayout } from "./Preview";
-import { TextureField } from "./TextureField";
+import { pickAnimations, type EntityModelDef } from "@modcreator/core/blockbench";
+import { api } from "./api";
+import { blockbenchSheetLayout, mobSheetLayout } from "./Preview";
+import { TextureContext, TextureField } from "./TextureField";
 import { ItemContext, ItemIconView, ItemPicker, acceptsItem, dragItem, droppedItem, itemInfo } from "./items";
 
 interface EditorProps {
@@ -271,16 +273,69 @@ export function PlantEditor(p: EditorProps) {
   );
 }
 
+/** A mob's Blockbench model as the app reads it, or why it can't be used. */
+function useBlockbench(file: string | undefined): { model: EntityModelDef | null; error: string | null } {
+  const world = useContext(TextureContext);
+  const [result, setResult] = useState<{ model: EntityModelDef | null; error: string | null }>({ model: null, error: null });
+  useEffect(() => {
+    setResult({ model: null, error: null });
+    if (!world || !file || !file.endsWith(".bbmodel")) return;
+    let live = true;
+    api().loadBlockbench(world.root, file).then((r) => live && setResult(r));
+    return () => {
+      live = false;
+    };
+  }, [world?.root, world?.version, file]);
+  return result;
+}
+
 export function MobEditor(p: EditorProps) {
   const f = { draft: p.draft, errors: p.errors, onChange: p.onChange };
   const model = getAt(p.draft, ["mob", "model"]) ?? "pig";
+  const custom = model === "blockbench";
+  const bb = useBlockbench(custom ? getAt(p.draft, ["mob", "blockbench"]) : undefined);
+  const world = useContext(TextureContext);
+  const sheet: [number, number] = bb.model ? [bb.model.textureWidth, bb.model.textureHeight] : [64, 64];
+  const { walk, idle } = bb.model ? pickAnimations(bb.model) : { walk: null, idle: null };
+
+  /** Save the texture embedded in the .bbmodel to art/<id>.png and use it. */
+  const useEmbedded = async () => {
+    if (!world || !bb.model?.embeddedTexture) return;
+    const file = `art/${getAt(p.draft, ["id"]) || "mob"}.png`;
+    await api().saveArt(world.root, file, bb.model.embeddedTexture);
+    world.saved();
+    p.onChange(setAt(p.draft, ["mob", "texture"], file));
+  };
+
   return (
     <>
       <Common {...p} tab={false} tags="" customClass={false} idHint="Lowercase. The spawn egg is <id>_spawn_egg" />
       <Section title="Look">
-        <SelectField {...f} path={["mob", "model"]} label="Body" options={MobModel.options} hint="Borrows this animal's model and animations" />
-        <TextureField {...f} size={[64, 64]} guide={mobSheetLayout(model)} path={["mob", "texture"]} label="Texture" hint={`64x64 PNG in the vanilla ${model} layout`} />
-        <TextureField {...f} size={[64, 64]} path={["mob", "babyTexture"]} label="Baby texture" optional hint={`Optional. In the vanilla baby ${model} layout`} />
+        <SelectField {...f} path={["mob", "model"]} label="Body" options={MobModel.options} hint={custom ? "Your own model, made in Blockbench" : "Borrows this animal's model and animations"} />
+        {custom && (
+          <>
+            <TextField {...f} path={["mob", "blockbench"]} placeholder="art/name.bbmodel" label="Blockbench model" hint="A .bbmodel in art/, made with Blockbench's Modded Entity format and Box UV" />
+            {bb.error && <span className="field-hint bad">{bb.error}</span>}
+            {bb.model && (
+              <span className="field-hint">
+                {bb.model.parts.length} top-level parts, {bb.model.textureWidth}x{bb.model.textureHeight} texture. Walk animation: {walk?.name ?? "none"}. Idle animation: {idle?.name ?? "none"}.
+                {" "}Animations whose names contain "walk" and "idle" play in game.
+              </span>
+            )}
+            {bb.model?.embeddedTexture && (
+              <button type="button" onClick={useEmbedded}>Use the texture saved in the model</button>
+            )}
+          </>
+        )}
+        <TextureField
+          {...f}
+          size={sheet}
+          guide={custom ? (bb.model ? blockbenchSheetLayout(bb.model) : null) : mobSheetLayout(model)}
+          path={["mob", "texture"]}
+          label="Texture"
+          hint={custom ? `${sheet[0]}x${sheet[1]} PNG in the model's layout` : `64x64 PNG in the vanilla ${model} layout`}
+        />
+        <TextureField {...f} size={sheet} path={["mob", "babyTexture"]} label="Baby texture" optional hint={custom ? "Optional. Babies use the same model at half size" : `Optional. In the vanilla baby ${model} layout`} />
         <TextureField {...f} path={["mob", "spawnEgg"]} label="Spawn egg icon" />
       </Section>
       <Section title="Behavior">
@@ -305,10 +360,10 @@ export function MobEditor(p: EditorProps) {
         />
       </Section>
       <Section title="Sounds">
-        <TextField {...f} path={["mob", "sounds", "ambient"]} label="Ambient" optional placeholder={`minecraft:entity.${model}.ambient`} />
-        <TextField {...f} path={["mob", "sounds", "hurt"]} label="Hurt" optional placeholder={`minecraft:entity.${model}.hurt`} />
-        <TextField {...f} path={["mob", "sounds", "death"]} label="Death" optional placeholder={`minecraft:entity.${model}.death`} />
-        <span className="field-hint">Leave empty to use the {model}'s own sounds.</span>
+        <TextField {...f} path={["mob", "sounds", "ambient"]} label="Ambient" optional placeholder={custom ? "minecraft:entity.bee.loop" : `minecraft:entity.${model}.ambient`} />
+        <TextField {...f} path={["mob", "sounds", "hurt"]} label="Hurt" optional placeholder={custom ? "minecraft:entity.bee.hurt" : `minecraft:entity.${model}.hurt`} />
+        <TextField {...f} path={["mob", "sounds", "death"]} label="Death" optional placeholder={custom ? "minecraft:entity.bee.death" : `minecraft:entity.${model}.death`} />
+        <span className="field-hint">{custom ? "Leave empty for no sound." : `Leave empty to use the ${model}'s own sounds.`}</span>
       </Section>
     </>
   );

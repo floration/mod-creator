@@ -11,6 +11,7 @@ const api = {
   deleteSpec: (root: string, rel: string) => ipcRenderer.invoke("spec:delete", root, rel),
   dependents: (root: string, rel: string) => ipcRenderer.invoke("spec:dependents", root, rel),
   renameEdits: (root: string, rel: string, renamed: unknown) => ipcRenderer.invoke("spec:renameEdits", root, rel, renamed),
+  loadBlockbench: (root: string, rel: string) => ipcRenderer.invoke("model:blockbench", root, rel),
   dataUrl: (root: string, rel: string) => ipcRenderer.invoke("file:dataUrl", root, rel),
   saveArt: (root: string, rel: string, dataUrl: string) => ipcRenderer.invoke("art:save", root, rel, dataUrl),
   loadVanilla: (version: string) => ipcRenderer.invoke("vanilla:load", version),

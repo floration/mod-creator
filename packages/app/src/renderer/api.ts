@@ -1,4 +1,5 @@
 import type { BlockSpec, ElementSpec, ItemSpec, Project, RecipeSpec } from "@modcreator/core/schema";
+import type { EntityModelDef } from "@modcreator/core/blockbench";
 
 /** Mirrors ItemIcon and CatalogEntry in core/src/vanilla.ts, which the window can't import (it uses Node). */
 export type ItemIcon = { kind: "flat"; texture: string } | { kind: "cube"; top: string; left: string; right: string };
@@ -28,6 +29,7 @@ export interface LoadedProject {
   project: Project;
   elements: { spec: ElementSpec; file: string }[];
   issues: Issue[];
+  models: Record<string, EntityModelDef>;
 }
 
 export interface SpecEdit {
@@ -64,6 +66,8 @@ export interface ModCreatorApi {
   dependents(root: string, rel: string): Promise<Issue[]>;
   /** Other specs rewritten to follow `rel`'s element to its new id. */
   renameEdits(root: string, rel: string, renamed: ElementSpec): Promise<SpecEdit[]>;
+  /** Read a .bbmodel; `error` says why it can't be used. */
+  loadBlockbench(root: string, rel: string): Promise<{ model: EntityModelDef | null; error: string | null }>;
   dataUrl(root: string, rel: string): Promise<string | null>;
   /** Write a PNG, given as a data: URL, to a project-relative path. */
   saveArt(root: string, rel: string, dataUrl: string): Promise<void>;

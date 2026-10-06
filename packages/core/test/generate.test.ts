@@ -47,6 +47,7 @@ describe("Ruby example", () => {
       "block:ruby_lamp",
       "block:ruby_ore",
       "item:ruby",
+      "mob:glowmoth",
       "recipe:ruby_block",
       "recipe:ruby_from_block",
       "recipe:ruby_from_smelting",

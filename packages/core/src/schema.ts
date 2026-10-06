@@ -245,8 +245,11 @@ export const PlantSpecSchema = z.object({
 });
 export type PlantSpec = z.infer<typeof PlantSpecSchema>;
 
-/** Vanilla body shapes a mob can borrow. Its texture uses the same layout as the vanilla mob's. */
-export const MobModel = z.enum(["pig", "cow"]);
+/**
+ * The mob's body: a vanilla shape to borrow (its texture uses the same layout as the vanilla mob's), or
+ * `blockbench` for your own model from a `.bbmodel` file.
+ */
+export const MobModel = z.enum(["pig", "cow", "blockbench"]);
 
 export const MobSpecSchema = z.object({
   kind: z.literal("mob"),
@@ -255,7 +258,12 @@ export const MobSpecSchema = z.object({
   name: z.string().min(1),
   mob: z.object({
     model: MobModel.default("pig"),
-    /** 64x64 PNG in the vanilla layout of the model (pig or cow). */
+    /**
+     * With model `blockbench`: the `.bbmodel` file, in Blockbench's Modded Entity format with Box UV. Animations
+     * whose names contain "walk" and "idle" play while it moves and all the time.
+     */
+    blockbench: z.string().optional(),
+    /** PNG in the vanilla layout of the model (64x64 for pig or cow), or the Blockbench model's own layout. */
     texture: z.string(),
     /** Texture for babies, in the vanilla baby layout. Defaults to `texture`. */
     babyTexture: z.string().optional(),

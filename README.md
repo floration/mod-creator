@@ -68,9 +68,9 @@ gems/
     worldgen/<id>.json     ore veins
     trees/<id>.json        a wood type: log, planks, leaves, sapling and the tree it grows
     plants/<id>.json       grass-like plants
-    mobs/<id>.json         animals on the vanilla pig or cow body
+    mobs/<id>.json         animals on the vanilla pig or cow body, or a Blockbench model
     biomes/<id>.json       Overworld biomes
-  art/                     textures (PNG)
+  art/                     textures (PNG) and Blockbench models (.bbmodel)
   src/main/                yours: never touched by the generator
   src/generated/           the generator's: rewritten on every run, do not edit
   build.gradle, settings.gradle, gradle.properties, gradlew
@@ -88,7 +88,7 @@ Rules the generator follows:
 
 Two example mods show every supported field:
 
-- [`examples/ruby`](examples/ruby): an ore that drops gems with Fortune, a storage block, a lamp with a custom Java class, a gem item, shaped, shapeless and smelting recipes, and a ruby ore vein that generates between Y -16 and 48.
+- [`examples/ruby`](examples/ruby): an ore that drops gems with Fortune, a storage block, a lamp with a custom Java class, a gem item, shaped, shapeless and smelting recipes, a ruby ore vein that generates between Y -16 and 48, and the Glowmoth, a mob with its own Blockbench model whose wings flap.
 - [`examples/azuregrove`](examples/azuregrove): one of each of the other kinds. Azurite ore and bricks, the Azure Plum food, an Azurite Sword and armor set, the Azurewood tree (fancy oak shape, its leaves drop plums), Azure Grass, the Bluetusk (a blue pig that eats plums), and the Azure Grove biome, which takes over part of Plains and Forest and grows all of them.
 
 ### Biomes
@@ -97,7 +97,9 @@ Biomes are placed with the [Biolith](https://modrinth.com/mod/biolith) library, 
 
 ### Mobs
 
-A mob borrows the vanilla pig or cow model and animations, with your own 64x64 texture in the same layout as the vanilla one. It wanders, panics when hurt, follows players holding its food, breeds with that food and has a spawn egg. Its renderer is registered by the generated `ModContentClient`, so `fabric.mod.json` lists that class as the `client` entrypoint (new projects already do).
+A mob either borrows the vanilla pig or cow model and animations, with your own 64x64 texture in the same layout as the vanilla one, or uses its own model from [Blockbench](https://www.blockbench.net/). It wanders, panics when hurt, follows players holding its food, breeds with that food and has a spawn egg.
+
+For a Blockbench body, set **Body** to `blockbench` and point **Blockbench model** at a `.bbmodel` in `art/`. Make the model with Blockbench's **Modded Entity** format and **Box UV** (Minecraft entity models can't use per-face UV or meshes). Groups become the model's parts, rotated cubes get a part of their own, and the texture size comes from the project's resolution. An animation whose name contains `walk` plays while the mob moves and one containing `idle` loops all the time; keyframes must be plain numbers, not Molang. A part named `head` turns to look around. **Use the texture saved in the model** copies the texture embedded in the `.bbmodel` into `art/`, the pixel editor outlines every box on the sheet, and the 3D preview plays the animations (tick **Walking** to see the walk). The Glowmoth in `examples/ruby` is one. Its renderer is registered by the generated `ModContentClient`, so `fabric.mod.json` lists that class as the `client` entrypoint (new projects already do).
 
 ### Recipes
 
@@ -120,4 +122,4 @@ Minecraft 26.3, Fabric Loader 0.19.5, Fabric Loom 1.18.2 (`net.fabricmc.fabric-l
 
 ## Status
 
-Milestones 2 and 3 of the design doc are in: the project skeleton, blocks, items and recipes. So are ore veins, food, tools, armor, trees, plants, mobs on vanilla bodies and biomes. Next up: mobs with their own Blockbench models.
+Milestones 2 and 3 of the design doc are in: the project skeleton, blocks, items and recipes. So are ore veins, food, tools, armor, trees, plants, mobs (on vanilla bodies or Blockbench models) and biomes. Next up: mob behavior presets.

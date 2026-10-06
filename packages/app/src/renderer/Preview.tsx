@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { pickAnimations, sampleChannel, type EntityModelDef, type ModelAnimation, type ModelPartDef } from "@modcreator/core/blockbench";
 import { api, type ElementSpec } from "./api";
 
 /** Minecraft's fixed face shading: the top is brightest, the bottom darkest. */
@@ -92,10 +93,11 @@ async function tree(load: Loader, t: { logSide: string; logEnd: string; leaves: 
 }
 
 /**
- * A box of a Minecraft entity model, textured from a 64x64 sheet the way the game does: the box's net starts at
- * (u, v), top and bottom first, then the four sides. Coordinates are model pixels (y down, front towards -z).
+ * A box of a Minecraft entity model, textured from its sheet (64x64 unless given) the way the game does: the box's
+ * net starts at (u, v), top and bottom first, then the four sides. Coordinates are model pixels (y down, front
+ * towards -z).
  */
-function modelBox(material: THREE.Material, u: number, v: number, [x, y, z, w, h, d]: number[]): THREE.Mesh {
+function modelBox(material: THREE.Material, u: number, v: number, [x, y, z, w, h, d]: number[], sheet: [number, number] = [64, 64], mirror = false): THREE.Mesh {
   const geometry = new THREE.BoxGeometry(w, h, d);
   geometry.translate(x + w / 2, y + h / 2, z + d / 2);
   // Rectangles on the sheet (left, top, width, height) for BoxGeometry's faces: +x, -x, +y, -y, +z, -z.
@@ -109,8 +111,22 @@ function modelBox(material: THREE.Material, u: number, v: number, [x, y, z, w, h
     [u + d, v + d, w, h],
   ];
   const uv = geometry.getAttribute("uv") as THREE.BufferAttribute;
+  // Box UV sizes are whole pixels on the sheet even when the box itself isn't.
+  rects.forEach((rect) => {
+    rect[2] = Math.floor(rect[2]);
+    rect[3] = Math.floor(rect[3]);
+  });
+  if (mirror) {
+    // A mirrored box swaps its east and west faces and flips every face left to right.
+    [rects[0], rects[1]] = [rects[1], rects[0]];
+    for (const rect of rects) {
+      rect[0] += rect[2];
+      rect[2] = -rect[2];
+    }
+  }
+  const [sw, sh] = sheet;
   rects.forEach(([left, top, width, height], face) => {
-    const [l, r, t, b] = [left / 64, (left + width) / 64, 1 - top / 64, 1 - (top + height) / 64];
+    const [l, r, t, b] = [left / sw, (left + width) / sw, 1 - top / sh, 1 - (top + height) / sh];
     // BoxGeometry's four corners per face: top-left, top-right, bottom-left, bottom-right in its own up direction.
     // The model is flipped upside down when drawn, so each face's rows are swapped.
     const corners = face === 2 || face === 3 ? [[l, t], [r, t], [l, b], [r, b]] : [[l, b], [r, b], [l, t], [r, t]];
@@ -142,14 +158,28 @@ const MOB_MODELS: Record<string, { uv: [number, number]; box: number[]; at: [num
 export function mobSheetLayout(model: string): [number, number, number, number][] | null {
   const parts = MOB_MODELS[model];
   if (!parts) return null;
-  return parts.flatMap(({ uv: [u, v], box: [, , , w, h, d] }) => [
+  return sheetLayout(parts.map(({ uv, box }) => ({ uv, box })));
+}
+
+/** The same guide for a Blockbench model's boxes. */
+export function blockbenchSheetLayout(model: EntityModelDef): [number, number, number, number][] {
+  const boxes = (parts: ModelPartDef[]): { uv: [number, number]; box: number[] }[] =>
+    parts.flatMap((p) => [...p.boxes.map((b) => ({ uv: [b.u, b.v] as [number, number], box: b.box })), ...boxes(p.children)]);
+  return sheetLayout(boxes(model.parts));
+}
+
+function sheetLayout(boxes: { uv: [number, number]; box: number[] }[]): [number, number, number, number][] {
+  return boxes.flatMap(({ uv: [u, v], box: [, , , bw, bh, bd] }) => {
+    const [w, h, d] = [bw, bh, bd].map(Math.floor);
+    return [
     [u + d, v, w, d],
     [u + d + w, v, w, d],
     [u, v + d, d, h],
     [u + d, v + d, w, h],
     [u + d + w, v + d, d, h],
     [u + d + w + d, v + d, w, h],
-  ] as [number, number, number, number][]);
+  ] as [number, number, number, number][];
+  });
 }
 
 async function mob(load: Loader, model: string, texture: string): Promise<THREE.Group> {
@@ -169,6 +199,71 @@ async function mob(load: Loader, model: string, texture: string): Promise<THREE.
   const group = new THREE.Group();
   group.add(parts);
   return group;
+}
+
+/** Put every part back in its rest pose. */
+function resetPose(parts: Map<string, THREE.Object3D>): void {
+  for (const part of parts.values()) {
+    const rest = part.userData.rest as { position: THREE.Vector3; rotation: THREE.Euler };
+    part.position.copy(rest.position);
+    part.rotation.copy(rest.rotation);
+    part.scale.setScalar(1);
+  }
+}
+
+/** A Blockbench mob in model space, plus a tick that plays its walk or idle animation. */
+async function blockbenchMob(load: Loader, model: EntityModelDef, texture: string): Promise<THREE.Group> {
+  const material = shaded(await load(texture));
+  const sheet: [number, number] = [model.textureWidth, model.textureHeight];
+  const byName = new Map<string, THREE.Object3D>();
+  const build = (part: ModelPartDef): THREE.Object3D => {
+    const pivot = new THREE.Group();
+    pivot.position.set(...part.pivot);
+    pivot.rotation.set(...part.rotation, "ZYX");
+    pivot.userData.rest = { position: pivot.position.clone(), rotation: pivot.rotation.clone() };
+    for (const b of part.boxes) {
+      const [x, y, z, w, h, d] = b.box;
+      const g = b.inflate;
+      pivot.add(modelBox(material, b.u, b.v, [x - g, y - g, z - g, w + 2 * g, h + 2 * g, d + 2 * g], sheet, b.mirror));
+    }
+    for (const child of part.children) pivot.add(build(child));
+    byName.set(part.name, pivot);
+    return pivot;
+  };
+  const parts = new THREE.Group();
+  for (const part of model.parts) parts.add(build(part));
+  parts.scale.set(-1 / 16, -1 / 16, 1 / 16);
+  parts.position.y = 24 / 16;
+  parts.rotation.y = Math.PI;
+  const group = new THREE.Group();
+  group.add(parts);
+  const { walk, idle } = pickAnimations(model);
+  group.userData.tick = (seconds: number, walking: boolean) => {
+    resetPose(byName);
+    // Like the game: the idle animation always plays, and walking adds on top.
+    if (idle) applyAnimation(byName, idle, seconds);
+    if (walking && walk) applyAnimation(byName, walk, seconds);
+  };
+  return group;
+}
+
+/** Add an animation's keyframes at `seconds` to the parts' current pose, the way Minecraft's KeyframeAnimation does. */
+function applyAnimation(parts: Map<string, THREE.Object3D>, animation: ModelAnimation, seconds: number): void {
+  const t = animation.loop && animation.length > 0 ? seconds % animation.length : Math.min(seconds, animation.length);
+  for (const [bone, channels] of Object.entries(animation.bones)) {
+    const part = parts.get(bone);
+    if (!part) continue;
+    if (channels.rotation) {
+      const [x, y, z] = sampleChannel(channels.rotation, t).map((deg) => (deg * Math.PI) / 180);
+      part.rotation.set(part.rotation.x + x, part.rotation.y + y, part.rotation.z + z, "ZYX");
+    }
+    // posVec flips y before Minecraft adds it to the part's position.
+    if (channels.position) {
+      const [x, y, z] = sampleChannel(channels.position, t);
+      part.position.add(new THREE.Vector3(x, -y, z));
+    }
+    if (channels.scale) part.scale.multiply(new THREE.Vector3(...sampleChannel(channels.scale, t)));
+  }
 }
 
 async function buildObject(root: string, spec: ElementSpec): Promise<THREE.Object3D | null> {
@@ -192,8 +287,12 @@ async function buildObject(root: string, spec: ElementSpec): Promise<THREE.Objec
       return lifted(await cross(load, spec.plant.texture), 0.5);
     case "tree":
       return tree(load, spec.tree);
-    case "mob":
-      return mob(load, spec.mob.model, spec.mob.texture);
+    case "mob": {
+      if (spec.mob.model !== "blockbench") return mob(load, spec.mob.model, spec.mob.texture);
+      if (!spec.mob.blockbench) return null;
+      const { model } = await api().loadBlockbench(root, spec.mob.blockbench);
+      return model ? blockbenchMob(load, model, spec.mob.texture) : null;
+    }
     case "armor": {
       const group = new THREE.Group();
       const pieces = Object.values(spec.armor.pieces).filter((f): f is string => !!f);
@@ -214,6 +313,10 @@ export function Preview({ root, spec, version }: { root: string; spec: ElementSp
   const host = useRef<HTMLDivElement>(null);
   const scene = useRef<{ scene: THREE.Scene; object: THREE.Object3D | null } | null>(null);
   const [failed, setFailed] = useState(false);
+  const [animated, setAnimated] = useState(false);
+  const [walking, setWalking] = useState(false);
+  const walkingRef = useRef(walking);
+  walkingRef.current = walking;
 
   useEffect(() => {
     const el = host.current!;
@@ -245,7 +348,9 @@ export function Preview({ root, spec, version }: { root: string; spec: ElementSp
     };
     const observer = new ResizeObserver(resize);
     observer.observe(el);
+    const clock = new THREE.Clock();
     renderer.setAnimationLoop(() => {
+      scene.current?.object?.userData.tick?.(clock.getElapsedTime(), walkingRef.current);
       controls.update();
       renderer.render(s, camera);
     });
@@ -266,6 +371,7 @@ export function Preview({ root, spec, version }: { root: string; spec: ElementSp
       if (s.object) s.scene.remove(s.object);
       s.object = object;
       if (object) s.scene.add(object);
+      setAnimated(!!object?.userData.tick);
     });
     return () => {
       cancelled = true;
@@ -278,6 +384,11 @@ export function Preview({ root, spec, version }: { root: string; spec: ElementSp
       <div className="preview-canvas" ref={host} />
       {failed && <div className="preview-note">3D preview needs WebGL, which this computer's graphics driver did not provide.</div>}
       {!failed && !supported && <div className="preview-note">No 3D preview for this element yet.</div>}
+      {animated && (
+        <label className="preview-toggle">
+          <input type="checkbox" checked={walking} onChange={(e) => setWalking(e.target.checked)} /> Walking
+        </label>
+      )}
     </div>
   );
 }
