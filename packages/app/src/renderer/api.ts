@@ -1,5 +1,19 @@
 import type { BlockSpec, ElementSpec, ItemSpec, Project, RecipeSpec } from "@modcreator/core/schema";
 
+/** Mirrors ItemIcon and CatalogEntry in core/src/vanilla.ts, which the window can't import (it uses Node). */
+export type ItemIcon = { kind: "flat"; texture: string } | { kind: "cube"; top: string; left: string; right: string };
+export interface CatalogEntry {
+  id: string;
+  name: string;
+}
+
+export interface VanillaCatalog {
+  /** The Minecraft jar the names and icons come from, or null when none was found. */
+  jar: string | null;
+  items: CatalogEntry[];
+  tags: CatalogEntry[];
+}
+
 export type { BlockSpec, ElementSpec, ItemSpec, Project, RecipeSpec };
 
 export interface Issue {
@@ -41,6 +55,9 @@ export interface ModCreatorApi {
   saveSpec(root: string, rel: string, value: unknown): Promise<void>;
   deleteSpec(root: string, rel: string): Promise<void>;
   dataUrl(root: string, rel: string): Promise<string | null>;
+  loadVanilla(version: string): Promise<VanillaCatalog>;
+  pickMinecraftJar(version: string): Promise<VanillaCatalog | null>;
+  vanillaIcon(id: string): Promise<ItemIcon | null>;
   generate(root: string): Promise<GenerateResult>;
   runGradle(root: string, task: "build" | "runClient" | "clean"): Promise<number>;
   stopGradle(): Promise<void>;

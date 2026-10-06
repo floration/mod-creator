@@ -4,12 +4,13 @@ import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { app, BrowserWindow, dialog, ipcMain, shell } from "electron";
-import { createProject, generate, loadProject, type CreateOptions } from "@modcreator/core";
+import { VanillaAssets, createProject, findMinecraftJar, generate, loadProject, type CreateOptions } from "@modcreator/core";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 let window: BrowserWindow | null = null;
 let gradle: ChildProcess | null = null;
 let watcher: FSWatcher | null = null;
+let vanilla: { jar: string; assets: VanillaAssets } | null = null;
 
 /** Resolve a project-relative path and refuse anything that escapes the project folder. */
 function inside(root: string, rel: string): string {
@@ -89,6 +90,43 @@ ipcMain.handle("file:dataUrl", async (_e, root: string, rel: string) => {
   const mime = file.endsWith(".png") ? "image/png" : "application/octet-stream";
   return `data:${mime};base64,${(await readFile(file)).toString("base64")}`;
 });
+
+/** App settings that belong to this computer rather than to a mod project. */
+const settingsFile = () => path.join(app.getPath("userData"), "settings.json");
+async function settings(): Promise<{ minecraftJar?: string }> {
+  try {
+    return JSON.parse(await readFile(settingsFile(), "utf8"));
+  } catch {
+    return {};
+  }
+}
+
+/** Minecraft's own items come from the player's client jar: the one they picked, else Loom's cache or a launcher's. */
+async function openVanilla(version: string, jar?: string) {
+  jar ??= (await settings()).minecraftJar;
+  if (!jar || !existsSync(jar)) jar = findMinecraftJar(version) ?? undefined;
+  if (!jar) return { jar: null, items: [], tags: [] };
+  if (vanilla?.jar !== jar) vanilla = { jar, assets: await VanillaAssets.open(jar) };
+  return { jar, ...vanilla.assets.catalog() };
+}
+
+ipcMain.handle("vanilla:load", (_e, version: string) => openVanilla(version));
+
+ipcMain.handle("vanilla:pickJar", async (_e, version: string) => {
+  const result = await dialog.showOpenDialog(window!, {
+    title: `Choose a Minecraft ${version} client jar`,
+    filters: [{ name: "Minecraft jar", extensions: ["jar"] }],
+    properties: ["openFile"],
+  });
+  if (result.canceled) return null;
+  const jar = result.filePaths[0];
+  const loaded = await openVanilla(version, jar);
+  await mkdir(path.dirname(settingsFile()), { recursive: true });
+  await writeFile(settingsFile(), JSON.stringify({ ...(await settings()), minecraftJar: jar }, null, 2));
+  return loaded;
+});
+
+ipcMain.handle("vanilla:icon", (_e, id: string) => vanilla?.assets.icon(id) ?? null);
 
 ipcMain.handle("project:generate", async (_e, root: string) => generate(root));
 

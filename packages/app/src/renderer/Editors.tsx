@@ -1,3 +1,5 @@
+import { useContext, useEffect, useMemo, useState } from "react";
+import { EMPTY_SLOTS, listFromSlots, patternFromSlots, sameShape, slotsFromList, slotsFromPattern, type Slots } from "@modcreator/core/recipe-grid";
 import { CreativeTab, OreHost, SoundType } from "@modcreator/core/schema";
 import {
   CheckField,
@@ -11,6 +13,7 @@ import {
   type Draft,
   type Errors,
 } from "./forms";
+import { ItemContext, ItemIconView, ItemPicker, acceptsItem, dragItem, droppedItem, itemInfo } from "./items";
 
 interface EditorProps {
   draft: Draft;
@@ -129,74 +132,188 @@ const RECIPE_TEMPLATES: Record<string, (result: Draft) => Draft> = {
   campfire_cooking: (result) => ({ type: "campfire_cooking", ingredient: "", result, experience: 0.1, cookingTime: 600 }),
 };
 
+const RECIPE_TYPE_NAMES: Record<string, string> = {
+  shaped: "Crafting table, shaped",
+  shapeless: "Crafting table, any arrangement",
+  smelting: "Furnace",
+  blasting: "Blast furnace",
+  smoking: "Smoker",
+  campfire_cooking: "Campfire",
+};
+
+/** The table's contents as the spec stores them, whatever the recipe type. */
+function recipeSlots(recipe: Draft | undefined): Slots {
+  if (recipe?.type === "shaped") return slotsFromPattern(recipe.pattern ?? [], recipe.key ?? {});
+  if (recipe?.type === "shapeless") return slotsFromList(recipe.ingredients ?? []);
+  return [recipe?.ingredient || null, ...EMPTY_SLOTS.slice(1)];
+}
+
+/** Write the table back into the recipe: pattern and key for shaped, a list for shapeless, one slot for cooking. */
+function withSlots(recipe: Draft, slots: Slots): Draft {
+  if (recipe.type === "shaped") return { ...recipe, ...patternFromSlots(slots, recipe.key ?? {}) };
+  if (recipe.type === "shapeless") return { ...recipe, ingredients: listFromSlots(slots) };
+  return { ...recipe, ingredient: slots[0] ?? "" };
+}
+
+function Slot(p: { refId: string | null; label: string; held: string | null; onSet: (ref: string | null, from?: number) => void; onHold: (ref: string) => void; index?: number; big?: boolean }) {
+  const world = useContext(ItemContext)!;
+  const [over, setOver] = useState(false);
+  const info = p.refId ? itemInfo(world, p.refId) : null;
+  return (
+    <div className={`slot-cell${p.big ? " big" : ""}`}>
+      <button
+        className={`slot${over ? " over" : ""}${info && !info.known ? " unknown" : ""}`}
+        aria-label={info ? `${p.label}: ${info.name}` : `${p.label}: empty`}
+        title={p.refId ? `${info!.name}\n${p.refId} (${info!.source})\nRight-click to empty` : p.held ? "Click to place" : "Empty. Pick an item below first."}
+        onClick={() => {
+          if (p.held) p.onSet(p.held);
+          else if (p.refId) p.onHold(p.refId);
+        }}
+        onContextMenu={(e) => {
+          e.preventDefault();
+          p.onSet(null);
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Delete" || e.key === "Backspace") p.onSet(null);
+        }}
+        draggable={!!p.refId}
+        onDragStart={(e) => p.refId && dragItem(e, p.refId, p.index)}
+        onDragOver={(e) => {
+          if (!acceptsItem(e)) return;
+          e.preventDefault();
+          setOver(true);
+        }}
+        onDragLeave={() => setOver(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          setOver(false);
+          const dropped = droppedItem(e);
+          if (dropped) p.onSet(dropped.ref, dropped.from);
+        }}
+      >
+        {p.refId && <ItemIconView refId={p.refId} size={p.big ? 44 : 36} />}
+      </button>
+      <span className={`slot-name${info && !info.known ? " bad" : ""}`}>{info ? info.name : ""}</span>
+    </div>
+  );
+}
+
 export function RecipeEditor(p: EditorProps) {
   const f = { draft: p.draft, errors: p.errors, onChange: p.onChange };
-  const type: string = getAt(p.draft, ["recipe", "type"]) ?? "shaped";
-  const key: Record<string, string> = getAt(p.draft, ["recipe", "key"]) ?? {};
-  const pattern: string[] = getAt(p.draft, ["recipe", "pattern"]) ?? [];
+  const world = useContext(ItemContext);
+  const recipe: Draft = getAt(p.draft, ["recipe"]) ?? {};
+  const type: string = recipe.type ?? "shaped";
+  const cooking = !["shaped", "shapeless"].includes(type);
+  const result: string | null = getAt(p.draft, ["recipe", "result", "item"]) || null;
+  const [held, setHeld] = useState<string | null>(null);
+
+  // The table is kept here so a shape doesn't jump to the top-left corner while you build it.
+  // It is reset from the spec only when the spec changes to a different recipe (another file, or a hand edit).
+  const fromSpec = useMemo(() => recipeSlots(recipe), [JSON.stringify(recipe)]);
+  const [slots, setSlots] = useState<Slots>(fromSpec);
+  useEffect(() => {
+    const same = type === "shaped" ? sameShape(slots, fromSpec) : JSON.stringify(listFromSlots(slots)) === JSON.stringify(listFromSlots(fromSpec));
+    if (!same) setSlots(fromSpec);
+  }, [fromSpec]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setHeld(null);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  const writeSlots = (next: Slots) => {
+    setSlots(next);
+    p.onChange(setAt(p.draft, ["recipe"], withSlots(recipe, next)));
+  };
+  const setSlot = (i: number) => (ref: string | null, from?: number) => {
+    const next = [...slots];
+    // Dragging from another slot moves the item rather than copying it.
+    if (from !== undefined && from !== i) next[from] = null;
+    next[i] = ref;
+    writeSlots(next);
+  };
+  const setResult = (ref: string | null) => p.onChange(setAt(p.draft, ["recipe", "result", "item"], ref ?? ""));
+  const changeType = (next: string) => {
+    const fresh = RECIPE_TEMPLATES[next](getAt(p.draft, ["recipe", "result"]) ?? { item: "", count: 1 });
+    // Keep what's in the table when switching between crafting and cooking types.
+    const carried = next === "shaped" || next === "shapeless" ? (cooking ? slots.slice(0, 1) : slots) : listFromSlots(slots).slice(0, 1);
+    p.onChange(setAt(p.draft, ["recipe"], withSlots(fresh, [...carried, ...EMPTY_SLOTS].slice(0, 9))));
+  };
+
+  if (!world) return null;
   return (
     <>
       <Section title="General">
         <TextField {...f} path={["id"]} label="Id" />
         <label className="field">
-          <span className="field-label">Type</span>
-          <select
-            value={type}
-            onChange={(e) => p.onChange(setAt(p.draft, ["recipe"], RECIPE_TEMPLATES[e.target.value](getAt(p.draft, ["recipe", "result"]) ?? { item: "", count: 1 })))}
-          >
+          <span className="field-label">Made in</span>
+          <select value={type} onChange={(e) => changeType(e.target.value)}>
             {Object.keys(RECIPE_TEMPLATES).map((t) => (
               <option key={t} value={t}>
-                {t.replaceAll("_", " ")}
+                {RECIPE_TYPE_NAMES[t]}
               </option>
             ))}
           </select>
         </label>
       </Section>
-      {type === "shaped" && (
-        <Section title="Crafting grid">
-          <div className="grid-pattern">
-            {[0, 1, 2].map((row) => (
-              <input
-                key={row}
-                maxLength={3}
-                value={pattern[row] ?? ""}
-                placeholder="   "
-                onChange={(e) => {
-                  const next = [...pattern];
-                  next[row] = e.target.value;
-                  while (next.length && !next[next.length - 1]?.trim()) next.pop();
-                  p.onChange(setAt(p.draft, ["recipe", "pattern"], next.length ? next : [""]));
-                }}
-              />
-            ))}
-          </div>
-          <span className="field-hint">One letter per slot, space for empty. Then say what each letter means below.</span>
-          {[...new Set(pattern.join("").replaceAll(" ", ""))].map((ch) => (
-            <TextField key={ch} {...f} path={["recipe", "key", ch]} label={`"${ch}" is`} placeholder="ruby, minecraft:stick or #minecraft:planks" />
-          ))}
-          {Object.keys(key).filter((k) => !pattern.join("").includes(k)).length > 0 && (
-            <button className="link" onClick={() => p.onChange(setAt(p.draft, ["recipe", "key"], Object.fromEntries(Object.entries(key).filter(([k]) => pattern.join("").includes(k)))))}>
-              Remove unused letters
-            </button>
+      <Section title={cooking ? RECIPE_TYPE_NAMES[type] : "Crafting table"}>
+        <div className="crafting">
+          {cooking ? (
+            <div className="cook-input">
+              <Slot refId={slots[0]} index={0} label="Ingredient" held={held} onHold={setHeld} onSet={setSlot(0)} />
+              <span className={`flame flame-${type}`} aria-hidden />
+            </div>
+          ) : (
+            <div className="craft-grid">
+              {slots.map((ref, i) => (
+                <Slot key={i} refId={ref} index={i} label={`Slot ${i + 1}`} held={held} onHold={setHeld} onSet={setSlot(i)} />
+              ))}
+            </div>
           )}
-        </Section>
-      )}
-      {type === "shapeless" && (
-        <Section title="Ingredients">
-          <ListField {...f} path={["recipe", "ingredients"]} label="Ingredients" placeholder="ruby_block" hint="Comma-separated, up to 9" />
-        </Section>
-      )}
-      {!["shaped", "shapeless"].includes(type) && (
+          <span className="craft-arrow" aria-hidden>→</span>
+          <div className="craft-result">
+            <Slot refId={result} label="Result" big held={held} onHold={setHeld} onSet={(ref) => setResult(ref)} />
+            <label className="count">
+              <span className="muted">×</span>
+              <input
+                type="number"
+                min={1}
+                max={99}
+                value={getAt(p.draft, ["recipe", "result", "count"]) ?? 1}
+                onChange={(e) => p.onChange(setAt(p.draft, ["recipe", "result", "count"], e.target.value === "" ? undefined : Number(e.target.value)))}
+              />
+            </label>
+          </div>
+        </div>
+        {["recipe.pattern", "recipe.key", "recipe.ingredients", "recipe.ingredient", "recipe.result.item"].map((k) =>
+          p.errors.get(k) ? <div key={k} className="field-error">{p.errors.get(k)}</div> : null,
+        )}
+        <div className="held-bar">
+          {held ? (
+            <>
+              <ItemIconView refId={held} size={20} />
+              <span>
+                Holding <strong>{itemInfo(world, held).name}</strong>. Click slots to place it.
+              </span>
+              <button className="link" onClick={() => setHeld(null)}>Let go (Esc)</button>
+            </>
+          ) : (
+            <span className="muted">Pick an item below, then click slots to place it, or drag it in. Right-click a slot to empty it.</span>
+          )}
+          <span className="spacer" />
+          {!cooking && listFromSlots(slots).length > 0 && <button className="link" onClick={() => writeSlots([...EMPTY_SLOTS])}>Clear table</button>}
+        </div>
+        {type === "shaped" && <span className="field-hint">The shape works anywhere in the table, so empty rows and columns around it aren't saved.</span>}
+        {type === "shapeless" && <span className="field-hint">The ingredients can go in any slots in game.</span>}
+        <ItemPicker held={held} onHold={setHeld} />
+      </Section>
+      {cooking && (
         <Section title="Cooking">
-          <TextField {...f} path={["recipe", "ingredient"]} label="Ingredient" />
           <NumberField {...f} path={["recipe", "experience"]} label="Experience" step={0.1} min={0} />
           <NumberField {...f} path={["recipe", "cookingTime"]} label="Cooking time (ticks)" min={1} hint="20 ticks = 1 second" />
         </Section>
       )}
-      <Section title="Result">
-        <TextField {...f} path={["recipe", "result", "item"]} label="Item" />
-        <NumberField {...f} path={["recipe", "result", "count"]} label="Count" min={1} max={99} />
-      </Section>
     </>
   );
 }
