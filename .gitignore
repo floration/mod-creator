@@ -8,3 +8,4 @@ examples/*/build/
 examples/*/.gradle/
 examples/*/run/
 examples/*/src/generated/
+*.tsbuildinfo
