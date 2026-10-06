@@ -27,7 +27,7 @@ if [ -n "$checks" ]; then
   mkdir -p "$pack/data/check/function" "$pack/data/minecraft/tags/function"
   echo '{"pack":{"description":"Mod Creator CI check","pack_format":121,"min_format":121,"max_format":121}}' > "$pack/pack.mcmeta"
   echo '{"values":["check:load"]}' > "$pack/data/minecraft/tags/function/load.json"
-  printf 'scoreboard objectives add check dummy\nforceload add -32 -32 31 31\nschedule function check:place 100t\n' > "$pack/data/check/function/load.mcfunction"
+  printf 'scoreboard objectives add check dummy\nforceload add -32 -32 255 31\nschedule function check:place 100t\n' > "$pack/data/check/function/load.mcfunction"
   : > "$pack/data/check/function/place.mcfunction"
   for id in $structures; do
     for what in template structure; do
@@ -39,15 +39,16 @@ execute unless score #placed check matches 1 run say MODCREATOR CHECK FAILED to 
 MCFUNCTION
     done
   done
-  # Trees grow in open air, spaced apart, so only a broken feature fails to place.
-  x=100
+  # Trees grow in open air east of the structures, spaced apart and inside the forceloaded chunks, so only a
+  # broken feature fails to place.
+  x=48
   for id in $trees; do
     cat >> "$pack/data/check/function/place.mcfunction" <<MCFUNCTION
-execute store success score #placed check run place feature $id $x 200 100
+execute store success score #placed check run place feature $id $x 200 0
 execute if score #placed check matches 1 run say MODCREATOR CHECK placed feature $id
 execute unless score #placed check matches 1 run say MODCREATOR CHECK FAILED to place feature $id
 MCFUNCTION
-    x=$((x + 40))
+    x=$((x + 24))
   done
   echo 'say MODCREATOR CHECK done' >> "$pack/data/check/function/place.mcfunction"
 fi
