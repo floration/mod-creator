@@ -660,33 +660,82 @@ const ORE_TARGETS: Record<OreSpec["ore"]["replaces"], { host: "stone" | "deepsla
   end_stone: [{ host: "stone", test: { predicate_type: "minecraft:block_match", block: "minecraft:end_stone" } }],
 };
 
+/** Feature JSON for an ore of each shape, in the format of the game's own `worldgen/feature` files. */
+function oreFeature(modId: string, o: OreSpec): unknown {
+  const ore = o.ore;
+  const block = resolveRef(modId, ore.block);
+  const deepslate = resolveRef(modId, ore.deepslateBlock ?? ore.block);
+  switch (ore.shape) {
+    case "blob":
+    case "scattered":
+      return {
+        type: ore.shape === "blob" ? "minecraft:ore" : "minecraft:scattered_ore",
+        size: ore.veinSize,
+        discard_chance_on_air_exposure: ore.airExposureSkip,
+        targets: ORE_TARGETS[ore.replaces].map((t) => ({
+          target: t.test,
+          state: t.host === "deepslate" ? deepslate : block,
+        })),
+      };
+    case "disk": {
+      const replaces = [...new Set([...ore.disk.replaces.map((r) => resolveRef(modId, r)), block])];
+      return {
+        type: "minecraft:disk",
+        half_height: ore.disk.halfHeight,
+        radius: { type: "minecraft:uniform", min_inclusive: ore.disk.radiusMin, max_inclusive: ore.disk.radiusMax },
+        state_provider: { id: block },
+        target: { type: "minecraft:matching_blocks", blocks: replaces },
+      };
+    }
+    case "geode": {
+      const g = ore.geode;
+      const budding = g.buddingBlock ? resolveRef(modId, g.buddingBlock) : block;
+      return {
+        type: "minecraft:geode",
+        blocks: {
+          filling_provider: { id: "minecraft:air" },
+          inner_layer_provider: { id: block },
+          alternate_inner_layer_provider: { id: budding },
+          middle_layer_provider: { id: resolveRef(modId, g.middleBlock) },
+          outer_layer_provider: { id: resolveRef(modId, g.outerBlock) },
+          // The game needs at least one; without a budding block nothing is placed, so the inner block stands in.
+          inner_placements: g.crystals.length ? g.crystals.map((c) => resolveRef(modId, c)) : [block],
+          cannot_replace: "#minecraft:features_cannot_replace",
+          invalid_blocks: "#minecraft:geode_invalid_blocks",
+        },
+        crack: { generate_crack_chance: g.crackChance },
+        invalid_blocks_threshold: 1,
+        layers: {},
+        outer_wall_distance: { type: "minecraft:uniform", min_inclusive: 4, max_inclusive: 6 },
+        use_alternate_layer0_chance: g.buddingBlock ? g.buddingChance : 0,
+      };
+    }
+  }
+}
+
 /**
- * An ore vein: a feature (26.3 moved configured features to `worldgen/feature` and inlined their config)
- * and a placed feature that says how many veins per chunk and at what heights.
+ * An ore: a feature (26.3 moved configured features to `worldgen/feature` and inlined their config)
+ * and a placed feature that says how many per chunk and where. Disks go on the floors of water like
+ * vanilla clay; the other shapes go between two heights.
  */
 function oreFiles(out: Output, o: OreSpec) {
   const modId = out.modId;
-  const block = resolveRef(modId, o.ore.block);
-  const deepslate = resolveRef(modId, o.ore.deepslateBlock ?? o.ore.block);
-  out.set(`data/${modId}/worldgen/feature/${o.id}.json`, {
-    type: "minecraft:ore",
-    size: o.ore.veinSize,
-    discard_chance_on_air_exposure: o.ore.airExposureSkip,
-    targets: ORE_TARGETS[o.ore.replaces].map((t) => ({
-      target: t.test,
-      state: t.host === "deepslate" ? deepslate : block,
-    })),
-  });
-  const range = { min_inclusive: { absolute: o.ore.minY }, max_inclusive: { absolute: o.ore.maxY } };
+  const ore = o.ore;
+  out.set(`data/${modId}/worldgen/feature/${o.id}.json`, oreFeature(modId, o));
+  const range = { min_inclusive: { absolute: ore.minY }, max_inclusive: { absolute: ore.maxY } };
+  const where =
+    ore.shape === "disk"
+      ? [
+          { type: "minecraft:heightmap", heightmap: "OCEAN_FLOOR_WG" },
+          { type: "minecraft:block_predicate_filter", predicate: { type: "minecraft:matching_fluids", fluids: "minecraft:water" } },
+        ]
+      : [{ type: "minecraft:height_range", height: { type: ore.distribution === "uniform" ? "minecraft:uniform" : "minecraft:trapezoid", ...range } }];
   out.set(`data/${modId}/worldgen/placed_feature/${o.id}.json`, {
     feature: `${modId}:${o.id}`,
     placement: [
-      { type: "minecraft:count", count: o.ore.veinsPerChunk },
+      ore.chunksPerVein ? { type: "minecraft:rarity_filter", chance: ore.chunksPerVein } : { type: "minecraft:count", count: ore.veinsPerChunk },
       { type: "minecraft:in_square" },
-      {
-        type: "minecraft:height_range",
-        height: o.ore.distribution === "uniform" ? { type: "minecraft:uniform", ...range } : { type: "minecraft:trapezoid", ...range },
-      },
+      ...where,
       { type: "minecraft:biome" },
     ],
   });

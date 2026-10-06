@@ -1,0 +1,18 @@
+{
+  "$schema": "../../.modcreator/schema/tool.json",
+  "kind": "tool",
+  "id": "azurite_hoe",
+  "name": "Azurite Hoe",
+  "creativeTab": "tools_and_utilities",
+  "tool": {
+    "type": "hoe",
+    "texture": "art/azurite_hoe.png",
+    "tier": "iron",
+    "durability": 600,
+    "miningSpeed": 7,
+    "attackDamage": 0.5,
+    "attackSpeed": -1.0,
+    "enchantability": 18,
+    "repairItem": "azurite"
+  }
+}
