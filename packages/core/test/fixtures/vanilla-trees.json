@@ -3,228 +3,205 @@
   "configs": {
     "oak": {
       "trunk_placer": {
-        "type": "minecraft:straight_trunk_placer",
         "base_height": 4,
         "height_rand_a": 2,
-        "height_rand_b": 0
+        "height_rand_b": 0,
+        "type": "minecraft:straight_trunk_placer"
       },
       "foliage_placer": {
-        "type": "minecraft:blob_foliage_placer",
         "radius": 2,
         "offset": 0,
-        "height": 3
+        "height": 3,
+        "type": "minecraft:blob_foliage_placer"
       },
       "minimum_size": {
-        "type": "minecraft:two_layers_feature_size",
-        "limit": 1,
-        "lower_size": 0,
-        "upper_size": 1
+        "type": "minecraft:two_layers_feature_size"
       }
     },
     "fancy_oak": {
       "trunk_placer": {
-        "type": "minecraft:fancy_trunk_placer",
         "base_height": 3,
         "height_rand_a": 11,
-        "height_rand_b": 0
+        "height_rand_b": 0,
+        "type": "minecraft:fancy_trunk_placer"
       },
       "foliage_placer": {
-        "type": "minecraft:fancy_foliage_placer",
         "radius": 2,
         "offset": 4,
-        "height": 4
+        "height": 4,
+        "type": "minecraft:fancy_foliage_placer"
       },
       "minimum_size": {
-        "type": "minecraft:two_layers_feature_size",
         "limit": 0,
-        "lower_size": 0,
         "upper_size": 0,
-        "min_clipped_height": 4
+        "min_clipped_height": 4,
+        "type": "minecraft:two_layers_feature_size"
       }
     },
     "birch": {
       "trunk_placer": {
-        "type": "minecraft:straight_trunk_placer",
         "base_height": 5,
         "height_rand_a": 2,
-        "height_rand_b": 0
+        "height_rand_b": 0,
+        "type": "minecraft:straight_trunk_placer"
       },
       "foliage_placer": {
-        "type": "minecraft:blob_foliage_placer",
         "radius": 2,
         "offset": 0,
-        "height": 3
+        "height": 3,
+        "type": "minecraft:blob_foliage_placer"
       },
       "minimum_size": {
-        "type": "minecraft:two_layers_feature_size",
-        "limit": 1,
-        "lower_size": 0,
-        "upper_size": 1
+        "type": "minecraft:two_layers_feature_size"
       }
     },
     "super_birch": {
       "trunk_placer": {
-        "type": "minecraft:straight_trunk_placer",
         "base_height": 5,
         "height_rand_a": 2,
-        "height_rand_b": 6
+        "height_rand_b": 6,
+        "type": "minecraft:straight_trunk_placer"
       },
       "foliage_placer": {
-        "type": "minecraft:blob_foliage_placer",
         "radius": 2,
         "offset": 0,
-        "height": 3
+        "height": 3,
+        "type": "minecraft:blob_foliage_placer"
       },
       "minimum_size": {
-        "type": "minecraft:two_layers_feature_size",
-        "limit": 1,
-        "lower_size": 0,
-        "upper_size": 1
+        "type": "minecraft:two_layers_feature_size"
       }
     },
     "jungle": {
       "trunk_placer": {
-        "type": "minecraft:straight_trunk_placer",
         "base_height": 4,
         "height_rand_a": 8,
-        "height_rand_b": 0
+        "height_rand_b": 0,
+        "type": "minecraft:straight_trunk_placer"
       },
       "foliage_placer": {
-        "type": "minecraft:blob_foliage_placer",
         "radius": 2,
         "offset": 0,
-        "height": 3
+        "height": 3,
+        "type": "minecraft:blob_foliage_placer"
       },
       "minimum_size": {
-        "type": "minecraft:two_layers_feature_size",
-        "limit": 1,
-        "lower_size": 0,
-        "upper_size": 1
+        "type": "minecraft:two_layers_feature_size"
       }
     },
     "swamp_oak": {
       "trunk_placer": {
-        "type": "minecraft:straight_trunk_placer",
         "base_height": 5,
         "height_rand_a": 3,
-        "height_rand_b": 0
+        "height_rand_b": 0,
+        "type": "minecraft:straight_trunk_placer"
       },
       "foliage_placer": {
-        "type": "minecraft:blob_foliage_placer",
         "radius": 3,
         "offset": 0,
-        "height": 3
+        "height": 3,
+        "type": "minecraft:blob_foliage_placer"
       },
       "minimum_size": {
-        "type": "minecraft:two_layers_feature_size",
-        "limit": 1,
-        "lower_size": 0,
-        "upper_size": 1
+        "type": "minecraft:two_layers_feature_size"
       }
     },
     "jungle_bush": {
       "trunk_placer": {
-        "type": "minecraft:straight_trunk_placer",
         "base_height": 1,
         "height_rand_a": 0,
-        "height_rand_b": 0
+        "height_rand_b": 0,
+        "type": "minecraft:straight_trunk_placer"
       },
       "foliage_placer": {
-        "type": "minecraft:bush_foliage_placer",
         "radius": 2,
         "offset": 1,
-        "height": 2
+        "height": 2,
+        "type": "minecraft:bush_foliage_placer"
       },
       "minimum_size": {
-        "type": "minecraft:two_layers_feature_size",
         "limit": 0,
-        "lower_size": 0,
-        "upper_size": 0
+        "upper_size": 0,
+        "type": "minecraft:two_layers_feature_size"
       }
     },
     "spruce": {
       "trunk_placer": {
-        "type": "minecraft:straight_trunk_placer",
         "base_height": 5,
         "height_rand_a": 2,
-        "height_rand_b": 1
+        "height_rand_b": 1,
+        "type": "minecraft:straight_trunk_placer"
       },
       "foliage_placer": {
-        "type": "minecraft:spruce_foliage_placer",
         "radius": {
-          "type": "minecraft:uniform",
           "min_inclusive": 2,
-          "max_inclusive": 3
+          "max_inclusive": 3,
+          "type": "minecraft:uniform"
         },
         "offset": {
-          "type": "minecraft:uniform",
           "min_inclusive": 0,
-          "max_inclusive": 2
+          "max_inclusive": 2,
+          "type": "minecraft:uniform"
         },
         "trunk_height": {
-          "type": "minecraft:uniform",
           "min_inclusive": 1,
-          "max_inclusive": 2
-        }
+          "max_inclusive": 2,
+          "type": "minecraft:uniform"
+        },
+        "type": "minecraft:spruce_foliage_placer"
       },
       "minimum_size": {
-        "type": "minecraft:two_layers_feature_size",
         "limit": 2,
-        "lower_size": 0,
-        "upper_size": 2
+        "upper_size": 2,
+        "type": "minecraft:two_layers_feature_size"
       }
     },
     "pine": {
       "trunk_placer": {
-        "type": "minecraft:straight_trunk_placer",
         "base_height": 6,
         "height_rand_a": 4,
-        "height_rand_b": 0
+        "height_rand_b": 0,
+        "type": "minecraft:straight_trunk_placer"
       },
       "foliage_placer": {
-        "type": "minecraft:pine_foliage_placer",
         "radius": 1,
         "offset": 1,
         "height": {
-          "type": "minecraft:uniform",
           "min_inclusive": 3,
-          "max_inclusive": 4
-        }
+          "max_inclusive": 4,
+          "type": "minecraft:uniform"
+        },
+        "type": "minecraft:pine_foliage_placer"
       },
       "minimum_size": {
-        "type": "minecraft:two_layers_feature_size",
         "limit": 2,
-        "lower_size": 0,
-        "upper_size": 2
+        "upper_size": 2,
+        "type": "minecraft:two_layers_feature_size"
       }
     },
     "acacia": {
       "trunk_placer": {
-        "type": "minecraft:forking_trunk_placer",
         "base_height": 5,
         "height_rand_a": 2,
-        "height_rand_b": 2
+        "height_rand_b": 2,
+        "type": "minecraft:forking_trunk_placer"
       },
       "foliage_placer": {
-        "type": "minecraft:acacia_foliage_placer",
         "radius": 2,
-        "offset": 0
+        "offset": 0,
+        "type": "minecraft:acacia_foliage_placer"
       },
       "minimum_size": {
-        "type": "minecraft:two_layers_feature_size",
-        "limit": 1,
-        "lower_size": 0,
-        "upper_size": 2
+        "upper_size": 2,
+        "type": "minecraft:two_layers_feature_size"
       }
     },
     "cherry": {
       "trunk_placer": {
-        "type": "minecraft:cherry_trunk_placer",
         "base_height": 7,
         "height_rand_a": 1,
         "height_rand_b": 0,
         "branch_count": {
-          "type": "minecraft:weighted_list",
           "distribution": [
             {
               "data": 1,
@@ -238,84 +215,79 @@
               "data": 3,
               "weight": 1
             }
-          ]
+          ],
+          "type": "minecraft:weighted_list"
         },
         "branch_horizontal_length": {
-          "type": "minecraft:uniform",
           "min_inclusive": 2,
-          "max_inclusive": 4
+          "max_inclusive": 4,
+          "type": "minecraft:uniform"
         },
         "branch_start_offset_from_top": {
           "min_inclusive": -4,
           "max_inclusive": -3
         },
         "branch_end_offset_from_top": {
-          "type": "minecraft:uniform",
           "min_inclusive": -1,
-          "max_inclusive": 0
-        }
+          "max_inclusive": 0,
+          "type": "minecraft:uniform"
+        },
+        "type": "minecraft:cherry_trunk_placer"
       },
       "foliage_placer": {
-        "type": "minecraft:cherry_foliage_placer",
         "radius": 4,
         "offset": 0,
         "height": 5,
         "wide_bottom_layer_hole_chance": 0.25,
         "corner_hole_chance": 0.5,
         "hanging_leaves_chance": 0.16666667,
-        "hanging_leaves_extension_chance": 0.33333334
+        "hanging_leaves_extension_chance": 0.33333334,
+        "type": "minecraft:cherry_foliage_placer"
       },
       "minimum_size": {
-        "type": "minecraft:two_layers_feature_size",
-        "limit": 1,
-        "lower_size": 0,
-        "upper_size": 2
+        "upper_size": 2,
+        "type": "minecraft:two_layers_feature_size"
       }
     },
     "azalea": {
       "trunk_placer": {
-        "type": "minecraft:bending_trunk_placer",
         "base_height": 4,
         "height_rand_a": 2,
         "height_rand_b": 0,
         "min_height_for_leaves": 3,
         "bend_length": {
-          "type": "minecraft:uniform",
           "min_inclusive": 1,
-          "max_inclusive": 2
-        }
+          "max_inclusive": 2,
+          "type": "minecraft:uniform"
+        },
+        "type": "minecraft:bending_trunk_placer"
       },
       "foliage_placer": {
-        "type": "minecraft:random_spread_foliage_placer",
         "radius": 3,
         "offset": 0,
         "foliage_height": 2,
-        "leaf_placement_attempts": 50
+        "leaf_placement_attempts": 50,
+        "type": "minecraft:random_spread_foliage_placer"
       },
       "minimum_size": {
-        "type": "minecraft:two_layers_feature_size",
-        "limit": 1,
-        "lower_size": 0,
-        "upper_size": 1
+        "type": "minecraft:two_layers_feature_size"
       }
     },
     "poplar": {
       "trunk_placer": {
-        "type": "minecraft:poplar_trunk_placer",
         "base_height": 7,
         "height_rand_a": 4,
         "height_rand_b": 0,
         "trunk_height_above_branches": 4,
         "branch_amount": {
-          "type": "minecraft:uniform",
           "min_inclusive": 1,
-          "max_inclusive": 4
-        }
+          "max_inclusive": 4,
+          "type": "minecraft:uniform"
+        },
+        "type": "minecraft:poplar_trunk_placer"
       },
       "foliage_placer": {
-        "type": "minecraft:poplar_foliage_placer",
         "radius": {
-          "type": "minecraft:weighted_list",
           "distribution": [
             {
               "data": 5,
@@ -333,161 +305,148 @@
               "data": 8,
               "weight": 1
             }
-          ]
+          ],
+          "type": "minecraft:weighted_list"
         },
         "offset": 0,
         "height": {
-          "type": "minecraft:uniform",
           "min_inclusive": 5,
-          "max_inclusive": 6
+          "max_inclusive": 6,
+          "type": "minecraft:uniform"
         },
-        "side_hole_chance": 0.15
+        "side_hole_chance": 0.15,
+        "type": "minecraft:poplar_foliage_placer"
       },
       "minimum_size": {
-        "type": "minecraft:two_layers_feature_size",
-        "limit": 1,
-        "lower_size": 0,
-        "upper_size": 2
+        "upper_size": 2,
+        "type": "minecraft:two_layers_feature_size"
       }
     },
     "dark_oak": {
       "trunk_placer": {
-        "type": "minecraft:dark_oak_trunk_placer",
         "base_height": 6,
         "height_rand_a": 2,
-        "height_rand_b": 1
+        "height_rand_b": 1,
+        "type": "minecraft:dark_oak_trunk_placer"
       },
       "foliage_placer": {
-        "type": "minecraft:dark_oak_foliage_placer",
         "radius": 0,
-        "offset": 0
+        "offset": 0,
+        "type": "minecraft:dark_oak_foliage_placer"
       },
       "minimum_size": {
-        "type": "minecraft:three_layers_feature_size",
-        "limit": 1,
-        "upper_limit": 1,
-        "lower_size": 0,
-        "middle_size": 1,
-        "upper_size": 2
+        "upper_size": 2,
+        "type": "minecraft:three_layers_feature_size"
       }
     },
     "mega_spruce": {
       "trunk_placer": {
-        "type": "minecraft:giant_trunk_placer",
         "base_height": 13,
         "height_rand_a": 2,
-        "height_rand_b": 14
+        "height_rand_b": 14,
+        "type": "minecraft:giant_trunk_placer"
       },
       "foliage_placer": {
-        "type": "minecraft:mega_pine_foliage_placer",
         "radius": 0,
         "offset": 0,
         "crown_height": {
-          "type": "minecraft:uniform",
           "min_inclusive": 13,
-          "max_inclusive": 17
-        }
+          "max_inclusive": 17,
+          "type": "minecraft:uniform"
+        },
+        "type": "minecraft:mega_pine_foliage_placer"
       },
       "minimum_size": {
-        "type": "minecraft:two_layers_feature_size",
-        "limit": 1,
         "lower_size": 1,
-        "upper_size": 2
+        "upper_size": 2,
+        "type": "minecraft:two_layers_feature_size"
       }
     },
     "mega_pine": {
       "trunk_placer": {
-        "type": "minecraft:giant_trunk_placer",
         "base_height": 13,
         "height_rand_a": 2,
-        "height_rand_b": 14
+        "height_rand_b": 14,
+        "type": "minecraft:giant_trunk_placer"
       },
       "foliage_placer": {
-        "type": "minecraft:mega_pine_foliage_placer",
         "radius": 0,
         "offset": 0,
         "crown_height": {
-          "type": "minecraft:uniform",
           "min_inclusive": 3,
-          "max_inclusive": 7
-        }
+          "max_inclusive": 7,
+          "type": "minecraft:uniform"
+        },
+        "type": "minecraft:mega_pine_foliage_placer"
       },
       "minimum_size": {
-        "type": "minecraft:two_layers_feature_size",
-        "limit": 1,
         "lower_size": 1,
-        "upper_size": 2
+        "upper_size": 2,
+        "type": "minecraft:two_layers_feature_size"
       }
     },
     "mega_jungle": {
       "trunk_placer": {
-        "type": "minecraft:mega_jungle_trunk_placer",
         "base_height": 10,
         "height_rand_a": 2,
-        "height_rand_b": 19
+        "height_rand_b": 19,
+        "type": "minecraft:mega_jungle_trunk_placer"
       },
       "foliage_placer": {
-        "type": "minecraft:jungle_foliage_placer",
         "radius": 2,
         "offset": 0,
-        "height": 2
+        "height": 2,
+        "type": "minecraft:jungle_foliage_placer"
       },
       "minimum_size": {
-        "type": "minecraft:two_layers_feature_size",
-        "limit": 1,
         "lower_size": 1,
-        "upper_size": 2
+        "upper_size": 2,
+        "type": "minecraft:two_layers_feature_size"
       }
     },
     "fancy_oak+trunk4+rand6": {
       "trunk_placer": {
-        "type": "minecraft:fancy_trunk_placer",
         "base_height": 4,
         "height_rand_a": 6,
-        "height_rand_b": 0
+        "height_rand_b": 0,
+        "type": "minecraft:fancy_trunk_placer"
       },
       "foliage_placer": {
-        "type": "minecraft:fancy_foliage_placer",
         "radius": 2,
         "offset": 4,
-        "height": 4
+        "height": 4,
+        "type": "minecraft:fancy_foliage_placer"
       },
       "minimum_size": {
-        "type": "minecraft:two_layers_feature_size",
         "limit": 0,
-        "lower_size": 0,
         "upper_size": 0,
-        "min_clipped_height": 4
+        "min_clipped_height": 4,
+        "type": "minecraft:two_layers_feature_size"
       }
     },
     "oak+radius3": {
       "trunk_placer": {
-        "type": "minecraft:straight_trunk_placer",
         "base_height": 4,
         "height_rand_a": 2,
-        "height_rand_b": 0
+        "height_rand_b": 0,
+        "type": "minecraft:straight_trunk_placer"
       },
       "foliage_placer": {
-        "type": "minecraft:blob_foliage_placer",
         "radius": 3,
         "offset": 0,
-        "height": 3
+        "height": 3,
+        "type": "minecraft:blob_foliage_placer"
       },
       "minimum_size": {
-        "type": "minecraft:two_layers_feature_size",
-        "limit": 1,
-        "lower_size": 0,
-        "upper_size": 1
+        "type": "minecraft:two_layers_feature_size"
       }
     },
     "cherry+trunk10": {
       "trunk_placer": {
-        "type": "minecraft:cherry_trunk_placer",
         "base_height": 10,
         "height_rand_a": 1,
         "height_rand_b": 0,
         "branch_count": {
-          "type": "minecraft:weighted_list",
           "distribution": [
             {
               "data": 1,
@@ -501,57 +460,55 @@
               "data": 3,
               "weight": 1
             }
-          ]
+          ],
+          "type": "minecraft:weighted_list"
         },
         "branch_horizontal_length": {
-          "type": "minecraft:uniform",
           "min_inclusive": 2,
-          "max_inclusive": 4
+          "max_inclusive": 4,
+          "type": "minecraft:uniform"
         },
         "branch_start_offset_from_top": {
           "min_inclusive": -4,
           "max_inclusive": -3
         },
         "branch_end_offset_from_top": {
-          "type": "minecraft:uniform",
           "min_inclusive": -1,
-          "max_inclusive": 0
-        }
+          "max_inclusive": 0,
+          "type": "minecraft:uniform"
+        },
+        "type": "minecraft:cherry_trunk_placer"
       },
       "foliage_placer": {
-        "type": "minecraft:cherry_foliage_placer",
         "radius": 4,
         "offset": 0,
         "height": 5,
         "wide_bottom_layer_hole_chance": 0.25,
         "corner_hole_chance": 0.5,
         "hanging_leaves_chance": 0.16666667,
-        "hanging_leaves_extension_chance": 0.33333334
+        "hanging_leaves_extension_chance": 0.33333334,
+        "type": "minecraft:cherry_foliage_placer"
       },
       "minimum_size": {
-        "type": "minecraft:two_layers_feature_size",
-        "limit": 1,
-        "lower_size": 0,
-        "upper_size": 2
+        "upper_size": 2,
+        "type": "minecraft:two_layers_feature_size"
       }
     },
     "acacia+radius3+rand4": {
       "trunk_placer": {
-        "type": "minecraft:forking_trunk_placer",
         "base_height": 5,
         "height_rand_a": 4,
-        "height_rand_b": 2
+        "height_rand_b": 2,
+        "type": "minecraft:forking_trunk_placer"
       },
       "foliage_placer": {
-        "type": "minecraft:acacia_foliage_placer",
         "radius": 3,
-        "offset": 0
+        "offset": 0,
+        "type": "minecraft:acacia_foliage_placer"
       },
       "minimum_size": {
-        "type": "minecraft:two_layers_feature_size",
-        "limit": 1,
-        "lower_size": 0,
-        "upper_size": 2
+        "upper_size": 2,
+        "type": "minecraft:two_layers_feature_size"
       }
     }
   },

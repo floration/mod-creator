@@ -5,121 +5,16 @@
 import type { StructureTemplate } from "./nbt.js";
 import type { TreeSpec } from "./schema.js";
 import { growTree, type Axis, type TreeBlock } from "./treegen.js";
+import vanillaTrees from "./profiles/v26_3/vanillaTrees.json" with { type: "json" };
 
 export { growTree, JavaRandom, type TreeBlock, type Axis } from "./treegen.js";
 
-const two = (limit: number, lower: number, upper: number, minClipped?: number) => ({
-  type: "minecraft:two_layers_feature_size",
-  limit,
-  lower_size: lower,
-  upper_size: upper,
-  ...(minClipped !== undefined ? { min_clipped_height: minClipped } : {}),
-});
-const uniform = (min: number, max: number) => ({ type: "minecraft:uniform", min_inclusive: min, max_inclusive: max });
-const weighted = (entries: [number, number][]) => ({
-  type: "minecraft:weighted_list",
-  distribution: entries.map(([data, weight]) => ({ data, weight })),
-});
-const trunk = (type: string, base: number, a: number, b: number, extra: object = {}) => ({
-  type: `minecraft:${type}`,
-  base_height: base,
-  height_rand_a: a,
-  height_rand_b: b,
-  ...extra,
-});
-const blob = (radius: number, height = 3) => ({ type: "minecraft:blob_foliage_placer", radius, offset: 0, height });
-
 /**
- * Vanilla tree configs, without their log and leaf blocks, copied from 26.3's TreeFeatures (decorators such as
- * vines, cocoa and bee nests are left out). The key is what a tree spec's `shape` names.
+ * Vanilla tree configs, without their log and leaf blocks: the trunk placer, foliage placer and minimum size of
+ * each shape a tree spec can copy. Read from the Minecraft jar's TreeFeatures by scripts/tree-parity/ExtractTrees.java,
+ * so a new Minecraft version only needs that script rerun. Decorators such as vines, cocoa and bee nests are left out.
  */
-export const TREE_SHAPES = {
-  oak: { trunk_placer: trunk("straight_trunk_placer", 4, 2, 0), foliage_placer: blob(2), minimum_size: two(1, 0, 1) },
-  fancy_oak: {
-    trunk_placer: trunk("fancy_trunk_placer", 3, 11, 0),
-    foliage_placer: { type: "minecraft:fancy_foliage_placer", radius: 2, offset: 4, height: 4 },
-    minimum_size: two(0, 0, 0, 4),
-  },
-  birch: { trunk_placer: trunk("straight_trunk_placer", 5, 2, 0), foliage_placer: blob(2), minimum_size: two(1, 0, 1) },
-  super_birch: { trunk_placer: trunk("straight_trunk_placer", 5, 2, 6), foliage_placer: blob(2), minimum_size: two(1, 0, 1) },
-  jungle: { trunk_placer: trunk("straight_trunk_placer", 4, 8, 0), foliage_placer: blob(2), minimum_size: two(1, 0, 1) },
-  swamp_oak: { trunk_placer: trunk("straight_trunk_placer", 5, 3, 0), foliage_placer: blob(3), minimum_size: two(1, 0, 1) },
-  jungle_bush: {
-    trunk_placer: trunk("straight_trunk_placer", 1, 0, 0),
-    foliage_placer: { type: "minecraft:bush_foliage_placer", radius: 2, offset: 1, height: 2 },
-    minimum_size: two(0, 0, 0),
-  },
-  spruce: {
-    trunk_placer: trunk("straight_trunk_placer", 5, 2, 1),
-    foliage_placer: { type: "minecraft:spruce_foliage_placer", radius: uniform(2, 3), offset: uniform(0, 2), trunk_height: uniform(1, 2) },
-    minimum_size: two(2, 0, 2),
-  },
-  pine: {
-    trunk_placer: trunk("straight_trunk_placer", 6, 4, 0),
-    foliage_placer: { type: "minecraft:pine_foliage_placer", radius: 1, offset: 1, height: uniform(3, 4) },
-    minimum_size: two(2, 0, 2),
-  },
-  acacia: {
-    trunk_placer: trunk("forking_trunk_placer", 5, 2, 2),
-    foliage_placer: { type: "minecraft:acacia_foliage_placer", radius: 2, offset: 0 },
-    minimum_size: two(1, 0, 2),
-  },
-  cherry: {
-    trunk_placer: trunk("cherry_trunk_placer", 7, 1, 0, {
-      branch_count: weighted([[1, 1], [2, 1], [3, 1]]),
-      branch_horizontal_length: uniform(2, 4),
-      branch_start_offset_from_top: { min_inclusive: -4, max_inclusive: -3 },
-      branch_end_offset_from_top: uniform(-1, 0),
-    }),
-    foliage_placer: {
-      type: "minecraft:cherry_foliage_placer",
-      radius: 4,
-      offset: 0,
-      height: 5,
-      wide_bottom_layer_hole_chance: 0.25,
-      corner_hole_chance: 0.5,
-      hanging_leaves_chance: 0.16666667,
-      hanging_leaves_extension_chance: 0.33333334,
-    },
-    minimum_size: two(1, 0, 2),
-  },
-  azalea: {
-    trunk_placer: trunk("bending_trunk_placer", 4, 2, 0, { min_height_for_leaves: 3, bend_length: uniform(1, 2) }),
-    foliage_placer: { type: "minecraft:random_spread_foliage_placer", radius: 3, offset: 0, foliage_height: 2, leaf_placement_attempts: 50 },
-    minimum_size: two(1, 0, 1),
-  },
-  poplar: {
-    trunk_placer: trunk("poplar_trunk_placer", 7, 4, 0, { trunk_height_above_branches: 4, branch_amount: uniform(1, 4) }),
-    foliage_placer: {
-      type: "minecraft:poplar_foliage_placer",
-      radius: weighted([[5, 5], [6, 5], [7, 1], [8, 1]]),
-      offset: 0,
-      height: uniform(5, 6),
-      side_hole_chance: 0.15,
-    },
-    minimum_size: two(1, 0, 2),
-  },
-  dark_oak: {
-    trunk_placer: trunk("dark_oak_trunk_placer", 6, 2, 1),
-    foliage_placer: { type: "minecraft:dark_oak_foliage_placer", radius: 0, offset: 0 },
-    minimum_size: { type: "minecraft:three_layers_feature_size", limit: 1, upper_limit: 1, lower_size: 0, middle_size: 1, upper_size: 2 },
-  },
-  mega_spruce: {
-    trunk_placer: trunk("giant_trunk_placer", 13, 2, 14),
-    foliage_placer: { type: "minecraft:mega_pine_foliage_placer", radius: 0, offset: 0, crown_height: uniform(13, 17) },
-    minimum_size: two(1, 1, 2),
-  },
-  mega_pine: {
-    trunk_placer: trunk("giant_trunk_placer", 13, 2, 14),
-    foliage_placer: { type: "minecraft:mega_pine_foliage_placer", radius: 0, offset: 0, crown_height: uniform(3, 7) },
-    minimum_size: two(1, 1, 2),
-  },
-  mega_jungle: {
-    trunk_placer: trunk("mega_jungle_trunk_placer", 10, 2, 19),
-    foliage_placer: { type: "minecraft:jungle_foliage_placer", radius: 2, offset: 0, height: 2 },
-    minimum_size: two(1, 1, 2),
-  },
-} as const;
+export const TREE_SHAPES = vanillaTrees.shapes;
 
 export type VanillaTreeShape = keyof typeof TREE_SHAPES;
 

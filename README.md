@@ -97,7 +97,7 @@ Two example mods show every supported field:
 
 ### Tree shapes
 
-A tree's **Grows like** picks one of 17 vanilla shapes (oak, fancy oak, birch, tall birch, jungle, swamp oak, jungle bush, spruce, pine, acacia, cherry, azalea, poplar, and the 2x2 dark oak, giant spruce, giant pine and giant jungle), with optional trunk height and leaf radius tweaks. The 3D preview runs a port of the game's own trunk and foliage placers, so it shows the exact trees the sapling grows; **Grow another** shows the next seed. `scripts/tree-parity` grows the same trees with Minecraft's code, and a test checks the preview matches them block for block.
+A tree's **Grows like** picks one of 17 vanilla shapes (oak, fancy oak, birch, tall birch, jungle, swamp oak, jungle bush, spruce, pine, acacia, cherry, azalea, poplar, and the 2x2 dark oak, giant spruce, giant pine and giant jungle), with optional trunk height and leaf radius tweaks. The shapes' numbers are read from the Minecraft jar's own tree code (`scripts/tree-parity/ExtractTrees.java`), and the 3D preview runs a port of the game's trunk and foliage placers, so it shows the exact trees the sapling grows; **Grow another** shows the next seed. `scripts/tree-parity` grows the same trees with Minecraft's code, and a test checks the preview matches them block for block.
 
 **Custom (built by hand)** trees are painted layer by layer: upright logs, logs lying east-west or north-south, and leaves. Start from a grown vanilla tree, or build one in **Run client**, save it with a structure block and **Import .nbt**. Leaves more than 6 blocks from a log are marked, since they would decay. In the game a generated feature places the layout, turned a random quarter turn each time unless you untick it.
 
