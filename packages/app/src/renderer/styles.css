@@ -297,3 +297,8 @@ table.rows td.has-error input { border-color: var(--error); }
   background: rgba(30, 31, 34, 0.85); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; font-size: 12px;
 }
 .structure-info ul { margin: 4px 0 0; padding-left: 16px; color: var(--muted); }
+
+.rows.sound-files { width: 100%; }
+.rows.sound-files th:nth-child(n+2):nth-child(-n+4), .rows.sound-files td:nth-child(n+2):nth-child(-n+4) { width: 58px; }
+.rows.sound-files td:last-child { width: 32px; }
+.sound-actions { display: flex; gap: 12px; margin-top: 6px; }

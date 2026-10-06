@@ -14,7 +14,16 @@
     "width": 0.9,
     "height": 0.9,
     "food": "azure_plum",
-    "drops": [{ "item": "minecraft:porkchop", "min": 1, "max": 3 }],
-    "spawnEgg": "art/bluetusk_spawn_egg.png"
+    "drops": [
+      {
+        "item": "minecraft:porkchop",
+        "min": 1,
+        "max": 3
+      }
+    ],
+    "spawnEgg": "art/bluetusk_spawn_egg.png",
+    "sounds": {
+      "ambient": "bluetusk_grunt"
+    }
   }
 }

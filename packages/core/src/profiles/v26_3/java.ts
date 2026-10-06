@@ -159,6 +159,7 @@ export function modContentJava(project: Project, elements: ElementSpec[]): strin
   const plants = of("plant");
   const mobs = of("mob");
   const ores = of("ore");
+  const sounds = of("sound");
 
   const imports = new Set<string>([
     "java.util.function.Function",
@@ -184,6 +185,13 @@ export function modContentJava(project: Project, elements: ElementSpec[]): strin
   /** Creative tab entries grouped by tab, in spec order. */
   const tabs = new Map<string, string[]>();
   const addToTab = (t: string | undefined, ref: string) => t && tabs.set(t, [...(tabs.get(t) ?? []), ref]);
+
+  if (sounds.length) {
+    use("net.minecraft.sounds.SoundEvent");
+    fields.push(
+      sounds.map((s) => `\t/** ${s.name} (spec/sounds/${s.id}.json) */\n\tpublic static final SoundEvent ${constName(s.id)}_SOUND = registerSound("${s.id}");`).join("\n"),
+    );
+  }
 
   for (const b of blocks) {
     const factory = b.customClass ? `${b.customClass}::new` : "Block::new";
@@ -411,7 +419,11 @@ ${registerBody.join("\n") || "\t\t// Nothing else to register."}
 \t\treturn Registry.register(BuiltInRegistries.BLOCK, blockKey, block);
 \t}
 
-\tprivate static Item registerItem(String name, Function<Item.Properties, Item> factory, Item.Properties properties) {
+${sounds.length ? `\tprivate static SoundEvent registerSound(String name) {
+\t\treturn Registry.register(BuiltInRegistries.SOUND_EVENT, id(name), SoundEvent.createVariableRangeEvent(id(name)));
+\t}
+
+` : ""}\tprivate static Item registerItem(String name, Function<Item.Properties, Item> factory, Item.Properties properties) {
 \t\tResourceKey<Item> key = ResourceKey.create(Registries.ITEM, id(name));
 \t\treturn Registry.register(BuiltInRegistries.ITEM, key, factory.apply(properties.setId(key)));
 \t}${entityHelper}
@@ -455,7 +467,7 @@ export function mobEntityJava(project: Project, m: MobSpec): string {
   const breeds = behavior !== "hostile";
   const sounds = { ...MOB_SOUNDS[m.mob.model], ...m.mob.sounds };
   // A Blockbench mob has no vanilla animal to take sounds from, so it is silent unless the spec names some.
-  const sound = (ref: string | undefined) => (ref ? `BuiltInRegistries.SOUND_EVENT.getValue(Identifier.parse("${resolveRef("minecraft", ref)}"))` : "null");
+  const sound = (ref: string | undefined) => (ref ? `BuiltInRegistries.SOUND_EVENT.getValue(Identifier.parse("${resolveRef(modId, ref)}"))` : "null");
   const test = breeds && m.mob.food ? stackTest(modId, m.mob.food) : "false";
 
   const imports = new Set<string>([

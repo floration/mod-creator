@@ -106,6 +106,7 @@ export async function loadProject(root: string): Promise<LoadedProject> {
   issues.push(...(await checkSetup(root, parsed.data, elements)));
   const models = await loadModels(root, elements, issues);
   issues.push(...(await checkStructures(root, parsed.data.modId, elements)));
+  issues.push(...(await checkSounds(root, elements)));
   return { root, project: parsed.data, elements, issues, models };
 }
 
@@ -154,6 +155,31 @@ async function checkStructures(root: string, modId: string, elements: LoadedElem
   return issues;
 }
 
+/** Channel count of an Ogg Vorbis file, from its first page; null when it isn't one. */
+export function oggChannels(data: Buffer): number | null {
+  if (data.length < 28 || data.toString("latin1", 0, 4) !== "OggS") return null;
+  const packet = 27 + data[26];
+  if (data.length < packet + 12 || data[packet] !== 1 || data.toString("latin1", packet + 1, packet + 7) !== "vorbis") return null;
+  return data[packet + 11];
+}
+
+/** Each sound file has to be Ogg Vorbis, the only format Minecraft plays; stereo files don't fade with distance. */
+async function checkSounds(root: string, elements: LoadedElement[]): Promise<Issue[]> {
+  const issues: Issue[] = [];
+  for (const { spec, file } of elements) {
+    if (spec.kind !== "sound") continue;
+    for (const [i, f] of spec.sound.files.entries()) {
+      const full = path.join(root, f.file);
+      if (!f.file.endsWith(".ogg") || !existsSync(full)) continue; // reported with the art
+      const channels = oggChannels(await readFile(full));
+      const field = `sound.files.${i}.file`;
+      if (channels === null) issues.push({ severity: "error", file, field, message: `${f.file} isn't Ogg Vorbis. Export it as .ogg (Vorbis) from Audacity or another editor` });
+      else if (channels > 1 && !spec.sound.stream) issues.push({ severity: "warning", file, field, message: `${f.file} is stereo, so it plays equally loud everywhere. Make it mono for sounds that should come from a place` });
+    }
+  }
+  return issues;
+}
+
 /** Broken references, id clashes and missing art across a set of elements. */
 export function checkReferences(root: string, elements: LoadedElement[]): Issue[] {
   const issues: Issue[] = [];
@@ -165,6 +191,7 @@ export function checkReferences(root: string, elements: LoadedElement[]): Issue[
   const plants = idsOf("plant");
   const mobs = idsOf("mob");
   const biomes = idsOf("biome");
+  const sounds = idsOf("sound");
   const advancements = idsOf("advancement");
   const recipes = new Set(specs.flatMap(recipeIds));
   const err = (file: string, field: string, message: string) => issues.push({ severity: "error", file, field, message });
@@ -290,6 +317,9 @@ export function checkReferences(root: string, elements: LoadedElement[]): Issue[
       if (m.model === "blockbench" && m.blockbench) checkArt(file, "mob.blockbench", m.blockbench);
       if (m.food) checkItem(file, "mob.food", m.food);
       else if (m.behavior !== "hostile") err(file, "mob.food", "Pick the item that tempts and breeds it (only hostile mobs go without)");
+      for (const [k, ref] of Object.entries(m.sounds)) {
+        if (ref && !ref.includes(":") && !sounds.has(ref)) err(file, `mob.sounds.${k}`, `No sound named "${ref}" in this project. Vanilla sounds start with minecraft:`);
+      }
       m.drops.forEach((d, i) => {
         checkItem(file, `mob.drops.${i}.item`, d.item, false);
         if (d.max < d.min) err(file, `mob.drops.${i}.max`, "max must be at least min");
@@ -311,6 +341,11 @@ export function checkReferences(root: string, elements: LoadedElement[]): Issue[
       if (spec.ore.maxY < spec.ore.minY) err(file, "ore.maxY", "maxY must be at least minY");
     } else if (spec.kind === "advancement") {
       checkAdvancement(file, spec);
+    } else if (spec.kind === "sound") {
+      spec.sound.files.forEach((f, i) => {
+        if (!f.file.endsWith(".ogg")) err(file, `sound.files.${i}.file`, "Minecraft only plays .ogg files");
+        else checkArt(file, `sound.files.${i}.file`, f.file);
+      });
     } else if (spec.kind === "structure") {
       const st = spec.structure;
       if (!st.file.endsWith(".nbt")) err(file, "structure.file", "Pick the .nbt file a structure block saved");

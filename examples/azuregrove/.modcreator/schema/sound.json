@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "kind": {
+      "type": "string",
+      "const": "sound"
+    },
+    "$schema": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sound": {
+      "type": "object",
+      "properties": {
+        "files": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "file": {
+                "type": "string"
+              },
+              "volume": {
+                "default": 1,
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "pitch": {
+                "default": 1,
+                "type": "number",
+                "minimum": 0.5,
+                "maximum": 2
+              },
+              "weight": {
+                "default": 1,
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100
+              }
+            },
+            "required": [
+              "file"
+            ]
+          }
+        },
+        "stream": {
+          "default": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "files"
+      ]
+    }
+  },
+  "required": [
+    "kind",
+    "id",
+    "name",
+    "sound"
+  ]
+}

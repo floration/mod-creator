@@ -21,6 +21,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
@@ -77,6 +78,9 @@ public final class ModContent {
 			18, SoundEvents.ARMOR_EQUIP_DIAMOND, 1.0f, 0.0f,
 			TagKey.create(Registries.ITEM, id("azurite_repair_items")),
 			ResourceKey.create(EquipmentAssets.ROOT_ID, id("azurite")));
+
+	/** Bluetusk grunts (spec/sounds/bluetusk_grunt.json) */
+	public static final SoundEvent BLUETUSK_GRUNT_SOUND = registerSound("bluetusk_grunt");
 
 	/** Azurite Bricks (spec/blocks/azurite_bricks.json) */
 	public static final Block AZURITE_BRICKS = registerBlock("azurite_bricks", Block::new,
@@ -251,6 +255,10 @@ public final class ModContent {
 					new BlockItem(block, new Item.Properties().setId(itemKey).useBlockDescriptionPrefix()));
 		}
 		return Registry.register(BuiltInRegistries.BLOCK, blockKey, block);
+	}
+
+	private static SoundEvent registerSound(String name) {
+		return Registry.register(BuiltInRegistries.SOUND_EVENT, id(name), SoundEvent.createVariableRangeEvent(id(name)));
 	}
 
 	private static Item registerItem(String name, Function<Item.Properties, Item> factory, Item.Properties properties) {
@@ -452,7 +460,7 @@ public class Bluetusk extends Animal {
 
 	@Override
 	protected SoundEvent getAmbientSound() {
-		return BuiltInRegistries.SOUND_EVENT.getValue(Identifier.parse("minecraft:entity.pig.ambient"));
+		return BuiltInRegistries.SOUND_EVENT.getValue(Identifier.parse("azuregrove:bluetusk_grunt"));
 	}
 
 	@Override
@@ -1817,7 +1825,8 @@ public class GroveLurker extends Monster {
   "advancements.azuregrove.sharp_and_blue.title": "Sharp and Blue",
   "advancements.azuregrove.sharp_and_blue.description": "Craft an Azurite Sword",
   "advancements.azuregrove.tusk_rancher.title": "Tusk Rancher",
-  "advancements.azuregrove.tusk_rancher.description": "Breed two Bluetusks with plums"
+  "advancements.azuregrove.tusk_rancher.description": "Breed two Bluetusks with plums",
+  "subtitles.azuregrove.bluetusk_grunt": "Bluetusk grunts"
 }
 ",
   "src/generated/resources/assets/azuregrove/models/block/azure_grass.json": "{
@@ -2249,6 +2258,22 @@ public class GroveLurker extends Monster {
   }
 }
 ",
+  "src/generated/resources/assets/azuregrove/sounds.json": "{
+  "bluetusk_grunt": {
+    "subtitle": "subtitles.azuregrove.bluetusk_grunt",
+    "sounds": [
+      "azuregrove:bluetusk_grunt/1",
+      {
+        "name": "azuregrove:bluetusk_grunt/2",
+        "pitch": 0.9,
+        "weight": 2
+      }
+    ]
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/sounds/bluetusk_grunt/1.ogg": "<copy of art/bluetusk_grunt_1.ogg>",
+  "src/generated/resources/assets/azuregrove/sounds/bluetusk_grunt/2.ogg": "<copy of art/bluetusk_grunt_2.ogg>",
   "src/generated/resources/assets/azuregrove/textures/block/azure_grass.png": "<copy of art/azure_grass.png>",
   "src/generated/resources/assets/azuregrove/textures/block/azurewood_door_bottom.png": "<copy of art/azurewood_door_bottom.png>",
   "src/generated/resources/assets/azuregrove/textures/block/azurewood_door_top.png": "<copy of art/azurewood_door_top.png>",

@@ -31,7 +31,7 @@ export function StructureEditor(p: EditorProps) {
   const file: string = getAt(p.draft, ["structure", "file"]) ?? "";
   const pick = async () => {
     if (!world) return;
-    const rel = await api().importStructure(world.root);
+    const rel = await api().importFile(world.root, "nbt");
     if (rel) p.onChange(setAt(p.draft, ["structure", "file"], rel));
   };
   return (

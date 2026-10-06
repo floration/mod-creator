@@ -1,0 +1,12 @@
+{
+  "$schema": "../../.modcreator/schema/sound.json",
+  "kind": "sound",
+  "id": "bluetusk_grunt",
+  "name": "Bluetusk grunts",
+  "sound": {
+    "files": [
+      { "file": "art/bluetusk_grunt_1.ogg" },
+      { "file": "art/bluetusk_grunt_2.ogg", "pitch": 0.9, "weight": 2 }
+    ]
+  }
+}

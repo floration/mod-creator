@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { AdvancementSpecSchema, ProjectSchema, SCHEMAS } from "@modcreator/core/schema";
 import { AdvancementEditor, QuestLine, type QuestNode } from "./AdvancementEditor";
 import { StructureEditor, StructurePreview } from "./StructureEditor";
+import { SoundEditor } from "./SoundEditor";
 import { api, type ElementSpec, type Issue, type LoadedProject, type VanillaCatalog } from "./api";
 import { ArmorEditor, BiomeEditor, BlockEditor, ItemEditor, MobEditor, OreEditor, PlantEditor, RecipeEditor, ToolEditor, TreeEditor, newSpec, type Kind } from "./Editors";
 import { BiomePreview } from "./BiomePreview";
@@ -24,10 +25,11 @@ const KINDS: { kind: Kind; folder: string; title: string }[] = [
   { kind: "mob", folder: "mobs", title: "Mobs" },
   { kind: "biome", folder: "biomes", title: "Biomes" },
   { kind: "structure", folder: "structures", title: "Structures" },
+  { kind: "sound", folder: "sounds", title: "Sounds" },
   { kind: "advancement", folder: "advancements", title: "Quests" },
 ];
 
-const EDITORS = { block: BlockEditor, item: ItemEditor, ore: OreEditor, tool: ToolEditor, armor: ArmorEditor, tree: TreeEditor, plant: PlantEditor, mob: MobEditor, biome: BiomeEditor, structure: StructureEditor };
+const EDITORS = { block: BlockEditor, item: ItemEditor, ore: OreEditor, tool: ToolEditor, armor: ArmorEditor, tree: TreeEditor, plant: PlantEditor, mob: MobEditor, biome: BiomeEditor, structure: StructureEditor, sound: SoundEditor };
 const PREVIEWED = new Set(["block", "item", "tool", "armor", "tree", "plant", "mob"]);
 const LAST_PROJECT = "modcreator.lastProject";
 /** The project settings page edits this file like any spec. */
@@ -442,7 +444,7 @@ export function App() {
               </div>
             )}
             <div className="editor-body">
-              <div className={`form${draft.kind === "recipe" ? " wide" : ""}`}>
+              <div className={`form${draft.kind === "recipe" || draft.kind === "sound" ? " wide" : ""}`}>
                 {selected === PROJECT_FILE && <ProjectEditor draft={draft} errors={errors} onChange={(d) => { setDraft(d); setDirty(true); }} />}
                 {selected !== PROJECT_FILE && draft.kind in EDITORS && (() => {
                   const Editor = EDITORS[draft.kind as keyof typeof EDITORS];
