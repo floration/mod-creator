@@ -11,4 +11,5 @@ export { resolveRef } from "./profiles/v26_3/refs.js";
 export { VERSIONS } from "./profiles/v26_3/skeleton.js";
 export * from "./recipeGrid.js";
 export { VanillaAssets, findMinecraftJar, minecraftJarCandidates, type CatalogEntry, type ItemIcon, type OrePreset, vanillaOrePreset } from "./vanilla.js";
+export { conventionTags, findConventionTagsJar, modTags, parseTagPath, zipTags, type TagCatalog, type TagEntry, type TagSources } from "./tags.js";
 export * from "./tint.js";

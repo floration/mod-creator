@@ -1,5 +1,7 @@
 import { EFFECT_ATTRIBUTES, EnchantmentSlot, VANILLA_EFFECTS } from "@modcreator/core/schema";
-import { CheckField, ListField, NumberField, Row, Section, TextField, getAt, setAt, type Draft, type Errors } from "./forms";
+import { useContext, useMemo } from "react";
+import { CheckField, NumberField, Row, Section, TextField, getAt, setAt, type Draft, type Errors } from "./forms";
+import { TagContext, TagInput, TagListField, TagTextField, tagOptions, useElementOptions, useItemOptions } from "./TagField";
 
 interface EditorProps {
   draft: Draft;
@@ -17,11 +19,6 @@ const EFFECT_TYPES: Record<string, { label: string; unit: string; template: Draf
   attribute: { label: "Attribute", unit: "amount", template: { type: "attribute", attribute: "movement_speed", operation: "multiply_total", amount: 0.1, perLevel: 0.1 } },
 };
 
-const ITEM_TAGS = [
-  "weapon", "melee_weapon", "sharp_weapon", "sweeping", "fire_aspect", "mining", "mining_loot", "durability", "armor",
-  "head_armor", "chest_armor", "leg_armor", "foot_armor", "equippable", "bow", "crossbow", "trident", "mace", "fishing", "lunge", "vanishing",
-].map((t) => `#minecraft:enchantable/${t}`);
-
 /** Value at a level, the way vanilla's linear numbers work. */
 const atLevel = (amount: number, perLevel: number, level: number) => Math.round((amount + perLevel * (level - 1)) * 100) / 100;
 
@@ -30,6 +27,9 @@ function EffectsField(p: EditorProps) {
   const rows: Draft[] = getAt(p.draft, path) ?? [];
   const maxLevel: number = getAt(p.draft, ["enchantment", "maxLevel"]) ?? 1;
   const setRows = (next: Draft[]) => p.onChange(setAt(p.draft, path, next));
+  const tags = useContext(TagContext);
+  const mobs = useElementOptions("mob");
+  const targets = useMemo(() => [...mobs, ...tagOptions(tags, "entity_type", true)], [mobs, tags]);
   const set = (i: number, key: string, value: unknown) => setRows(rows.map((r, n) => (n === i ? setAt(r, [key], value) : r)));
   const num = (v: string) => (v === "" ? undefined : Number(v));
   const error = rows.flatMap((_, i) => [...p.errors.entries()].filter(([k]) => k.startsWith(`${path.join(".")}.${i}.`)).map(([, m]) => m))[0] ?? p.errors.get(path.join("."));
@@ -60,7 +60,9 @@ function EffectsField(p: EditorProps) {
               </>
             )}
             {r.type === "damage" && (
-              <input value={r.against ?? ""} placeholder="against any mob" title="Only against this mob, or an entity tag like #minecraft:undead" onChange={(e) => set(i, "against", e.target.value.trim() || undefined)} />
+              <span title="Only against this mob, or an entity tag like #minecraft:undead">
+                <TagInput single compact values={r.against ? [r.against] : []} options={targets} placeholder="against any mob" onChange={(v) => set(i, "against", v[0] || undefined)} />
+              </span>
             )}
             <label className="inline">At I <input type="number" step={0.5} value={r.amount ?? 1} onChange={(e) => set(i, "amount", num(e.target.value))} /></label>
             <label className="inline">+ per level <input type="number" step={0.5} value={r.perLevel ?? 1} onChange={(e) => set(i, "perLevel", num(e.target.value))} /></label>
@@ -85,6 +87,8 @@ export function EnchantmentEditor(p: EditorProps) {
   const f = { draft: p.draft, errors: p.errors, onChange: p.onChange };
   const id: string = getAt(p.draft, ["id"]) ?? "";
   const slots: string[] = getAt(p.draft, ["enchantment", "slots"]) ?? ["mainhand"];
+  const items = useItemOptions();
+  const enchantments = useElementOptions("enchantment").filter((o) => o.value !== id && o.value !== `minecraft:${id}`);
   const toggleSlot = (s: string, on: boolean) => p.onChange(setAt(p.draft, ["enchantment", "slots"], on ? [...slots, s] : slots.filter((x) => x !== s)));
   return (
     <>
@@ -94,9 +98,8 @@ export function EnchantmentEditor(p: EditorProps) {
         <NumberField {...f} path={["enchantment", "maxLevel"]} label="Max level" min={1} max={255} hint="Sharpness 5, Fire Aspect 2, Mending 1" />
       </Section>
       <Section title="Items">
-        <TextField {...f} path={["enchantment", "items"]} label="Goes on" list="enchantable-tags" placeholder="#minecraft:enchantable/sharp_weapon" hint="An item tag like #minecraft:enchantable/armor, or one item. Used by the anvil" />
-        <TextField {...f} path={["enchantment", "tableItems"]} label="Enchanting table offers it on" optional list="enchantable-tags" placeholder="(same as above)" hint="Optional. Narrower than the above, like Bane of Arthropods only on melee weapons" />
-        <datalist id="enchantable-tags">{ITEM_TAGS.map((t) => <option key={t} value={t} />)}</datalist>
+        <TagTextField {...f} type="item" hash extra={items} prefer="minecraft:enchantable/" path={["enchantment", "items"]} label="Goes on" placeholder="#minecraft:enchantable/sharp_weapon" hint="An item tag like #minecraft:enchantable/armor, or one item. Used by the anvil" />
+        <TagTextField {...f} type="item" hash extra={items} prefer="minecraft:enchantable/" path={["enchantment", "tableItems"]} label="Enchanting table offers it on" optional placeholder="(same as above)" hint="Optional. Narrower than the above, like Bane of Arthropods only on melee weapons" />
         <Row label="Works while in" error={p.errors.get("enchantment.slots")}>
           <span className="checks">
             {EnchantmentSlot.options.map((s) => (
@@ -119,7 +122,7 @@ export function EnchantmentEditor(p: EditorProps) {
         <NumberField {...f} path={["enchantment", "minCost", "perLevel"]} label="Added per level" />
         <NumberField {...f} path={["enchantment", "maxCost", "base"]} label="Highest enchanting power at level I" hint="Usually the lowest + 20" />
         <NumberField {...f} path={["enchantment", "maxCost", "perLevel"]} label="Added per level" />
-        <ListField {...f} path={["enchantment", "exclusiveWith"]} label="Can't be combined with" placeholder="#minecraft:exclusive_set/damage, minecraft:mending" />
+        <TagListField {...f} type="enchantment" hash extra={enchantments} path={["enchantment", "exclusiveWith"]} label="Can't be combined with" placeholder="#minecraft:exclusive_set/damage, minecraft:mending" />
       </Section>
     </>
   );

@@ -29,6 +29,21 @@ export interface VanillaCatalog {
   orePresets: OrePreset[];
 }
 
+/** Mirrors TagSources in core/src/tags.ts. Tag ids have no `#`. */
+export interface TagEntry {
+  id: string;
+  values: string[];
+  name?: string;
+}
+export type TagCatalog = Record<string, TagEntry[]>;
+export interface TagSources {
+  minecraft: TagCatalog;
+  fabric: TagCatalog;
+  mod: TagCatalog;
+  biomes: string[];
+  enchantments: string[];
+}
+
 export type { BlockSpec, ElementSpec, ItemSpec, Project, RecipeSpec };
 
 export interface Issue {
@@ -97,6 +112,8 @@ export interface ModCreatorApi {
   saveTint(root: string, rel: string, recipe: TintRecipe | null): Promise<void>;
   loadVanilla(version: string): Promise<VanillaCatalog>;
   pickMinecraftJar(version: string): Promise<VanillaCatalog | null>;
+  /** Tags for the tag fields' autofill: Minecraft's, Fabric's `c:` tags and the mod's own. */
+  tags(root: string): Promise<TagSources>;
   vanillaIcon(id: string): Promise<ItemIcon | null>;
   /** Ids like `minecraft:block/iron_ore` for every texture in the Minecraft jar. */
   vanillaTextures(): Promise<string[]>;
