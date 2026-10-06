@@ -82,6 +82,8 @@ Rules the generator follows:
 3. A hand-written file in `src/main/resources/` wins: the generator skips any resource whose path already exists there.
 4. If any spec has errors, nothing is written.
 
+`build.gradle` reads `modcreator.json` on every build, so the mod's `version` and its Modrinth `dependencies` take effect without editing Gradle files, and required dependencies are added to `depends` in the built jar's `fabric.mod.json`. Projects created before this keep their own `build.gradle`; `check` warns when one is missing a dependency, and copying `build.gradle` from a new project brings it up to date (also delete `mod_version` from `gradle.properties`).
+
 Two example mods show every supported field:
 
 - [`examples/ruby`](examples/ruby): an ore that drops gems with Fortune, a storage block, a lamp with a custom Java class, a gem item, shaped, shapeless and smelting recipes, and a ruby ore vein that generates between Y -16 and 48.
