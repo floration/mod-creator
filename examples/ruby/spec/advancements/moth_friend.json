@@ -1,0 +1,18 @@
+{
+  "$schema": "../../.modcreator/schema/advancement.json",
+  "kind": "advancement",
+  "id": "moth_friend",
+  "name": "Moth Friend",
+  "advancement": {
+    "parent": "ruby",
+    "description": "Tame a Glowmoth",
+    "icon": "glowmoth_spawn_egg",
+    "frame": "goal",
+    "criteria": [
+      {
+        "type": "tame",
+        "mob": "glowmoth"
+      }
+    ]
+  }
+}

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ProjectSchema, SCHEMAS } from "@modcreator/core/schema";
+import { AdvancementSpecSchema, ProjectSchema, SCHEMAS } from "@modcreator/core/schema";
+import { AdvancementEditor, QuestLine, type QuestNode } from "./AdvancementEditor";
 import { api, type ElementSpec, type Issue, type LoadedProject, type VanillaCatalog } from "./api";
 import { ArmorEditor, BiomeEditor, BlockEditor, ItemEditor, MobEditor, OreEditor, PlantEditor, RecipeEditor, ToolEditor, TreeEditor, newSpec, type Kind } from "./Editors";
 import { BiomePreview } from "./BiomePreview";
@@ -21,6 +22,7 @@ const KINDS: { kind: Kind; folder: string; title: string }[] = [
   { kind: "plant", folder: "plants", title: "Plants" },
   { kind: "mob", folder: "mobs", title: "Mobs" },
   { kind: "biome", folder: "biomes", title: "Biomes" },
+  { kind: "advancement", folder: "advancements", title: "Quests" },
 ];
 
 const EDITORS = { block: BlockEditor, item: ItemEditor, ore: OreEditor, tool: ToolEditor, armor: ArmorEditor, tree: TreeEditor, plant: PlantEditor, mob: MobEditor, biome: BiomeEditor };
@@ -55,6 +57,15 @@ function draftErrors(draft: Draft | null, file: string | null, issues: Issue[]):
   if (result && !result.success) for (const i of result.error.issues) errors.set(i.path.join("."), i.message);
   for (const i of issues) if (i.file === file && i.field && !errors.has(i.field)) errors.set(i.field, i.message);
   return errors;
+}
+
+/** The project's advancements for the quest line, with the open one as currently edited (when it still parses). */
+function questNodes(loaded: LoadedProject, selected: string, draft: Draft): QuestNode[] {
+  const nodes = loaded.elements.flatMap((e) => (e.spec.kind === "advancement" ? [{ file: e.file, spec: e.spec }] : []));
+  const parsed = AdvancementSpecSchema.safeParse(draft);
+  if (!parsed.success) return nodes;
+  const edited = { file: selected, spec: parsed.data };
+  return nodes.some((n) => n.file === selected) ? nodes.map((n) => (n.file === selected ? edited : n)) : [...nodes, edited];
 }
 
 /** A spec as JSON text, for telling whether the file on disk changed since the form was loaded. */
@@ -435,6 +446,16 @@ export function App() {
                   const Editor = EDITORS[draft.kind as keyof typeof EDITORS];
                   return <Editor draft={draft} errors={errors} onChange={(d) => { setDraft(d); setDirty(true); }} />;
                 })()}
+                {draft.kind === "advancement" && (
+                  <ItemContext.Provider value={world}>
+                    <AdvancementEditor
+                      draft={draft}
+                      errors={errors}
+                      siblings={loaded.elements.flatMap((e) => (e.spec.kind === "advancement" && e.file !== selected ? [e.spec.id] : []))}
+                      onChange={(d) => { setDraft(d); setDirty(true); }}
+                    />
+                  </ItemContext.Provider>
+                )}
                 {draft.kind === "recipe" && (
                   <ItemContext.Provider value={world}>
                     <RecipeEditor key={selected} draft={draft} errors={errors} onChange={(d) => { setDraft(d); setDirty(true); }} />
@@ -444,6 +465,11 @@ export function App() {
               {PREVIEWED.has(draft.kind) && errors.size === 0 && <Preview root={loaded.root} spec={draft as ElementSpec} version={version} />}
               {draft.kind === "ore" && <OrePreview draft={draft} />}
               {draft.kind === "biome" && <BiomePreview draft={draft} />}
+              {draft.kind === "advancement" && (
+                <ItemContext.Provider value={world}>
+                  <QuestLine nodes={questNodes(loaded, selected, draft)} current={selected} onOpen={(file) => select(file, specAt(loaded, file))} />
+                </ItemContext.Provider>
+              )}
             </div>
           </TextureContext.Provider>
         ) : (

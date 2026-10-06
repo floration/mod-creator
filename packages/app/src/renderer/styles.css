@@ -262,3 +262,32 @@ table.rows td.has-error input { border-color: var(--error); }
 .section { min-width: 0; }
 .modrinth-results li { min-width: 0; }
 .modrinth-text { overflow: hidden; }
+
+.icon-input { display: flex; gap: 6px; align-items: center; }
+.icon-input input { flex: 1; min-width: 0; }
+.rows.criteria select { width: auto; }
+.rows.criteria input.count { width: 64px; }
+
+.quest-lines { flex: 1; min-width: 0; overflow: auto; border-left: 1px solid var(--border); padding: 16px; }
+.quest-tab { margin-bottom: 20px; }
+.quest-title { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
+.quest-canvas { position: relative; background: #24262a; border: 1px solid var(--border); border-radius: 8px; }
+.quest-canvas svg { position: absolute; inset: 0; }
+.quest-canvas path { fill: none; stroke: #6d7079; stroke-width: 2; }
+.quest-node {
+  position: absolute; display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
+  background: none; border: none; padding: 0; width: 120px; text-align: left;
+}
+.quest-node:disabled { opacity: 1; }
+.quest-box {
+  width: 30px; height: 30px; display: grid; place-items: center;
+  background: var(--surface-2); border: 2px solid #8b8e96; border-radius: 3px; color: var(--muted);
+}
+.quest-node.frame-goal .quest-box { border-radius: 10px; }
+.quest-node.frame-challenge .quest-box { border-color: #b47be6; clip-path: polygon(20% 0, 80% 0, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0 80%, 0 20%); border-radius: 0; }
+.quest-node.frame-challenge .quest-label { color: #c9a3f0; }
+.quest-node.frame-external .quest-box { border-style: dashed; }
+.quest-node.frame-external .quest-label { color: var(--muted); font-style: italic; }
+.quest-node.current .quest-box { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+.quest-node:hover:not(:disabled) .quest-box { border-color: var(--text); }
+.quest-label { font-size: 12px; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

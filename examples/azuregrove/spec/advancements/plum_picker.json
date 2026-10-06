@@ -1,0 +1,22 @@
+{
+  "$schema": "../../.modcreator/schema/advancement.json",
+  "kind": "advancement",
+  "id": "plum_picker",
+  "name": "Plum Picker",
+  "advancement": {
+    "parent": "azure_grove",
+    "description": "Eat an Azure Plum",
+    "icon": "azure_plum",
+    "criteria": [
+      {
+        "type": "eat",
+        "item": "azure_plum"
+      }
+    ],
+    "rewards": {
+      "recipes": [
+        "azurewood_door"
+      ]
+    }
+  }
+}

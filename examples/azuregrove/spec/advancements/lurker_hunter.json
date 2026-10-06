@@ -1,0 +1,35 @@
+{
+  "$schema": "../../.modcreator/schema/advancement.json",
+  "kind": "advancement",
+  "id": "lurker_hunter",
+  "name": "Lurker Hunter",
+  "advancement": {
+    "parent": "azure_grove",
+    "description": "Defeat a Grove Lurker and a Bluetusk",
+    "icon": "azurite_sword",
+    "frame": "challenge",
+    "criteria": [
+      {
+        "type": "kill",
+        "mob": "grove_lurker"
+      },
+      {
+        "type": "kill",
+        "mob": "bluetusk"
+      }
+    ],
+    "rewards": {
+      "experience": 50,
+      "items": [
+        {
+          "item": "azurite",
+          "count": 4
+        },
+        {
+          "item": "azure_plum",
+          "count": 2
+        }
+      ]
+    }
+  }
+}

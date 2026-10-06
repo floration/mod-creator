@@ -423,6 +423,69 @@ export const OreSpecSchema = z.object({
 });
 export type OreSpec = z.infer<typeof OreSpecSchema>;
 
+/** What the player has to do for one criterion of an advancement. */
+export const Criterion = z.discriminatedUnion("type", [
+  /** Have the item (or `count` of it) in the inventory. Takes a tag too, like `#minecraft:logs`. */
+  z.object({ type: z.literal("obtain"), item: Ref, count: z.number().int().min(1).max(6400).default(1) }),
+  /** Kill a mob of this type. */
+  z.object({ type: z.literal("kill"), mob: Ref }),
+  /** Stand in a biome. */
+  z.object({ type: z.literal("visit"), biome: Ref }),
+  /** Craft with a recipe; recipes are named by their id, like `ruby_block` or `minecraft:bread`. */
+  z.object({ type: z.literal("craft"), recipe: Ref }),
+  /** Eat or drink an item. */
+  z.object({ type: z.literal("eat"), item: Ref }),
+  /** Place a block. */
+  z.object({ type: z.literal("place"), block: Ref }),
+  /** Breed two of this mob. */
+  z.object({ type: z.literal("breed"), mob: Ref }),
+  /** Tame a mob of this type. */
+  z.object({ type: z.literal("tame"), mob: Ref }),
+]);
+export type Criterion = z.infer<typeof Criterion>;
+export const CRITERION_TYPES = ["obtain", "kill", "visit", "craft", "eat", "place", "breed", "tame"] as const;
+
+export const AdvancementFrame = z.enum(["task", "goal", "challenge"]);
+
+/**
+ * A quest, as a vanilla advancement. One without a parent starts its own tab in the advancements screen;
+ * the rest hang under their parent, so a chain of them makes a quest line.
+ */
+export const AdvancementSpecSchema = z.object({
+  kind: z.literal("advancement"),
+  $schema: z.string().optional(),
+  id: LocalId,
+  /** The title shown on the advancement. */
+  name: z.string().min(1),
+  advancement: z.object({
+    /** The advancement it unlocks after: an id from this mod, or a vanilla one like `minecraft:story/mine_stone`. Empty starts a new tab. */
+    parent: Ref.optional(),
+    description: z.string().default(""),
+    /** Item shown on the advancement. */
+    icon: Ref,
+    /** `task` is a plain square, `goal` rounded and `challenge` spiky with a purple title. */
+    frame: AdvancementFrame.default("task"),
+    /** For a tab's first advancement: a 16x16 texture tiled behind the tab. Defaults to vanilla stone. */
+    background: z.string().optional(),
+    criteria: z.array(Criterion).min(1),
+    /** Done when every criterion is met, or when any one is. */
+    requires: z.enum(["all", "any"]).default("all"),
+    /** Pop up a toast and post in chat when it is earned. */
+    announce: z.boolean().default(true),
+    /** Not shown until it is earned. */
+    hidden: z.boolean().default(false),
+    rewards: z
+      .object({
+        experience: z.number().int().min(0).max(100000).default(0),
+        items: z.array(z.object({ item: Ref, count: z.number().int().min(1).max(99).default(1) })).default([]),
+        /** Recipes unlocked in the recipe book. */
+        recipes: z.array(Ref).default([]),
+      })
+      .default({ experience: 0, items: [], recipes: [] }),
+  }),
+});
+export type AdvancementSpec = z.infer<typeof AdvancementSpecSchema>;
+
 export const ElementSpecSchema = z.discriminatedUnion("kind", [
   BlockSpecSchema,
   ItemSpecSchema,
@@ -434,6 +497,7 @@ export const ElementSpecSchema = z.discriminatedUnion("kind", [
   BiomeSpecSchema,
   RecipeSpecSchema,
   OreSpecSchema,
+  AdvancementSpecSchema,
 ]);
 export type ElementSpec = z.infer<typeof ElementSpecSchema>;
 export type ElementKind = ElementSpec["kind"];
@@ -450,6 +514,7 @@ export const KIND_FOLDERS: Record<ElementKind, string> = {
   biome: "biomes",
   recipe: "recipes",
   ore: "worldgen",
+  advancement: "advancements",
 };
 
 export const SCHEMAS = {
@@ -464,6 +529,7 @@ export const SCHEMAS = {
   biome: BiomeSpecSchema,
   recipe: RecipeSpecSchema,
   ore: OreSpecSchema,
+  advancement: AdvancementSpecSchema,
 } as const;
 
 /** JSON Schema for each spec kind, written to `.modcreator/schema/` for editor autocomplete. */

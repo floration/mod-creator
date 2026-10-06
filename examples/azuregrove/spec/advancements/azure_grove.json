@@ -1,0 +1,17 @@
+{
+  "$schema": "../../.modcreator/schema/advancement.json",
+  "kind": "advancement",
+  "id": "azure_grove",
+  "name": "Azure Grove",
+  "advancement": {
+    "description": "Find an Azure Grove",
+    "icon": "azurewood_sapling",
+    "background": "art/azurewood_planks.png",
+    "criteria": [
+      {
+        "type": "visit",
+        "biome": "azure_grove"
+      }
+    ]
+  }
+}

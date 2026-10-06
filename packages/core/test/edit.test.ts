@@ -62,4 +62,17 @@ describe("renameEdits", () => {
     const item = loaded.elements.find((e) => e.file === "spec/items/azurite.json")!;
     expect(renameEdits(loaded, item.file, item.spec)).toEqual([]);
   });
+
+  it("moves quests to a renamed parent and follows renamed recipes", async () => {
+    const loaded = await loadProject(AZUREGROVE);
+    const root = loaded.elements.find((e) => e.file === "spec/advancements/azure_grove.json")!;
+    const edits = renameEdits(loaded, root.file, renamed(root.spec, "grove"));
+    expect(edits.map((e) => e.file).sort()).toEqual(["spec/advancements/blue_rocks.json", "spec/advancements/lurker_hunter.json", "spec/advancements/plum_picker.json"]);
+    expect(edits.every((e) => e.spec.kind === "advancement" && e.spec.advancement.parent === "grove")).toBe(true);
+
+    const tree = loaded.elements.find((e) => e.file === "spec/trees/azurewood.json")!;
+    const plum = renameEdits(loaded, tree.file, renamed(tree.spec, "bluewood")).find((e) => e.file === "spec/advancements/plum_picker.json")!;
+    expect(plum.fields).toEqual(["advancement.rewards.recipes.0"]);
+    expect(plum.spec.kind === "advancement" && plum.spec.advancement.rewards.recipes).toEqual(["bluewood_door"]);
+  });
 });

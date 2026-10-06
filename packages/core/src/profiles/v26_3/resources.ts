@@ -1,5 +1,7 @@
 import {
   ARMOR_PIECES,
+  type AdvancementSpec,
+  type Criterion,
   TREE_PARTS,
   registeredItems,
   shapeBlocks,
@@ -686,6 +688,87 @@ function oreFiles(out: Output, o: OreSpec) {
   });
 }
 
+// ---- Advancements ----
+
+const entityIs = (modId: string, mob: string) => ({
+  type: "minecraft:entity_properties",
+  entity: "this",
+  predicate: { "minecraft:entity_type": resolveRef(modId, mob) },
+});
+
+/** One criterion as vanilla advancement JSON, in the 26.3 format of the game's own advancements. */
+export function criterionJson(modId: string, c: Criterion): unknown {
+  switch (c.type) {
+    case "obtain":
+      return { trigger: "minecraft:inventory_changed", conditions: { items: [{ items: resolveRef(modId, c.item), ...(c.count > 1 ? { count: { min: c.count } } : {}) }] } };
+    case "kill":
+      return { trigger: "minecraft:player_killed_entity", conditions: { entity: entityIs(modId, c.mob) } };
+    case "visit":
+      return {
+        trigger: "minecraft:location",
+        conditions: { player: { type: "minecraft:entity_properties", entity: "this", predicate: { "minecraft:location": { biomes: resolveRef(modId, c.biome) } } } },
+      };
+    case "craft":
+      return { trigger: "minecraft:recipe_crafted", conditions: { recipes: resolveRef(modId, c.recipe) } };
+    case "eat":
+      return { trigger: "minecraft:consume_item", conditions: { item: { items: resolveRef(modId, c.item) } } };
+    case "place":
+      return { trigger: "minecraft:placed_block", conditions: { location: { type: "minecraft:match_block", blocks: resolveRef(modId, c.block) } } };
+    case "breed":
+      return { trigger: "minecraft:bred_animals", conditions: { child: entityIs(modId, c.mob) } };
+    case "tame":
+      return { trigger: "minecraft:tame_animal", conditions: { entity: entityIs(modId, c.mob) } };
+  }
+}
+
+function advancementFiles(out: Output, a: AdvancementSpec) {
+  const modId = out.modId;
+  const adv = a.advancement;
+  const key = `advancements.${modId}.${a.id}`;
+  out.lang[`${key}.title`] = a.name;
+  out.lang[`${key}.description`] = adv.description;
+
+  const names = adv.criteria.map((c, i) => `${c.type}_${i + 1}`);
+  const display: Record<string, unknown> = {
+    icon: { id: resolveRef(modId, adv.icon) },
+    title: { translate: `${key}.title` },
+    description: { translate: `${key}.description` },
+    frame: adv.frame,
+    show_toast: adv.announce,
+    announce_to_chat: adv.announce,
+    hidden: adv.hidden,
+  };
+  if (!adv.parent) {
+    if (adv.background) {
+      out.copy(adv.background, `assets/${modId}/textures/gui/advancements/backgrounds/${a.id}.png`);
+      display.background = `${modId}:gui/advancements/backgrounds/${a.id}`;
+    } else {
+      display.background = "minecraft:gui/advancements/backgrounds/stone";
+    }
+  }
+
+  const rewards: Record<string, unknown> = {};
+  const r = adv.rewards;
+  if (r.experience > 0) rewards.experience = r.experience;
+  if (r.items.length > 0) {
+    out.set(`data/${modId}/loot_table/advancement_reward/${a.id}.json`, {
+      type: "minecraft:advancement_reward",
+      pools: r.items.map((i) => ({ rolls: 1, entries: [{ type: "minecraft:item", name: resolveRef(modId, i.item), modifier: [countModifier(i.count, i.count)] }] })),
+      random_sequence: `${modId}:advancement_reward/${a.id}`,
+    });
+    rewards.loot = [`${modId}:advancement_reward/${a.id}`];
+  }
+  if (r.recipes.length > 0) rewards.recipes = r.recipes.map((ref) => resolveRef(modId, ref));
+
+  out.set(`data/${modId}/advancement/${a.id}.json`, {
+    ...(adv.parent ? { parent: resolveRef(modId, adv.parent) } : {}),
+    criteria: Object.fromEntries(adv.criteria.map((c, i) => [names[i], criterionJson(modId, c)])),
+    display,
+    requirements: adv.requires === "all" ? names.map((n) => [n]) : [names],
+    ...(Object.keys(rewards).length ? { rewards } : {}),
+  });
+}
+
 /** Every generated resource file for the project. */
 export function resourceFiles(project: Project, elements: ElementSpec[]): ResourceFiles {
   const out = new Output(project.modId);
@@ -701,6 +784,7 @@ export function resourceFiles(project: Project, elements: ElementSpec[]): Resour
       case "mob": mobFiles(out, e); break;
       case "biome": biomeFiles(out, e, hostiles); break;
       case "ore": oreFiles(out, e); break;
+      case "advancement": advancementFiles(out, e); break;
       case "recipe": out.set(`data/${project.modId}/recipe/${e.id}.json`, recipeJson(project.modId, e)); break;
     }
   }

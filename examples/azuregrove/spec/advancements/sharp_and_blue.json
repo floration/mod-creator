@@ -1,0 +1,21 @@
+{
+  "$schema": "../../.modcreator/schema/advancement.json",
+  "kind": "advancement",
+  "id": "sharp_and_blue",
+  "name": "Sharp and Blue",
+  "advancement": {
+    "parent": "blue_rocks",
+    "description": "Craft an Azurite Sword",
+    "icon": "azurite_sword",
+    "frame": "goal",
+    "criteria": [
+      {
+        "type": "craft",
+        "recipe": "azurite_sword"
+      }
+    ],
+    "rewards": {
+      "experience": 20
+    }
+  }
+}

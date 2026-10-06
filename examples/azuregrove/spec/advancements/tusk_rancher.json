@@ -1,0 +1,17 @@
+{
+  "$schema": "../../.modcreator/schema/advancement.json",
+  "kind": "advancement",
+  "id": "tusk_rancher",
+  "name": "Tusk Rancher",
+  "advancement": {
+    "parent": "plum_picker",
+    "description": "Breed two Bluetusks with plums",
+    "icon": "bluetusk_spawn_egg",
+    "criteria": [
+      {
+        "type": "breed",
+        "mob": "bluetusk"
+      }
+    ]
+  }
+}

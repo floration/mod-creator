@@ -1,0 +1,22 @@
+{
+  "$schema": "../../.modcreator/schema/advancement.json",
+  "kind": "advancement",
+  "id": "brick_by_brick",
+  "name": "Brick by Brick",
+  "advancement": {
+    "parent": "blue_rocks",
+    "description": "Place azurite brick stairs or a wall",
+    "icon": "azurite_brick_stairs",
+    "criteria": [
+      {
+        "type": "place",
+        "block": "azurite_brick_stairs"
+      },
+      {
+        "type": "place",
+        "block": "azurite_brick_wall"
+      }
+    ],
+    "requires": "any"
+  }
+}
