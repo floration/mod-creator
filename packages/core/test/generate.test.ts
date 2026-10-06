@@ -129,6 +129,34 @@ describe("Azure Grove example", () => {
     expect(res("data/minecraft/tags/item/wooden_doors.json").values).toContain("azuregrove:azurewood_door");
   });
 
+  it("grows trees with the vanilla shape's real config, or a hand-built layout", async () => {
+    const files = plan(await loadProject(AZUREGROVE));
+    const res = (p: string) => JSON.parse(files.get(`src/generated/resources/${p}`) as string);
+    const java = files.get("src/generated/java/com/example/azuregrove/generated/ModContent.java") as string;
+    // Azurewood: fancy oak with a shorter trunk.
+    const azurewood = res("data/azuregrove/worldgen/feature/azurewood.json");
+    expect(azurewood.trunk_placer).toEqual({ type: "minecraft:fancy_trunk_placer", base_height: 4, height_rand_a: 6, height_rand_b: 0 });
+    expect(azurewood.foliage_placer.type).toBe("minecraft:fancy_foliage_placer");
+    // Sky Willow: hand-built, placed by the generated feature type.
+    const willow = res("data/azuregrove/worldgen/feature/sky_willow.json");
+    expect(willow.type).toBe("azuregrove:custom_tree");
+    expect(willow.logs_y).toContainEqual([0, 0, 0]);
+    expect(willow.logs_x).toContainEqual([2, 5, 0]);
+    expect(willow.leaves_by_distance.length).toBeLessThan(7);
+    expect(java).toContain('Registry.register(BuiltInRegistries.FEATURE_TYPE, id("custom_tree"), CustomTreeFeature.CODEC);');
+    expect(files.has("src/generated/java/com/example/azuregrove/generated/world/CustomTreeFeature.java")).toBe(true);
+  });
+
+  it("grows 2x2 shapes only from four saplings, and wants a layout for custom trees", async () => {
+    const dir = await copyOf(AZUREGROVE);
+    await editSpec(dir, "spec/trees/azurewood.json", (json) => { json.tree.shape = "dark_oak"; });
+    const java = plan(await loadProject(dir)).get("src/generated/java/com/example/azuregrove/generated/ModContent.java") as string;
+    expect(java).toContain('WeightedList.of(), WeightedList.of(ResourceKey.create(Registries.FEATURE, id("azurewood"))), WeightedList.of(), null);');
+    await editSpec(dir, "spec/trees/azurewood.json", (json) => { json.tree.shape = "custom"; });
+    const fields = (await loadProject(dir)).issues.filter((i) => i.severity === "error").map((i) => i.field);
+    expect(fields).toContain("tree.custom");
+  });
+
   it("rejects shapes on a block with a custom model", async () => {
     const dir = await copyOf(AZUREGROVE);
     await editSpec(dir, "spec/blocks/azurite_bricks.json", (json) => { json.block.model = { type: "custom", model: "art/azurite_bricks.png" }; });

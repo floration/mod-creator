@@ -9,15 +9,20 @@ mkdir -p run
 echo "eula=true" > run/eula.txt
 printf 'online-mode=false\nlevel-seed=modcreator\nspawn-protection=0\n' > run/server.properties
 
-# A data pack that places each structure once the world is up and reports the result in the log.
-structures=$(node -e '
-  const fs = require("fs");
-  const mod = JSON.parse(fs.readFileSync("modcreator.json", "utf8")).modId;
-  const dir = "spec/structures";
-  const ids = fs.existsSync(dir) ? fs.readdirSync(dir).filter((f) => f.endsWith(".json")).map((f) => `${mod}:${JSON.parse(fs.readFileSync(`${dir}/${f}`, "utf8")).id}`) : [];
-  console.log(ids.join(" "));
-')
-if [ -n "$structures" ]; then
+# A data pack that places each structure and grows each tree once the world is up, and reports the result in the log.
+ids() {
+  node -e '
+    const fs = require("fs");
+    const mod = JSON.parse(fs.readFileSync("modcreator.json", "utf8")).modId;
+    const dir = process.argv[1];
+    const ids = fs.existsSync(dir) ? fs.readdirSync(dir).filter((f) => f.endsWith(".json")).map((f) => `${mod}:${JSON.parse(fs.readFileSync(`${dir}/${f}`, "utf8")).id}`) : [];
+    console.log(ids.join(" "));
+  ' "$1"
+}
+structures=$(ids spec/structures)
+trees=$(ids spec/trees)
+checks="$structures$trees"
+if [ -n "$checks" ]; then
   pack=run/world/datapacks/modcreator_check
   mkdir -p "$pack/data/check/function" "$pack/data/minecraft/tags/function"
   echo '{"pack":{"description":"Mod Creator CI check","pack_format":121,"min_format":121,"max_format":121}}' > "$pack/pack.mcmeta"
@@ -34,6 +39,16 @@ execute unless score #placed check matches 1 run say MODCREATOR CHECK FAILED to 
 MCFUNCTION
     done
   done
+  # Trees grow in open air, spaced apart, so only a broken feature fails to place.
+  x=100
+  for id in $trees; do
+    cat >> "$pack/data/check/function/place.mcfunction" <<MCFUNCTION
+execute store success score #placed check run place feature $id $x 200 100
+execute if score #placed check matches 1 run say MODCREATOR CHECK placed feature $id
+execute unless score #placed check matches 1 run say MODCREATOR CHECK FAILED to place feature $id
+MCFUNCTION
+    x=$((x + 40))
+  done
   echo 'say MODCREATOR CHECK done' >> "$pack/data/check/function/place.mcfunction"
 fi
 
@@ -42,7 +57,7 @@ gradle=$!
 
 status=1
 for _ in $(seq 1 180); do
-  if grep -q 'Done (' "$log" && { [ -z "$structures" ] || grep -q 'MODCREATOR CHECK done' "$log"; }; then status=0; break; fi
+  if grep -q 'Done (' "$log" && { [ -z "$checks" ] || grep -q 'MODCREATOR CHECK done' "$log"; }; then status=0; break; fi
   if ! kill -0 "$gradle" 2>/dev/null; then break; fi
   sleep 5
 done
@@ -51,14 +66,14 @@ kill "$gradle" 2>/dev/null
 wait "$gradle" 2>/dev/null
 
 if [ "$status" -ne 0 ]; then
-  echo "::error::The server didn't finish starting$([ -n "$structures" ] && echo ' or placing structures')"
+  echo "::error::The server didn't finish starting$([ -n "$checks" ] && echo ' or placing structures and trees')"
   tail -n 120 "$log"
   exit 1
 fi
 
 grep -E 'Loaded [0-9]+ advancements|Loaded [0-9]+ recipes|MODCREATOR CHECK' "$log" || true
 if grep -q 'MODCREATOR CHECK FAILED' "$log"; then
-  echo "::error::A structure couldn't be placed"
+  echo "::error::A structure or tree couldn't be placed"
   exit 1
 fi
 problems=$(grep -E "/ERROR\]|Couldn't load advancements|Found validation problems|Couldn't parse|Failed to parse|Failed to load" "$log")

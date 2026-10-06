@@ -93,7 +93,13 @@ Rules the generator follows:
 Two example mods show every supported field:
 
 - [`examples/ruby`](examples/ruby): an ore that drops gems with Fortune, a storage block, a lamp with a custom Java class, a gem item, shaped, shapeless and smelting recipes, a ruby ore vein that generates between Y -16 and 48, the Glowmoth, a tameable flying mob with its own Blockbench model whose wings flap, and a two-step quest tab (find a ruby, then tame a Glowmoth).
-- [`examples/azuregrove`](examples/azuregrove): one of each of the other kinds. Azurite ore and bricks (with brick stairs, slab and wall), the Azure Plum food, an Azurite Sword and armor set, the Azurewood tree (fancy oak shape, its leaves drop plums) and its full wood set, Azure Grass, the Bluetusk (a blue pig that eats plums, fights back and grunts with its own sound), the Grove Lurker (a hostile one that comes out at night), the Azure Grove biome, which takes over part of Plains and Forest and grows all of them, an Azure Grove quest tab with seven quests that use every kind of criterion and reward, and the Azure Shrine, a small azurite brick structure that spawns in the biome.
+- [`examples/azuregrove`](examples/azuregrove): one of each of the other kinds. Azurite ore and bricks (with brick stairs, slab and wall), the Azure Plum food, an Azurite Sword and armor set, the Azurewood tree (fancy oak shape, its leaves drop plums) and its full wood set, the Sky Willow (a weeping willow built by hand as a custom tree shape), Azure Grass, the Bluetusk (a blue pig that eats plums, fights back and grunts with its own sound), the Grove Lurker (a hostile one that comes out at night), the Azure Grove biome, which takes over part of Plains and Forest and grows all of them, an Azure Grove quest tab with seven quests that use every kind of criterion and reward, and the Azure Shrine, a small azurite brick structure that spawns in the biome.
+
+### Tree shapes
+
+A tree's **Grows like** picks one of 17 vanilla shapes (oak, fancy oak, birch, tall birch, jungle, swamp oak, jungle bush, spruce, pine, acacia, cherry, azalea, poplar, and the 2x2 dark oak, giant spruce, giant pine and giant jungle), with optional trunk height and leaf radius tweaks. The 3D preview runs a port of the game's own trunk and foliage placers, so it shows the exact trees the sapling grows; **Grow another** shows the next seed. `scripts/tree-parity` grows the same trees with Minecraft's code, and a test checks the preview matches them block for block.
+
+**Custom (built by hand)** trees are painted layer by layer: upright logs, logs lying east-west or north-south, and leaves. Start from a grown vanilla tree, or build one in **Run client**, save it with a structure block and **Import .nbt**. Leaves more than 6 blocks from a log are marked, since they would decay. In the game a generated feature places the layout, turned a random quarter turn each time unless you untick it.
 
 ### Shapes and wood sets
 

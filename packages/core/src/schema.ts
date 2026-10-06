@@ -230,8 +230,44 @@ export const ArmorSpecSchema = z.object({
 });
 export type ArmorSpec = z.infer<typeof ArmorSpecSchema>;
 
-/** Vanilla tree shapes the generator can copy. Heights and leaf radius can be tuned on top. */
-export const TreeShape = z.enum(["oak", "fancy_oak", "birch", "spruce", "acacia", "cherry"]);
+/**
+ * How the tree grows: a vanilla tree's trunk and leaf shape (heights and leaf radius can be tuned on top), or
+ * `custom` for a block layout built by hand. The shapes match trees.ts's TREE_SHAPES.
+ */
+export const TreeShape = z.enum([
+  "oak",
+  "fancy_oak",
+  "birch",
+  "super_birch",
+  "jungle",
+  "swamp_oak",
+  "jungle_bush",
+  "spruce",
+  "pine",
+  "acacia",
+  "cherry",
+  "azalea",
+  "poplar",
+  "dark_oak",
+  "mega_spruce",
+  "mega_pine",
+  "mega_jungle",
+  "custom",
+]);
+
+/**
+ * A hand-built tree: layers of characters from the sapling's level up. In each layer, rows run north to south
+ * and each row reads west to east. `.` is nothing, `L` an upright log, `X` a log lying east-west, `Z` a log
+ * lying north-south, `#` leaves.
+ */
+export const CustomTreeLayout = z.object({
+  layers: z.array(z.array(z.string().regex(/^[.LXZ# ]*$/, "use . L X Z # only"))).min(1),
+  /** `[column, row]` of the sapling in the bottom layer. Defaults to the middle of the layout. */
+  origin: z.tuple([z.number().int().min(0), z.number().int().min(0)]).optional(),
+  /** Turn the tree a random quarter turn each time one grows, so a forest doesn't look copy-pasted. */
+  randomRotation: z.boolean().default(true),
+});
+export type CustomTreeLayout = z.infer<typeof CustomTreeLayout>;
 
 /**
  * A wood type: `<id>_log`, `<id>_planks`, `<id>_leaves` and `<id>_sapling` blocks, their items, tags, a planks
@@ -255,13 +291,15 @@ export const TreeSpecSchema = z.object({
     trunkHeight: z.number().int().min(1).max(32).optional(),
     /** Extra random trunk height, 0 to this many blocks. Defaults to the shape's own. */
     trunkHeightRandom: z.number().int().min(0).max(24).optional(),
-    /** Leaf radius for oak, birch and fancy oak shapes. */
+    /** Leaf radius for shapes with a fixed one (oak, birch, fancy oak, acacia, cherry, ...). */
     leafRadius: z.number().int().min(0).max(8).optional(),
+    /** The layout for the `custom` shape. */
+    custom: CustomTreeLayout.optional(),
     /** Chance (0-1) that breaking leaves drops a sapling. Vanilla oak is 0.05. */
     saplingChance: z.number().min(0).max(1).default(0.05),
     /** An item leaves sometimes drop, like oak's apples. */
     fruit: z.object({ item: Ref, chance: z.number().min(0).max(1).default(0.02) }).optional(),
-  }),
+  }).refine((t) => t.shape !== "custom" || t.custom, { message: "a custom tree needs a layout", path: ["custom"] }),
   /** The wood set: stairs, slabs, fences, doors and so on, made from the planks. */
   shapes: BlockShapes,
 });
