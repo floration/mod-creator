@@ -15,7 +15,7 @@ Design doc: [Mod Creator Architecture](https://claude.ai/code/artifact/ab83630b-
 | IntelliJ IDEA with the Minecraft Development plugin | Optional, for editing Java by hand |
 | Blockbench | Optional, for textures and models |
 
-Gradle doesn't need installing: each mod project ships the Gradle 9.6.0 wrapper.
+Gradle doesn't need installing: each mod project ships the Gradle 9.7.0 wrapper.
 
 ## Quick start
 
@@ -102,14 +102,14 @@ The recipe editor is a crafting table: pick an item from the list under it and c
 | --- | --- |
 | `packages/core` | Zod schemas for specs, the project loader and checks, and the generator |
 | `packages/core/src/profiles/v26_3` | Templates for Minecraft 26.3: Java registration, resource JSON, Gradle files |
-| `packages/core/profiles/26.3/wrapper` | Gradle 9.6.0 wrapper copied into new projects |
+| `packages/core/profiles/26.3/wrapper` | Gradle 9.7.0 wrapper copied into new projects |
 | `packages/cli` | `modcreator new`, `generate` and `check` |
 | `packages/app` | Electron app: React forms, three.js preview, Gradle runner |
 | `examples/ruby`, `examples/azuregrove` | Example mods, also used by the generator snapshot tests |
 
 ## Toolchain pinned by the 26.3 profile
 
-Minecraft 26.3, Fabric Loader 0.19.5, Fabric Loom 1.18.2 (`net.fabricmc.fabric-loom`), Fabric API 0.161.0+26.3, Java 25, Gradle 9.6.0. Minecraft 26.x is unobfuscated, so there is no mappings line and dependencies use `implementation`.
+Minecraft 26.3, Fabric Loader 0.19.5, Fabric Loom 1.18.2 (`net.fabricmc.fabric-loom`), Fabric API 0.161.0+26.3, Java 25, Gradle 9.7.0. Minecraft 26.x is unobfuscated, so there is no mappings line and dependencies use `implementation`.
 
 ## Status
 

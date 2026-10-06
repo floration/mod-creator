@@ -13,7 +13,15 @@ const temps: string[] = [];
 async function copyOf(example: string): Promise<string> {
   const dir = await mkdtemp(path.join(os.tmpdir(), "modcreator-"));
   temps.push(dir);
-  await cp(example, dir, { recursive: true, filter: (src) => !src.includes(`${path.sep}src${path.sep}generated`) });
+  // Skip generator and Gradle output: a running build or runClient keeps files in .gradle/ locked.
+  const skip = ["build", ".gradle", "run", path.join("src", "generated")];
+  await cp(example, dir, {
+    recursive: true,
+    filter: (src) => {
+      const rel = path.relative(example, src);
+      return !skip.some((s) => rel === s || rel.startsWith(s + path.sep));
+    },
+  });
   return dir;
 }
 

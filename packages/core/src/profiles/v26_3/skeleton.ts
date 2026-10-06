@@ -8,7 +8,7 @@ export const VERSIONS = {
   loom: "1.18.2",
   fabricApi: "0.161.0+26.3",
   java: 25,
-  gradle: "9.6.0",
+  gradle: "9.7.0",
 } as const;
 
 export const entrypointClass = (project: Project) => `${project.package}.${pascal(project.modId)}Mod`;
