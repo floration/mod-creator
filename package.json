@@ -1,0 +1,22 @@
+{
+  "name": "mod-creator",
+  "private": true,
+  "version": "0.1.0",
+  "description": "GUI tool for building Minecraft 26.3+ Fabric mods from spec files",
+  "type": "module",
+  "workspaces": [
+    "packages/core",
+    "packages/cli",
+    "packages/app"
+  ],
+  "scripts": {
+    "build": "npm run build -w @modcreator/core -w @modcreator/cli -w @modcreator/app",
+    "test": "npm test -w @modcreator/core",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "app": "npm start -w @modcreator/app",
+    "example": "node packages/cli/dist/index.js generate examples/ruby"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

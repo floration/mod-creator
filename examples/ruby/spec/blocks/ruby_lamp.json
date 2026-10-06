@@ -1,0 +1,16 @@
+{
+  "$schema": "../../.modcreator/schema/block.json",
+  "kind": "block",
+  "id": "ruby_lamp",
+  "name": "Ruby Lamp",
+  "tags": ["minecraft:mineable/pickaxe"],
+  "creativeTab": "functional_blocks",
+  "customClass": "com.example.ruby.RubyLampBlock",
+  "block": {
+    "hardness": 0.3,
+    "resistance": 0.3,
+    "sound": "glass",
+    "lightLevel": 15,
+    "model": { "type": "cube_all", "texture": "art/ruby_lamp.png" }
+  }
+}

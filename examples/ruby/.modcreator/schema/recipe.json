@@ -1,0 +1,173 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "kind": {
+      "type": "string",
+      "const": "recipe"
+    },
+    "$schema": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "recipe": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "shaped"
+            },
+            "pattern": {
+              "minItems": 1,
+              "maxItems": 3,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "maxLength": 3
+              }
+            },
+            "key": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1
+              },
+              "additionalProperties": {
+                "type": "string",
+                "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+              }
+            },
+            "result": {
+              "type": "object",
+              "properties": {
+                "item": {
+                  "type": "string",
+                  "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+                },
+                "count": {
+                  "default": 1,
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 99
+                }
+              },
+              "required": [
+                "item"
+              ]
+            }
+          },
+          "required": [
+            "type",
+            "pattern",
+            "key",
+            "result"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "shapeless"
+            },
+            "ingredients": {
+              "minItems": 1,
+              "maxItems": 9,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+              }
+            },
+            "result": {
+              "type": "object",
+              "properties": {
+                "item": {
+                  "type": "string",
+                  "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+                },
+                "count": {
+                  "default": 1,
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 99
+                }
+              },
+              "required": [
+                "item"
+              ]
+            }
+          },
+          "required": [
+            "type",
+            "ingredients",
+            "result"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "smelting",
+                "blasting",
+                "smoking",
+                "campfire_cooking"
+              ]
+            },
+            "ingredient": {
+              "type": "string",
+              "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+            },
+            "result": {
+              "type": "object",
+              "properties": {
+                "item": {
+                  "type": "string",
+                  "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+                },
+                "count": {
+                  "default": 1,
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 99
+                }
+              },
+              "required": [
+                "item"
+              ]
+            },
+            "experience": {
+              "default": 0.1,
+              "type": "number",
+              "minimum": 0
+            },
+            "cookingTime": {
+              "default": 200,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "type",
+            "ingredient",
+            "result"
+          ]
+        }
+      ]
+    }
+  },
+  "required": [
+    "kind",
+    "id",
+    "recipe"
+  ]
+}

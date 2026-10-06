@@ -1,0 +1,28 @@
+{
+  "name": "@modcreator/app",
+  "version": "0.1.0",
+  "description": "Mod Creator desktop app: spec editor, 3D preview and build buttons",
+  "type": "module",
+  "main": "dist/main/main.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.main.json && vite build",
+    "typecheck": "tsc -p tsconfig.main.json --noEmit && tsc -p tsconfig.renderer.json --noEmit",
+    "start": "npm run build && electron ."
+  },
+  "dependencies": {
+    "@modcreator/core": "0.1.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "three": "^0.186.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@types/three": "^0.186.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "electron": "^44.5.1",
+    "typescript": "^5.9.3",
+    "vite": "^8.3.3"
+  }
+}

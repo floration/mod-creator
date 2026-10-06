@@ -1,0 +1,11 @@
+{
+  "$schema": "../../.modcreator/schema/recipe.json",
+  "kind": "recipe",
+  "id": "ruby_block",
+  "recipe": {
+    "type": "shaped",
+    "pattern": ["RRR", "RRR", "RRR"],
+    "key": { "R": "ruby" },
+    "result": { "item": "ruby_block" }
+  }
+}

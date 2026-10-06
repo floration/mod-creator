@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "ruby",
+  "version": "${version}",
+  "name": "Ruby",
+  "description": "Mod Creator example: a ruby ore, gem, block and lamp.",
+  "authors": [
+    "Mod Creator"
+  ],
+  "license": "All-Rights-Reserved",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.example.ruby.RubyMod"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "minecraft": "~26.3",
+    "java": ">=25",
+    "fabric-api": "*"
+  }
+}
