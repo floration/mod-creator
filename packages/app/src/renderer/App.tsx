@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AdvancementSpecSchema, ProjectSchema, SCHEMAS } from "@modcreator/core/schema";
-import { AdvancementEditor, QuestLine, type QuestNode } from "./AdvancementEditor";
+import { AdvancementEditor, AdvancementTree, type AdvancementNode } from "./AdvancementEditor";
 import { StructureEditor, StructurePreview } from "./StructureEditor";
 import { SoundEditor } from "./SoundEditor";
 import { EffectEditor } from "./EffectEditor";
@@ -31,7 +31,7 @@ const KINDS: { kind: Kind; folder: string; title: string }[] = [
   { kind: "sound", folder: "sounds", title: "Sounds" },
   { kind: "effect", folder: "effects", title: "Effects" },
   { kind: "enchantment", folder: "enchantments", title: "Enchantments" },
-  { kind: "advancement", folder: "advancements", title: "Quests" },
+  { kind: "advancement", folder: "advancements", title: "Advancements" },
 ];
 
 const EDITORS = { block: BlockEditor, item: ItemEditor, ore: OreEditor, tool: ToolEditor, armor: ArmorEditor, tree: TreeEditor, plant: PlantEditor, mob: MobEditor, biome: BiomeEditor, structure: StructureEditor, sound: SoundEditor, effect: EffectEditor, enchantment: EnchantmentEditor };
@@ -68,8 +68,8 @@ function draftErrors(draft: Draft | null, file: string | null, issues: Issue[]):
   return errors;
 }
 
-/** The project's advancements for the quest line, with the open one as currently edited (when it still parses). */
-function questNodes(loaded: LoadedProject, selected: string, draft: Draft): QuestNode[] {
+/** The project's advancements for the advancement tree, with the open one as currently edited (when it still parses). */
+function advancementNodes(loaded: LoadedProject, selected: string, draft: Draft): AdvancementNode[] {
   const nodes = loaded.elements.flatMap((e) => (e.spec.kind === "advancement" ? [{ file: e.file, spec: e.spec }] : []));
   const parsed = AdvancementSpecSchema.safeParse(draft);
   if (!parsed.success) return nodes;
@@ -498,7 +498,7 @@ export function App() {
               )}
               {draft.kind === "advancement" && (
                 <ItemContext.Provider value={world}>
-                  <QuestLine nodes={questNodes(loaded, selected, draft)} current={selected} onOpen={(file) => select(file, specAt(loaded, file))} />
+                  <AdvancementTree nodes={advancementNodes(loaded, selected, draft)} current={selected} onOpen={(file) => select(file, specAt(loaded, file))} />
                 </ItemContext.Provider>
               )}
             </div>

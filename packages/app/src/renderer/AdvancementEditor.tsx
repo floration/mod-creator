@@ -46,7 +46,7 @@ const FRAME_HINTS: Record<string, string> = {
   challenge: "Spiky with a purple title, for hard ones",
 };
 
-/** A quest: vanilla advancement fields, criteria as rows and rewards. */
+/** An advancement: vanilla advancement fields, criteria as rows and rewards. */
 export function AdvancementEditor(p: EditorProps & { siblings: string[] }) {
   const f = { draft: p.draft, errors: p.errors, onChange: p.onChange };
   const parent: string | undefined = getAt(p.draft, ["advancement", "parent"]);
@@ -54,11 +54,11 @@ export function AdvancementEditor(p: EditorProps & { siblings: string[] }) {
   const frame: string = getAt(p.draft, ["advancement", "frame"]) ?? "task";
   return (
     <>
-      <Section title="Quest">
+      <Section title="Advancement">
         <TextField {...f} path={["name"]} label="Title" />
-        <TextField {...f} path={["id"]} label="Id" hint="Lowercase. Other quests name it as their parent" />
+        <TextField {...f} path={["id"]} label="Id" hint="Lowercase. Other advancements name it as their parent" />
         <TextField {...f} path={["advancement", "description"]} label="Description" hint="Shown under the title, like Mine some azurite" />
-        <Row label="Comes after" hint={parent ? "Unlocks on the line once its parent is done" : "No parent: this quest starts its own tab in the advancements screen"} error={p.errors.get("advancement.parent")}>
+        <Row label="Comes after" hint={parent ? "Unlocks on the line once its parent is done" : "No parent: this advancement starts its own tab in the advancements screen"} error={p.errors.get("advancement.parent")}>
           <input
             list="advancement-parents"
             value={parent ?? ""}
@@ -90,7 +90,7 @@ export function AdvancementEditor(p: EditorProps & { siblings: string[] }) {
           {...f}
           path={["advancement", "rewards", "items"]}
           label="Items"
-          hint="Given to the player when the quest is done"
+          hint="Given to the player when the advancement is done"
           columns={[
             { key: "item", label: "Item", type: "text", placeholder: "ruby or minecraft:bread" },
             { key: "count", label: "Count", type: "number", min: 1, max: 99 },
@@ -182,9 +182,9 @@ function CriteriaSection(p: EditorProps) {
   );
 }
 
-// ---- Quest line ----
+// ---- Advancement tree ----
 
-export interface QuestNode {
+export interface AdvancementNode {
   file: string;
   spec: AdvancementSpec;
 }
@@ -206,9 +206,9 @@ interface Placed {
 }
 
 /** Lays out each tab as a tree, left to right: children in a column after their parent, parents centered on their children. */
-export function layoutQuestLines(nodes: QuestNode[]): { title: string; placed: Placed[]; width: number; height: number }[] {
+export function layoutAdvancementTrees(nodes: AdvancementNode[]): { title: string; placed: Placed[]; width: number; height: number }[] {
   const ids = new Set(nodes.map((n) => n.spec.id));
-  const children = new Map<string, QuestNode[]>();
+  const children = new Map<string, AdvancementNode[]>();
   const roots: string[] = [];
   const external = new Map<string, string>();
   for (const n of nodes) {
@@ -274,20 +274,20 @@ export function layoutQuestLines(nodes: QuestNode[]): { title: string; placed: P
   return tabs;
 }
 
-/** Every quest line in the project as a tree, like the advancements screen. Clicking a quest opens it. */
-export function QuestLine(p: { nodes: QuestNode[]; current: string; onOpen: (file: string) => void }) {
+/** Every advancement tab in the project as a tree, like the advancements screen. Clicking an advancement opens it. */
+export function AdvancementTree(p: { nodes: AdvancementNode[]; current: string; onOpen: (file: string) => void }) {
   const world = useContext(ItemContext);
-  const tabs = layoutQuestLines(p.nodes);
+  const tabs = layoutAdvancementTrees(p.nodes);
   const currentTab = tabs.findIndex((t) => t.placed.some((n) => n.file === p.current));
   const ordered = currentTab > 0 ? [tabs[currentTab], ...tabs.filter((_, i) => i !== currentTab)] : tabs;
   return (
-    <div className="quest-lines">
+    <div className="adv-trees">
       {ordered.map((tab, t) => {
         const at = new Map(tab.placed.map((n) => [n.key, n]));
         return (
-          <div key={t} className="quest-tab">
-            <div className="quest-title">{tab.title}</div>
-            <div className="quest-canvas" style={{ width: tab.width, height: tab.height }}>
+          <div key={t} className="adv-tab">
+            <div className="adv-title">{tab.title}</div>
+            <div className="adv-canvas" style={{ width: tab.width, height: tab.height }}>
               <svg width={tab.width} height={tab.height}>
                 {tab.placed.map((n) => {
                   const from = n.parent ? at.get(n.parent) : undefined;
@@ -303,14 +303,14 @@ export function QuestLine(p: { nodes: QuestNode[]; current: string; onOpen: (fil
               {tab.placed.map((n) => (
                 <button
                   key={n.key}
-                  className={`quest-node frame-${n.frame}${n.file === p.current ? " current" : ""}`}
+                  className={`adv-node frame-${n.frame}${n.file === p.current ? " current" : ""}`}
                   style={{ left: n.x, top: n.y }}
                   disabled={!n.file}
                   title={n.file ? n.label : `${n.label} (from Minecraft or another mod)`}
                   onClick={() => n.file && p.onOpen(n.file)}
                 >
-                  <span className="quest-box">{n.icon && world ? <ItemIconView refId={n.icon} size={20} /> : "?"}</span>
-                  <span className="quest-label">{n.label}</span>
+                  <span className="adv-box">{n.icon && world ? <ItemIconView refId={n.icon} size={20} /> : "?"}</span>
+                  <span className="adv-label">{n.label}</span>
                 </button>
               ))}
             </div>

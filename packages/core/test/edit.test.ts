@@ -63,7 +63,7 @@ describe("renameEdits", () => {
     expect(renameEdits(loaded, item.file, item.spec)).toEqual([]);
   });
 
-  it("moves quests to a renamed parent and follows renamed recipes", async () => {
+  it("moves advancements to a renamed parent and follows renamed recipes", async () => {
     const loaded = await loadProject(AZUREGROVE);
     const root = loaded.elements.find((e) => e.file === "spec/advancements/azure_grove.json")!;
     const edits = renameEdits(loaded, root.file, renamed(root.spec, "grove"));

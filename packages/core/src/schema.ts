@@ -564,8 +564,8 @@ export const CRITERION_TYPES = ["obtain", "kill", "visit", "craft", "eat", "plac
 export const AdvancementFrame = z.enum(["task", "goal", "challenge"]);
 
 /**
- * A quest, as a vanilla advancement. One without a parent starts its own tab in the advancements screen;
- * the rest hang under their parent, so a chain of them makes a quest line.
+ * A vanilla advancement. One without a parent starts its own tab in the advancements screen;
+ * the rest hang under their parent, so a chain of them makes a tree.
  */
 export const AdvancementSpecSchema = z.object({
   kind: z.literal("advancement"),
