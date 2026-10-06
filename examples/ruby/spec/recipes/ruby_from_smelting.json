@@ -1,0 +1,11 @@
+{
+  "$schema": "../../.modcreator/schema/recipe.json",
+  "kind": "recipe",
+  "id": "ruby_from_smelting",
+  "recipe": {
+    "type": "smelting",
+    "ingredient": "ruby_ore",
+    "result": { "item": "ruby" },
+    "experience": 1.0
+  }
+}

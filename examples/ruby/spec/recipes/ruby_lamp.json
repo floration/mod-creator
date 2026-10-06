@@ -1,0 +1,11 @@
+{
+  "$schema": "../../.modcreator/schema/recipe.json",
+  "kind": "recipe",
+  "id": "ruby_lamp",
+  "recipe": {
+    "type": "shaped",
+    "pattern": [" R ", "RGR", " R "],
+    "key": { "R": "ruby", "G": "minecraft:glowstone" },
+    "result": { "item": "ruby_lamp" }
+  }
+}

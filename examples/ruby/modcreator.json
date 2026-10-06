@@ -1,0 +1,13 @@
+{
+  "$schema": ".modcreator/schema/project.json",
+  "modId": "ruby",
+  "name": "Ruby",
+  "version": "0.1.0",
+  "description": "Mod Creator example: a ruby ore, gem, block and lamp.",
+  "authors": [
+    "Mod Creator"
+  ],
+  "package": "com.example.ruby",
+  "profile": "26.3",
+  "dependencies": []
+}

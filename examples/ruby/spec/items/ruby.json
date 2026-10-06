@@ -1,0 +1,11 @@
+{
+  "$schema": "../../.modcreator/schema/item.json",
+  "kind": "item",
+  "id": "ruby",
+  "name": "Ruby",
+  "creativeTab": "ingredients",
+  "item": {
+    "texture": "art/ruby.png",
+    "rarity": "uncommon"
+  }
+}

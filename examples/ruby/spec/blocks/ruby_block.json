@@ -1,0 +1,15 @@
+{
+  "$schema": "../../.modcreator/schema/block.json",
+  "kind": "block",
+  "id": "ruby_block",
+  "name": "Block of Ruby",
+  "tags": ["minecraft:mineable/pickaxe", "minecraft:needs_iron_tool", "minecraft:beacon_base_blocks"],
+  "creativeTab": "building_blocks",
+  "block": {
+    "hardness": 5.0,
+    "resistance": 6.0,
+    "sound": "metal",
+    "requiresTool": true,
+    "model": { "type": "cube_all", "texture": "art/ruby_block.png" }
+  }
+}
