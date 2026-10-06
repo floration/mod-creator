@@ -28,6 +28,8 @@ npm test
 npm run app -- --project ../../examples/ruby
 ```
 
+`npm run app`, or double-clicking `Mod Creator.cmd` on Windows, updates the tool before it opens: it pulls `main` from GitHub, reinstalls packages if they changed, rebuilds, then starts the app. It skips the update when you're offline, on another branch, or have uncommitted changes to the tool's code, and `npm run app -- --no-update` skips it on purpose. Your mod projects are never touched by this.
+
 `--project` is relative to `packages/app`. Without it, the app reopens the last project or shows the welcome screen.
 
 From the app:
