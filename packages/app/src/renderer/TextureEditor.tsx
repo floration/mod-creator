@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { api } from "./api";
-import { TRANSPARENT, blank, colorsIn, copy, cssColor, floodFill, fromHex, getPixel, inBounds, linePoints, setPixel, toHex, type Pixels, type Rgba } from "./pixels";
+import { TintDialog } from "./TintDialog";
+import { TRANSPARENT, blank, colorsIn, copy, cssColor, floodFill, fromHex, getPixel, inBounds, linePoints, pixelsFromUrl, setPixel, toCanvas, toHex, type Pixels, type Rgba } from "./pixels";
 
 type Tool = "pencil" | "eraser" | "fill" | "picker";
 
@@ -16,33 +18,9 @@ const BASICS = ["#000000", "#3f3f3f", "#7f7f7f", "#bfbfbf", "#ffffff", "#9c3a32"
 
 const HISTORY = 100;
 
-function loadImage(src: string): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error("Not a readable PNG"));
-    img.src = src;
-  });
-}
-
 async function readPixels(root: string, file: string): Promise<Pixels | null> {
   const url = await api().dataUrl(root, file);
-  if (!url) return null;
-  const img = await loadImage(url);
-  const c = document.createElement("canvas");
-  c.width = img.width;
-  c.height = img.height;
-  const g = c.getContext("2d")!;
-  g.drawImage(img, 0, 0);
-  return { width: img.width, height: img.height, data: g.getImageData(0, 0, img.width, img.height).data };
-}
-
-function toCanvas(p: Pixels): HTMLCanvasElement {
-  const c = document.createElement("canvas");
-  c.width = p.width;
-  c.height = p.height;
-  c.getContext("2d")!.putImageData(new ImageData(new Uint8ClampedArray(p.data), p.width, p.height), 0, 0);
-  return c;
+  return url ? pixelsFromUrl(url) : null;
 }
 
 export interface TextureEditorProps {
@@ -71,6 +49,7 @@ export function TextureEditor(p: TextureEditorProps) {
   const [hover, setHover] = useState<[number, number] | null>(null);
   const [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [tinting, setTinting] = useState(false);
   const undo = useRef<Pixels[]>([]);
   const redo = useRef<Pixels[]>([]);
   const stroke = useRef<{ last: [number, number]; erase: boolean } | null>(null);
@@ -250,7 +229,7 @@ export function TextureEditor(p: TextureEditorProps) {
   // Shortcuts. Registered in the capture phase so Ctrl+S saves the texture, not the spec behind the dialog.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if ((e.target as HTMLElement).tagName === "INPUT") return;
+      if (tinting || (e.target as HTMLElement).tagName === "INPUT") return;
       const mod = e.ctrlKey || e.metaKey;
       const key = e.key.toLowerCase();
       let handled = true;
@@ -270,7 +249,7 @@ export function TextureEditor(p: TextureEditorProps) {
     };
     window.addEventListener("keydown", onKey, true);
     return () => window.removeEventListener("keydown", onKey, true);
-  }, [save, step, close]);
+  }, [save, step, close, tinting]);
 
   return (
     <div className="modal-backdrop" onPointerDown={(e) => e.target === e.currentTarget && close()}>
@@ -290,6 +269,8 @@ export function TextureEditor(p: TextureEditorProps) {
                 {t.label}
               </button>
             ))}
+            <hr />
+            <button title="Recolor the drawing through color masks, or start over from a Minecraft texture" onClick={() => setTinting(true)}>Tint…</button>
             <hr />
             <button className={mirror ? "active" : ""} title="Paint both halves at once, for symmetric sprites (M)" onClick={() => setMirror(!mirror)}>Mirror</button>
             <button className={grid ? "active" : ""} onClick={() => setGrid(!grid)}>Grid</button>
@@ -356,6 +337,21 @@ export function TextureEditor(p: TextureEditorProps) {
           </div>
         </div>
       </div>
+      {tinting && pixels && createPortal(
+        <TintDialog
+          root={p.root}
+          file={p.file}
+          mode="apply"
+          current={pixels}
+          onApply={(next) => {
+            remember(pixels);
+            update(next);
+            if (next.width !== pixels.width || next.height !== pixels.height) setZoom(Math.max(2, Math.min(32, Math.floor(512 / Math.max(next.width, next.height)))));
+          }}
+          onClose={() => setTinting(false)}
+        />,
+        document.body,
+      )}
     </div>
   );
 }

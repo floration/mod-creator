@@ -2,6 +2,7 @@ import type { BlockSpec, ElementSpec, ItemSpec, Project, RecipeSpec } from "@mod
 import type { EntityModelDef } from "@modcreator/core/blockbench";
 import type { ModrinthProject, ModrinthVersion } from "@modcreator/core/modrinth";
 import type { StructureTemplate } from "@modcreator/core/nbt";
+import type { TintRecipe } from "@modcreator/core/tint";
 
 export type { ModrinthProject, ModrinthVersion, StructureTemplate };
 
@@ -81,9 +82,17 @@ export interface ModCreatorApi {
   dataUrl(root: string, rel: string): Promise<string | null>;
   /** Write a PNG, given as a data: URL, to a project-relative path. */
   saveArt(root: string, rel: string, dataUrl: string): Promise<void>;
+  /** The tint recipe saved next to a PNG, or null when it has none. */
+  readTint(root: string, rel: string): Promise<TintRecipe | null>;
+  /** Save (or with null, remove) the tint recipe next to a PNG. */
+  saveTint(root: string, rel: string, recipe: TintRecipe | null): Promise<void>;
   loadVanilla(version: string): Promise<VanillaCatalog>;
   pickMinecraftJar(version: string): Promise<VanillaCatalog | null>;
   vanillaIcon(id: string): Promise<ItemIcon | null>;
+  /** Ids like `minecraft:block/iron_ore` for every texture in the Minecraft jar. */
+  vanillaTextures(): Promise<string[]>;
+  /** A vanilla texture as a PNG data: URL. */
+  vanillaTexture(id: string): Promise<string | null>;
   generate(root: string): Promise<GenerateResult>;
   runGradle(root: string, task: "build" | "runClient" | "clean"): Promise<number>;
   stopGradle(): Promise<void>;

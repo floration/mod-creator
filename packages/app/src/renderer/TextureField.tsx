@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { getAt, Row, setAt, type Draft, type Errors } from "./forms";
 import { api } from "./api";
 import { TextureEditor } from "./TextureEditor";
+import { TintDialog } from "./TintDialog";
 
 /** What texture fields need from the open project: where it is, and a way to tell the app a PNG changed. */
 export interface TextureWorld {
@@ -14,7 +15,10 @@ export interface TextureWorld {
 
 export const TextureContext = createContext<TextureWorld | null>(null);
 
-/** A path to a PNG in art/, with a thumbnail and a button that opens it in the pixel editor (or starts a blank one). */
+/**
+ * A path to a PNG in art/, with a thumbnail, a button that opens it in the pixel editor (or starts a blank one) and one
+ * that makes it by tinting another texture.
+ */
 export function TextureField(p: {
   draft: Draft;
   path: string[];
@@ -31,6 +35,7 @@ export function TextureField(p: {
   const value: string = getAt(p.draft, p.path) ?? "";
   const [thumb, setThumb] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
+  const [tinting, setTinting] = useState(false);
   const usable = /\.png$/i.test(value) && !value.endsWith("/.png");
 
   useEffect(() => {
@@ -62,6 +67,14 @@ export function TextureField(p: {
         >
           {thumb ? "Edit" : "Draw"}
         </button>
+        <button
+          type="button"
+          disabled={!world || !usable}
+          title={usable ? "Make this texture by tinting a Minecraft texture (or this one) through color masks" : "Type a .png path in art/ first"}
+          onClick={(e) => { e.preventDefault(); setTinting(true); }}
+        >
+          Tint
+        </button>
       </span>
       {editing && world && createPortal(
         <TextureEditor
@@ -73,6 +86,10 @@ export function TextureField(p: {
           onClose={() => setEditing(false)}
         />,
         // Outside the field's <label>, so clicks in the editor don't focus the path box.
+        document.body,
+      )}
+      {tinting && world && createPortal(
+        <TintDialog root={world.root} file={value} mode="save" onSaved={world.saved} onClose={() => setTinting(false)} />,
         document.body,
       )}
     </Row>

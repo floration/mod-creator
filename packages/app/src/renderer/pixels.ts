@@ -105,3 +105,31 @@ export function fromHex(hex: string, alpha = 255): Rgba {
 export function cssColor([r, g, b, a]: Rgba): string {
   return `rgba(${r},${g},${b},${a / 255})`;
 }
+
+function loadImage(src: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error("Not a readable PNG"));
+    img.src = src;
+  });
+}
+
+/** Decode a PNG data: URL into pixels. */
+export async function pixelsFromUrl(url: string): Promise<Pixels> {
+  const img = await loadImage(url);
+  const c = document.createElement("canvas");
+  c.width = img.width;
+  c.height = img.height;
+  const g = c.getContext("2d")!;
+  g.drawImage(img, 0, 0);
+  return { width: img.width, height: img.height, data: g.getImageData(0, 0, img.width, img.height).data };
+}
+
+export function toCanvas(p: Pixels): HTMLCanvasElement {
+  const c = document.createElement("canvas");
+  c.width = p.width;
+  c.height = p.height;
+  c.getContext("2d")!.putImageData(new ImageData(new Uint8ClampedArray(p.data), p.width, p.height), 0, 0);
+  return c;
+}
