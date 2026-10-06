@@ -146,7 +146,8 @@ ipcMain.handle("gradle:run", async (_e, root: string, task: string) => {
   const windows = process.platform === "win32";
   const cmd = windows ? "gradlew.bat" : "./gradlew";
   send("gradle:log", `> ${cmd} ${task}\n`);
-  gradle = spawn(cmd, [task, "--console=plain"], { cwd: root, shell: windows });
+  // Its own process group on macOS and Linux, so Stop can end Gradle and everything it started.
+  gradle = spawn(cmd, [task, "--console=plain"], { cwd: root, shell: windows, detached: !windows });
   gradle.stdout?.on("data", (d) => send("gradle:log", d.toString()));
   gradle.stderr?.on("data", (d) => send("gradle:log", d.toString()));
   return new Promise<number>((resolve) => {
@@ -163,8 +164,27 @@ ipcMain.handle("gradle:run", async (_e, root: string, task: string) => {
   });
 });
 
+/**
+ * End the running Gradle task and the processes under it. On Windows gradlew.bat runs inside cmd.exe, so
+ * killing that only ends the shell and leaves Java (and a running game) behind; taskkill /T ends the whole tree.
+ * The Gradle daemon then sees its client go and cancels the build, which stops a runClient game.
+ */
+function stopGradle() {
+  const pid = gradle?.pid;
+  if (!gradle || pid === undefined) return;
+  if (process.platform === "win32") {
+    spawn("taskkill", ["/pid", String(pid), "/T", "/F"], { windowsHide: true });
+  } else {
+    try {
+      process.kill(-pid, "SIGTERM");
+    } catch {
+      gradle.kill();
+    }
+  }
+}
+
 ipcMain.handle("gradle:stop", () => {
-  gradle?.kill();
+  stopGradle();
 });
 
 ipcMain.handle("shell:open", async (_e, root: string, rel: string) => {
@@ -200,6 +220,6 @@ app.whenReady().then(() => {
 });
 
 app.on("window-all-closed", () => {
-  gradle?.kill();
+  stopGradle();
   app.quit();
 });
