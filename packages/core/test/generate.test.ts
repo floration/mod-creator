@@ -33,6 +33,7 @@ describe("Ruby example", () => {
       "recipe:ruby_from_block",
       "recipe:ruby_from_smelting",
       "recipe:ruby_lamp",
+      "ore:ruby_ore_vein",
     ]);
   });
 
@@ -96,6 +97,37 @@ describe("generate", () => {
     await rm(path.join(dir, "spec/recipes/ruby_lamp.json"));
     expect((await generate(dir)).ok).toBe(true);
     expect(existsSync(lamp)).toBe(false);
+  });
+});
+
+describe("ore veins", () => {
+  it("rejects a vein of a block that doesn't exist", async () => {
+    const dir = await copyOfRuby();
+    const file = path.join(dir, "spec/worldgen/ruby_ore_vein.json");
+    const json = JSON.parse(await readFile(file, "utf8"));
+    json.ore.block = "sapphire_ore";
+    json.ore.maxY = -32;
+    await writeFile(file, JSON.stringify(json));
+    const fields = (await loadProject(dir)).issues.map((i) => i.field);
+    expect(fields).toContain("ore.block");
+    expect(fields).toContain("ore.maxY");
+  });
+
+  it("uses the deepslate block for deepslate and the Nether selector for netherrack", async () => {
+    const dir = await copyOfRuby();
+    const file = path.join(dir, "spec/worldgen/ruby_ore_vein.json");
+    const json = JSON.parse(await readFile(file, "utf8"));
+    json.ore.replaces = "stone_and_deepslate";
+    json.ore.deepslateBlock = "ruby_block";
+    await writeFile(file, JSON.stringify(json));
+    let files = plan(await loadProject(dir));
+    const feature = JSON.parse(files.get("src/generated/resources/data/ruby/worldgen/feature/ruby_ore_vein.json") as string);
+    expect(feature.targets.map((t: any) => t.state.Name)).toEqual(["ruby:ruby_ore", "ruby:ruby_block"]);
+
+    json.ore.replaces = "netherrack";
+    await writeFile(file, JSON.stringify(json));
+    files = plan(await loadProject(dir));
+    expect(files.get("src/generated/java/com/example/ruby/generated/ModContent.java")).toContain("BiomeSelectors.foundInTheNether()");
   });
 });
 

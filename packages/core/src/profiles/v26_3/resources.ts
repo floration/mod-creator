@@ -1,4 +1,4 @@
-import type { BlockSpec, ElementSpec, ItemSpec, Project, RecipeSpec } from "../../schema.js";
+import type { BlockSpec, ElementSpec, ItemSpec, OreSpec, Project, RecipeSpec } from "../../schema.js";
 
 /** Files to write, keyed by path relative to `src/generated/resources`. Strings are text, `{ copy }` copies a project file. */
 export type ResourceFiles = Map<string, string | { copy: string }>;
@@ -121,6 +121,48 @@ export function recipeJson(modId: string, spec: RecipeSpec): unknown {
   };
 }
 
+const ORE_TARGETS: Record<OreSpec["ore"]["replaces"], { host: "stone" | "deepslate"; test: unknown }[]> = {
+  stone: [{ host: "stone", test: { predicate_type: "minecraft:tag_match", tag: "minecraft:stone_ore_replaceables" } }],
+  deepslate: [{ host: "deepslate", test: { predicate_type: "minecraft:tag_match", tag: "minecraft:deepslate_ore_replaceables" } }],
+  stone_and_deepslate: [
+    { host: "stone", test: { predicate_type: "minecraft:tag_match", tag: "minecraft:stone_ore_replaceables" } },
+    { host: "deepslate", test: { predicate_type: "minecraft:tag_match", tag: "minecraft:deepslate_ore_replaceables" } },
+  ],
+  netherrack: [{ host: "stone", test: { predicate_type: "minecraft:block_match", block: "minecraft:netherrack" } }],
+  end_stone: [{ host: "stone", test: { predicate_type: "minecraft:block_match", block: "minecraft:end_stone" } }],
+};
+
+/**
+ * An ore vein: a feature (26.3 moved configured features to `worldgen/feature` and inlined their config)
+ * and a placed feature that says how many veins per chunk and at what heights.
+ */
+export function oreFiles(modId: string, o: OreSpec, out: ResourceFiles) {
+  const block = resolveRef(modId, o.ore.block);
+  const deepslate = resolveRef(modId, o.ore.deepslateBlock ?? o.ore.block);
+  out.set(`data/${modId}/worldgen/feature/${o.id}.json`, json({
+    type: "minecraft:ore",
+    size: o.ore.veinSize,
+    discard_chance_on_air_exposure: o.ore.airExposureSkip,
+    targets: ORE_TARGETS[o.ore.replaces].map((t) => ({
+      target: t.test,
+      state: { Name: t.host === "deepslate" ? deepslate : block },
+    })),
+  }));
+  const range = { min_inclusive: { absolute: o.ore.minY }, max_inclusive: { absolute: o.ore.maxY } };
+  out.set(`data/${modId}/worldgen/placed_feature/${o.id}.json`, json({
+    feature: `${modId}:${o.id}`,
+    placement: [
+      { type: "minecraft:count", count: o.ore.veinsPerChunk },
+      { type: "minecraft:in_square" },
+      {
+        type: "minecraft:height_range",
+        height: o.ore.distribution === "uniform" ? { type: "minecraft:uniform", ...range } : { type: "minecraft:trapezoid", ...range },
+      },
+      { type: "minecraft:biome" },
+    ],
+  }));
+}
+
 /** Every generated resource file for the project. */
 export function resourceFiles(project: Project, elements: ElementSpec[]): ResourceFiles {
   const modId = project.modId;
@@ -138,6 +180,8 @@ export function resourceFiles(project: Project, elements: ElementSpec[]): Resour
       itemFiles(modId, e, out);
       lang[`item.${modId}.${e.id}`] = e.name;
       for (const t of e.tags) addTag(tagPath(modId, t, "item"), `${modId}:${e.id}`);
+    } else if (e.kind === "ore") {
+      oreFiles(modId, e, out);
     } else {
       out.set(`data/${modId}/recipe/${e.id}.json`, json(recipeJson(modId, e)));
     }

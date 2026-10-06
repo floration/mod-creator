@@ -2,7 +2,7 @@
 
 A desktop tool for building Minecraft 26.3+ Fabric mods with forms, previews and plain files instead of hand-written registration code.
 
-Every block, item and recipe is one small JSON file in the mod's `spec/` folder. The app is an editor for those files. A generator turns them into Java and resource files in `src/generated/`, and the mod stays a normal Gradle project you can open in IntelliJ at any time.
+Every block, item, recipe and ore vein is one small JSON file in the mod's `spec/` folder. The app is an editor for those files. A generator turns them into Java and resource files in `src/generated/`, and the mod stays a normal Gradle project you can open in IntelliJ at any time.
 
 Design doc: [Mod Creator Architecture](https://claude.ai/code/artifact/ab83630b-aecd-4450-b781-0d67d2fd176f)
 
@@ -58,6 +58,7 @@ gems/
     blocks/<id>.json       one file per block
     items/<id>.json
     recipes/<id>.json
+    worldgen/<id>.json     ore veins
   art/                     textures (16x16 PNG)
   src/main/                yours: never touched by the generator
   src/generated/           the generator's: rewritten on every run, do not edit
@@ -72,7 +73,7 @@ Rules the generator follows:
 3. A hand-written file in `src/main/resources/` wins: the generator skips any resource whose path already exists there.
 4. If any spec has errors, nothing is written.
 
-See [`examples/ruby`](examples/ruby) for every supported field: an ore that drops gems with Fortune, a storage block, a lamp with a custom Java class, a gem item, and shaped, shapeless and smelting recipes.
+See [`examples/ruby`](examples/ruby) for every supported field: an ore that drops gems with Fortune, a storage block, a lamp with a custom Java class, a gem item, shaped, shapeless and smelting recipes, and a ruby ore vein that generates between Y -16 and 48.
 
 ## Repository layout
 
@@ -91,4 +92,4 @@ Minecraft 26.3, Fabric Loader 0.19.5, Fabric Loom 1.18.2 (`net.fabricmc.fabric-l
 
 ## Status
 
-Milestones 2 and 3 of the design doc: the project skeleton, blocks, items and recipes. Next up: mobs from Blockbench models, then biomes and worldgen.
+Milestones 2 and 3 of the design doc are in: the project skeleton, blocks, items and recipes. Ore veins from milestone 5 are in too. Next up: mobs from Blockbench models, then biomes.

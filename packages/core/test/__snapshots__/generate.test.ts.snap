@@ -8,6 +8,8 @@ package com.example.ruby.generated;
 
 import java.util.function.Function;
 
+import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
+import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -21,6 +23,7 @@ import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.levelgen.GenerationStep;
 
 public final class ModContent {
 	public static final String MOD_ID = "ruby";
@@ -66,6 +69,9 @@ public final class ModContent {
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS).register(output -> {
 			output.accept(RUBY);
 		});
+		// Ruby ore vein (spec/worldgen/ruby_ore_vein.json)
+		BiomeModifications.addFeature(BiomeSelectors.foundInOverworld(), GenerationStep.Decoration.UNDERGROUND_ORES,
+				ResourceKey.create(Registries.PLACED_FEATURE, id("ruby_ore_vein")));
 	}
 
 	private static Block registerBlock(String name, Function<BlockBehaviour.Properties, Block> factory,
@@ -342,6 +348,51 @@ public final class ModContent {
     "id": "ruby:ruby_lamp",
     "count": 1
   }
+}
+",
+  "src/generated/resources/data/ruby/worldgen/feature/ruby_ore_vein.json": "{
+  "type": "minecraft:ore",
+  "size": 6,
+  "discard_chance_on_air_exposure": 0,
+  "targets": [
+    {
+      "target": {
+        "predicate_type": "minecraft:tag_match",
+        "tag": "minecraft:stone_ore_replaceables"
+      },
+      "state": {
+        "Name": "ruby:ruby_ore"
+      }
+    }
+  ]
+}
+",
+  "src/generated/resources/data/ruby/worldgen/placed_feature/ruby_ore_vein.json": "{
+  "feature": "ruby:ruby_ore_vein",
+  "placement": [
+    {
+      "type": "minecraft:count",
+      "count": 3
+    },
+    {
+      "type": "minecraft:in_square"
+    },
+    {
+      "type": "minecraft:height_range",
+      "height": {
+        "type": "minecraft:trapezoid",
+        "min_inclusive": {
+          "absolute": -16
+        },
+        "max_inclusive": {
+          "absolute": 48
+        }
+      }
+    },
+    {
+      "type": "minecraft:biome"
+    }
+  ]
 }
 ",
 }

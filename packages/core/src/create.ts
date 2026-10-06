@@ -62,6 +62,7 @@ export async function createProject(dir: string, options: CreateOptions): Promis
     "spec/blocks/.gitkeep": "",
     "spec/items/.gitkeep": "",
     "spec/recipes/.gitkeep": "",
+    "spec/worldgen/.gitkeep": "",
     "art/.gitkeep": "",
   };
   for (const [rel, content] of Object.entries(files)) {

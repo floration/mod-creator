@@ -1,0 +1,15 @@
+{
+  "$schema": "../../.modcreator/schema/ore.json",
+  "kind": "ore",
+  "id": "ruby_ore_vein",
+  "name": "Ruby ore vein",
+  "ore": {
+    "block": "ruby_ore",
+    "replaces": "stone",
+    "veinSize": 6,
+    "veinsPerChunk": 3,
+    "minY": -16,
+    "maxY": 48,
+    "distribution": "triangle"
+  }
+}

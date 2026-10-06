@@ -140,10 +140,38 @@ export const RecipeSpecSchema = z.object({
 });
 export type RecipeSpec = z.infer<typeof RecipeSpecSchema>;
 
+/** What an ore vein replaces. This also decides the dimension it generates in. */
+export const OreHost = z.enum(["stone", "deepslate", "stone_and_deepslate", "netherrack", "end_stone"]);
+
+export const OreSpecSchema = z.object({
+  kind: z.literal("ore"),
+  $schema: z.string().optional(),
+  id: LocalId,
+  name: z.string().min(1),
+  ore: z.object({
+    /** Block placed in stone (or netherrack, end stone). */
+    block: Ref,
+    /** Block placed in deepslate; defaults to `block`. */
+    deepslateBlock: Ref.optional(),
+    replaces: OreHost.default("stone_and_deepslate"),
+    /** Blocks per vein. Vanilla iron is 9, diamond 4. */
+    veinSize: z.number().int().min(1).max(64).default(8),
+    veinsPerChunk: z.number().int().min(1).max(128).default(4),
+    minY: z.number().int().min(-64).max(320).default(-64),
+    maxY: z.number().int().min(-64).max(320).default(64),
+    /** `uniform` spreads veins evenly; `triangle` makes them most common halfway between minY and maxY. */
+    distribution: z.enum(["uniform", "triangle"]).default("uniform"),
+    /** Chance (0-1) that a vein block touching air is skipped. Vanilla diamond uses 0.5. */
+    airExposureSkip: z.number().min(0).max(1).default(0),
+  }),
+});
+export type OreSpec = z.infer<typeof OreSpecSchema>;
+
 export const ElementSpecSchema = z.discriminatedUnion("kind", [
   BlockSpecSchema,
   ItemSpecSchema,
   RecipeSpecSchema,
+  OreSpecSchema,
 ]);
 export type ElementSpec = z.infer<typeof ElementSpecSchema>;
 export type ElementKind = ElementSpec["kind"];
@@ -153,6 +181,7 @@ export const KIND_FOLDERS: Record<ElementKind, string> = {
   block: "blocks",
   item: "items",
   recipe: "recipes",
+  ore: "worldgen",
 };
 
 export const SCHEMAS = {
@@ -160,6 +189,7 @@ export const SCHEMAS = {
   block: BlockSpecSchema,
   item: ItemSpecSchema,
   recipe: RecipeSpecSchema,
+  ore: OreSpecSchema,
 } as const;
 
 /** JSON Schema for each spec kind, written to `.modcreator/schema/` for editor autocomplete. */
