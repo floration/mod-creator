@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { SCHEMAS } from "@modcreator/core/schema";
-import { api, type ElementSpec, type Issue, type LoadedProject } from "./api";
+import { api, type ElementSpec, type Issue, type LoadedProject, type VanillaCatalog } from "./api";
 import { BlockEditor, ItemEditor, OreEditor, RecipeEditor, newSpec } from "./Editors";
 import type { Draft, Errors } from "./forms";
+import { ItemContext, type ItemWorld } from "./items";
 import { OrePreview } from "./OrePreview";
 import { Preview } from "./Preview";
 
@@ -48,8 +49,32 @@ export function App() {
   const [adding, setAdding] = useState<Kind | null>(null);
   const [version, setVersion] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [vanilla, setVanilla] = useState<VanillaCatalog | null>(null);
 
   const root = loaded?.root ?? null;
+  const mcVersion = loaded?.project.profile ?? null;
+
+  // Minecraft's item names and icons, for the recipe editor's slots.
+  useEffect(() => {
+    if (!mcVersion) return;
+    api().loadVanilla(mcVersion).then(setVanilla, () => setVanilla(null));
+  }, [mcVersion]);
+
+  const world = useMemo<ItemWorld | null>(
+    () =>
+      loaded && {
+        root: loaded.root,
+        modId: loaded.project.modId,
+        version: loaded.project.profile,
+        elements: loaded.elements.map((e) => e.spec),
+        vanilla,
+        pickJar: async () => {
+          const next = await api().pickMinecraftJar(loaded.project.profile);
+          if (next) setVanilla(next);
+        },
+      },
+    [loaded, vanilla],
+  );
 
   const open = useCallback(async (dir: string, keepSelection = false) => {
     try {
@@ -221,11 +246,15 @@ export function App() {
               <button className="primary" disabled={!dirty} onClick={save}>{dirty ? "Save (Ctrl+S)" : "Saved"}</button>
             </div>
             <div className="editor-body">
-              <div className="form">
+              <div className={`form${draft.kind === "recipe" ? " wide" : ""}`}>
                 {draft.kind === "block" && <BlockEditor draft={draft} errors={errors} onChange={(d) => { setDraft(d); setDirty(true); }} />}
                 {draft.kind === "item" && <ItemEditor draft={draft} errors={errors} onChange={(d) => { setDraft(d); setDirty(true); }} />}
                 {draft.kind === "ore" && <OreEditor draft={draft} errors={errors} onChange={(d) => { setDraft(d); setDirty(true); }} />}
-                {draft.kind === "recipe" && <RecipeEditor draft={draft} errors={errors} onChange={(d) => { setDraft(d); setDirty(true); }} />}
+                {draft.kind === "recipe" && (
+                  <ItemContext.Provider value={world}>
+                    <RecipeEditor key={selected} draft={draft} errors={errors} onChange={(d) => { setDraft(d); setDirty(true); }} />
+                  </ItemContext.Provider>
+                )}
               </div>
               {(draft.kind === "block" || draft.kind === "item") && errors.size === 0 && <Preview root={loaded.root} spec={draft as ElementSpec} version={version} />}
               {draft.kind === "ore" && <OrePreview draft={draft} />}
