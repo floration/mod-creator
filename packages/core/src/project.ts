@@ -7,6 +7,7 @@ import {
   ProjectSchema,
   registeredBlocks,
   registeredItems,
+  shapeBlocks,
   type ElementSpec,
   type Project,
 } from "./schema.js";
@@ -169,6 +170,11 @@ export function checkReferences(root: string, elements: LoadedElement[]): Issue[
   }
 
   for (const { spec, file } of elements) {
+    if (spec.kind === "block" || spec.kind === "tree") {
+      const door = spec.shapes.door;
+      if (door) for (const f of ["top", "bottom", "icon"] as const) checkArt(file, `shapes.door.${f}`, door[f]);
+      if (spec.shapes.trapdoor) checkArt(file, "shapes.trapdoor", spec.shapes.trapdoor);
+    }
     if (spec.kind === "block") {
       const m = spec.block.model;
       if (m.type === "cube_all") checkArt(file, "block.model.texture", m.texture);
@@ -179,6 +185,9 @@ export function checkReferences(root: string, elements: LoadedElement[]): Issue[
       if (m.type === "custom") checkArt(file, "block.model.model", m.model);
       if (typeof spec.drops === "object") checkItem(file, "drops.item", spec.drops.item, false);
       if (typeof spec.drops === "object" && spec.drops.max < spec.drops.min) err(file, "drops.max", "max must be at least min");
+      if (spec.block.model.type === "custom" && shapeBlocks(spec).length > 0) {
+        err(file, "shapes", "Shapes need a cube_all or cube_column block to take their textures from");
+      }
     } else if (spec.kind === "item") {
       checkArt(file, "item.texture", spec.item.texture);
     } else if (spec.kind === "tool") {

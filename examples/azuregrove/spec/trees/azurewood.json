@@ -15,5 +15,15 @@
     "trunkHeightRandom": 6,
     "saplingChance": 0.05,
     "fruit": { "item": "azure_plum", "chance": 0.03 }
+  },
+  "shapes": {
+    "stairs": true,
+    "slab": true,
+    "fence": true,
+    "fenceGate": true,
+    "button": true,
+    "pressurePlate": true,
+    "door": { "top": "art/azurewood_door_top.png", "bottom": "art/azurewood_door_bottom.png", "icon": "art/azurewood_door_icon.png" },
+    "trapdoor": "art/azurewood_trapdoor.png"
   }
 }

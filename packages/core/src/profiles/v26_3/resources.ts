@@ -2,6 +2,8 @@ import {
   ARMOR_PIECES,
   TREE_PARTS,
   registeredItems,
+  shapeBlocks,
+  type ShapeKind,
   type ArmorSpec,
   type BiomeSpec,
   type BlockSpec,
@@ -17,6 +19,7 @@ import {
 } from "../../schema.js";
 import { repairTag } from "./java.js";
 import { resolveRef } from "./refs.js";
+import { SHAPE_BLOCKSTATES } from "./shapeStates.js";
 import { STANDARD_CARVERS, STANDARD_FEATURES, STANDARD_SPAWNS, TREE_SHAPES, VEGETATION_STEP } from "./vanillaData.js";
 
 export { resolveRef };
@@ -113,9 +116,141 @@ function blockItemModel(out: Output, id: string, model = `${out.modId}:block/${i
   out.set(`assets/${out.modId}/items/${id}.json`, { model: { type: "minecraft:model", model } });
 }
 
+/** Model files per shape: model path suffix, vanilla parent, and which textures it takes. */
+const SHAPE_MODELS: Record<ShapeKind, [string, string, "slab" | "side" | "wall" | "door" | "trapdoor"][]> = {
+  stairs: [["", "stairs", "slab"], ["_inner", "inner_stairs", "slab"], ["_outer", "outer_stairs", "slab"]],
+  slab: [["", "slab", "slab"], ["_top", "slab_top", "slab"]],
+  wall: [["_post", "template_wall_post", "wall"], ["_side", "template_wall_side", "wall"], ["_side_tall", "template_wall_side_tall", "wall"], ["_inventory", "wall_inventory", "wall"]],
+  fence: [["_post", "fence_post", "side"], ["_side", "fence_side", "side"], ["_inventory", "fence_inventory", "side"]],
+  fenceGate: [["", "template_fence_gate", "side"], ["_open", "template_fence_gate_open", "side"], ["_wall", "template_fence_gate_wall", "side"], ["_wall_open", "template_fence_gate_wall_open", "side"]],
+  door: ["bottom_left", "bottom_left_open", "bottom_right", "bottom_right_open", "top_left", "top_left_open", "top_right", "top_right_open"].map((m) => [`_${m}`, `door_${m}`, "door"]),
+  trapdoor: [["_bottom", "template_trapdoor_bottom", "trapdoor"], ["_top", "template_trapdoor_top", "trapdoor"], ["_open", "template_trapdoor_open", "trapdoor"]],
+  button: [["", "button", "side"], ["_pressed", "button_pressed", "side"], ["_inventory", "button_inventory", "side"]],
+  pressurePlate: [["", "pressure_plate_up", "side"], ["_down", "pressure_plate_down", "side"]],
+};
+
+/** The model an item shows in the inventory, as a suffix of the block's model path. */
+const SHAPE_ITEM_MODEL: Partial<Record<ShapeKind, string>> = { wall: "_inventory", fence: "_inventory", trapdoor: "_bottom", button: "_inventory" };
+
+/** Vanilla tags for each shape, and the extra tag wooden or stone ones join. */
+const SHAPE_TAGS: Record<ShapeKind, [string, string | null, string | null]> = {
+  stairs: ["minecraft:stairs", "minecraft:wooden_stairs", null],
+  slab: ["minecraft:slabs", "minecraft:wooden_slabs", null],
+  wall: ["minecraft:walls", null, null],
+  fence: ["minecraft:fences", "minecraft:wooden_fences", null],
+  fenceGate: ["minecraft:fence_gates", null, null],
+  door: ["minecraft:doors", "minecraft:wooden_doors", null],
+  trapdoor: ["minecraft:trapdoors", "minecraft:wooden_trapdoors", null],
+  button: ["minecraft:buttons", "minecraft:wooden_buttons", "minecraft:stone_buttons"],
+  pressurePlate: ["minecraft:pressure_plates", "minecraft:wooden_pressure_plates", "minecraft:stone_pressure_plates"],
+};
+
+/** Crafting recipe per shape from the base block `#` (and sticks `S`): pattern (or null for shapeless), count, category. */
+const SHAPE_RECIPES: Record<ShapeKind, [string[] | null, number, string]> = {
+  stairs: [["#  ", "## ", "###"], 4, "building"],
+  slab: [["###"], 6, "building"],
+  wall: [["###", "###"], 6, "misc"],
+  fence: [["#S#", "#S#"], 3, "misc"],
+  fenceGate: [["S#S", "S#S"], 1, "redstone"],
+  door: [["##", "##", "##"], 3, "redstone"],
+  trapdoor: [["###", "###"], 2, "redstone"],
+  button: [null, 1, "redstone"],
+  pressurePlate: [["##"], 1, "redstone"],
+};
+
+/** How many a stonecutter makes from one base block, for shapes vanilla stonecuts. */
+const STONECUT: Partial<Record<ShapeKind, number>> = { stairs: 1, slab: 2, wall: 1 };
+
+/**
+ * Stairs, slabs, doors and the rest for a block or a tree's planks. `textures` are the base block's texture ids;
+ * `mineTags` are the base's mineable and tool level tags, which the shapes share.
+ */
+function shapeFiles(
+  out: Output,
+  spec: BlockSpec | TreeSpec,
+  base: { id: string; hasItem: boolean; wood: boolean; textures: { side: string; end: string }; mineTags: string[] },
+) {
+  const modId = out.modId;
+  const baseRef = `${modId}:${base.id}`;
+  for (const b of shapeBlocks(spec)) {
+    const model = `${modId}:block/${b.id}`;
+    // A double slab looks like the base block.
+    const state = b.shape === "slab"
+      ? { variants: { "type=bottom": { model }, "type=double": { model: `${modId}:block/${base.id}` }, "type=top": { model: `${model}_top` } } }
+      : JSON.parse(JSON.stringify(SHAPE_BLOCKSTATES[b.shape]).replaceAll('"@', `"${model}`));
+    out.set(`assets/${modId}/blockstates/${b.id}.json`, state);
+    const art: Record<string, Record<string, string>> = {
+      slab: { bottom: base.textures.end, top: base.textures.end, side: base.textures.side },
+      side: { texture: base.textures.side },
+      wall: { wall: base.textures.side },
+      door: { bottom: `${modId}:block/${b.id}_bottom`, top: `${modId}:block/${b.id}_top` },
+      trapdoor: { texture: `${modId}:block/${b.id}` },
+    };
+    for (const [suffix, parent, textures] of SHAPE_MODELS[b.shape]) {
+      out.set(`assets/${modId}/models/block/${b.id}${suffix}.json`, { parent: `minecraft:block/${parent}`, textures: art[textures] });
+    }
+    if (b.shape === "door") {
+      const door = spec.shapes.door!;
+      out.copy(door.top, `assets/${modId}/textures/block/${b.id}_top.png`);
+      out.copy(door.bottom, `assets/${modId}/textures/block/${b.id}_bottom.png`);
+      flatItem(out, b.id, door.icon);
+    } else {
+      if (b.shape === "trapdoor") out.copy(spec.shapes.trapdoor!, `assets/${modId}/textures/block/${b.id}.png`);
+      blockItemModel(out, b.id, model + (SHAPE_ITEM_MODEL[b.shape] ?? ""));
+    }
+    out.lang[`block.${modId}.${b.id}`] = b.name;
+
+    const [tag, woodTag, stoneTag] = SHAPE_TAGS[b.shape];
+    for (const t of [tag, base.wood ? woodTag : stoneTag]) {
+      if (!t) continue;
+      out.tag("block", t, `${modId}:${b.id}`);
+      out.tag("item", t, `${modId}:${b.id}`);
+    }
+    for (const t of base.mineTags) out.tag("block", t, `${modId}:${b.id}`);
+
+    // Loot: slabs drop two when doubled, doors drop from their lower half only.
+    const id = `${modId}:${b.id}`;
+    if (b.shape === "slab") {
+      const doubled = { type: "minecraft:match_block", blocks: id, state: { type: "double" } };
+      out.set(`data/${modId}/loot_table/blocks/${b.id}.json`, blockLoot(modId, b.id, [{
+        rolls: 1,
+        entries: [{ type: "minecraft:item", name: id, modifier: [{ type: "minecraft:set_count", condition: doubled, count: 2 }, { type: "minecraft:explosion_decay" }] }],
+      }]));
+    } else if (b.shape === "door") {
+      const lower = { type: "minecraft:match_block", blocks: id, state: { half: "lower" } };
+      out.set(`data/${modId}/loot_table/blocks/${b.id}.json`, blockLoot(modId, b.id, [{ rolls: 1, condition: SURVIVES_EXPLOSION, entries: [{ type: "minecraft:item", condition: lower, name: id }] }]));
+    } else {
+      out.set(`data/${modId}/loot_table/blocks/${b.id}.json`, dropsSelf(modId, b.id));
+    }
+
+    if (!base.hasItem) continue;
+    const [pattern, count, category] = SHAPE_RECIPES[b.shape];
+    const result = { id, count };
+    out.set(
+      `data/${modId}/recipe/${b.id}.json`,
+      pattern
+        ? { type: "minecraft:crafting_shaped", category, key: pattern.some((r) => r.includes("S")) ? { "#": baseRef, S: "minecraft:stick" } : { "#": baseRef }, pattern, result }
+        : { type: "minecraft:crafting_shapeless", category, ingredients: [baseRef], result },
+    );
+    const cut = STONECUT[b.shape];
+    if (cut && !base.wood) {
+      out.set(`data/${modId}/recipe/${b.id}_from_${base.id}_stonecutting.json`, { type: "minecraft:stonecutting", ingredient: baseRef, result: { id, count: cut } });
+    }
+  }
+}
+
+const MINE_TAG = /^minecraft:(mineable\/|needs_)/;
+
 function blockFiles(out: Output, b: BlockSpec) {
   const modId = out.modId;
   blockModelFiles(out, b);
+  const m = b.block.model;
+  if (m.type !== "custom") {
+    const textures = m.type === "cube_all"
+      ? { side: `${modId}:block/${b.id}`, end: `${modId}:block/${b.id}` }
+      : { side: `${modId}:block/${b.id}_side`, end: `${modId}:block/${b.id}_end` };
+    shapeFiles(out, b, { id: b.id, hasItem: b.hasItem, wood: b.block.sound === "wood", textures, mineTags: b.tags.filter((t) => MINE_TAG.test(t)) });
+  }
   out.lang[`block.${modId}.${b.id}`] = b.name;
   for (const t of b.tags) out.tag("block", t, `${modId}:${b.id}`);
 
@@ -261,6 +396,8 @@ function treeFiles(out: Output, t: TreeSpec) {
   });
 
   for (const id of [log, planks, sapling]) out.set(`data/${modId}/loot_table/blocks/${id}.json`, dropsSelf(modId, id));
+  const plankTexture = `${modId}:block/${planks}`;
+  shapeFiles(out, t, { id: planks, hasItem: true, wood: true, textures: { side: plankTexture, end: plankTexture }, mineTags: ["minecraft:mineable/axe"] });
   const notShearing = { type: "minecraft:inverted", term: { type: "minecraft:any_of", terms: [CAN_SHEAR, CAN_SILK_TOUCH] } };
   const pools: unknown[] = [
     {
