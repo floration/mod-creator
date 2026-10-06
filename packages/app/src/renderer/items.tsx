@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState, type DragEvent } from "react";
+import { itemIconArt, registeredItems } from "@modcreator/core/schema";
 import { api, type CatalogEntry, type ElementSpec, type ItemIcon, type VanillaCatalog } from "./api";
 
 /** What the item slots need to know about the open project and the player's Minecraft install. */
@@ -21,9 +22,18 @@ function ownId(world: ItemWorld, ref: string): string | null {
   return ref.startsWith(`${world.modId}:`) ? ref.slice(world.modId.length + 1) : null;
 }
 
-function ownElement(world: ItemWorld, ref: string) {
+/** Every item this mod registers, including the several that armor, trees and mobs each add. */
+function ownItems(elements: ElementSpec[]) {
+  return elements.flatMap((spec) => registeredItems(spec).map(([id, name]) => ({ id, name, spec })));
+}
+
+const itemIndexes = new WeakMap<ElementSpec[], Map<string, { id: string; name: string; spec: ElementSpec }>>();
+function ownItem(world: ItemWorld, ref: string) {
   const id = ownId(world, ref);
-  return id == null ? undefined : world.elements.find((e) => (e.kind === "item" || (e.kind === "block" && e.hasItem !== false)) && e.id === id);
+  if (id == null) return undefined;
+  let index = itemIndexes.get(world.elements);
+  if (!index) itemIndexes.set(world.elements, (index = new Map(ownItems(world.elements).map((e) => [e.id, e]))));
+  return index.get(id);
 }
 
 export interface ItemInfo {
@@ -41,8 +51,8 @@ export function itemInfo(world: ItemWorld, ref: string): ItemInfo {
   const own = ownId(world, bare);
   if (tag) return { name: `Any ${titleCase(bare.split(":").pop()!)}`, known: true, source: `tag ${own != null ? `${world.modId}:${own}` : bare}` };
   if (own != null) {
-    const el = ownElement(world, bare);
-    return el ? { name: "name" in el ? el.name : el.id, known: true, source: world.modId } : { name: own, known: false, source: `not in ${world.modId}` };
+    const el = ownItem(world, bare);
+    return el ? { name: el.name, known: true, source: world.modId } : { name: own, known: false, source: `not in ${world.modId}` };
   }
   const [ns, path] = bare.split(":");
   if (ns === "minecraft" && world.vanilla?.jar) {
@@ -65,25 +75,20 @@ async function iconFor(world: ItemWorld, ref: string): Promise<ItemIcon | null> 
   const tag = ref.startsWith("#");
   const bare = tag ? ref.slice(1) : ref;
   if (!tag) {
-    const el = ownElement(world, bare);
-    const art = (rel: string) => api().dataUrl(world.root, rel);
-    if (el?.kind === "item") {
-      const texture = await art(el.item.texture);
-      return texture ? { kind: "flat", texture } : null;
-    }
-    if (el?.kind === "block") {
-      const m = el.block.model;
-      if (m.type === "cube_all") {
-        const t = await art(m.texture);
-        return t ? { kind: "cube", top: t, left: t, right: t } : null;
+    if (ownId(world, bare) != null) {
+      const el = ownItem(world, bare);
+      const icon = el && itemIconArt(el.spec, el.id);
+      const art = (rel: string) => api().dataUrl(world.root, rel);
+      if (icon?.kind === "flat") {
+        const texture = await art(icon.texture);
+        return texture ? { kind: "flat", texture } : null;
       }
-      if (m.type === "cube_column") {
-        const [side, end] = await Promise.all([art(m.side), art(m.end)]);
-        return side && end ? { kind: "cube", top: end, left: side, right: side } : null;
+      if (icon?.kind === "cube") {
+        const [top, side] = await Promise.all([art(icon.top), art(icon.side)]);
+        return top && side ? { kind: "cube", top, left: side, right: side } : null;
       }
       return null;
     }
-    if (ownId(world, bare) != null) return null;
   }
   return world.vanilla?.jar ? api().vanillaIcon(ref) : null;
 }
@@ -202,13 +207,7 @@ export function ItemPicker({ held, onHold }: { held: string | null; onHold: (ref
   const q = query.trim().toLowerCase();
   const match = (e: CatalogEntry) => !q || e.name.toLowerCase().includes(q) || e.id.includes(q);
 
-  const own = useMemo<CatalogEntry[]>(
-    () =>
-      world.elements
-        .filter((e) => e.kind === "item" || (e.kind === "block" && e.hasItem !== false))
-        .map((e) => ({ id: e.id, name: "name" in e ? e.name : e.id })),
-    [world.elements],
-  );
+  const own = useMemo<CatalogEntry[]>(() => ownItems(world.elements).map(({ id, name }) => ({ id, name })), [world.elements]);
   const lists = { mod: own, minecraft: world.vanilla?.items ?? [], tags: world.vanilla?.tags ?? [] };
   const LIMIT = 150;
   const shown = lists[tab].filter(match);

@@ -461,6 +461,45 @@ export function registeredItems(spec: ElementSpec): [string, string][] {
   }
 }
 
+/** Where an item's inventory icon comes from: one flat texture, or a cube's top and side textures (project-relative paths). */
+export type ItemIconArt = { kind: "flat"; texture: string } | { kind: "cube"; top: string; side: string };
+
+/** The inventory icon art for an item `id` registered by `spec`, or null when it has none the tool can draw. */
+export function itemIconArt(spec: ElementSpec, id: string): ItemIconArt | null {
+  const flat = (texture: string): ItemIconArt => ({ kind: "flat", texture });
+  switch (spec.kind) {
+    case "item":
+      return flat(spec.item.texture);
+    case "tool":
+      return flat(spec.tool.texture);
+    case "plant":
+      return flat(spec.plant.texture);
+    case "block": {
+      const m = spec.block.model;
+      if (m.type === "cube_all") return { kind: "cube", top: m.texture, side: m.texture };
+      if (m.type === "cube_column") return { kind: "cube", top: m.end, side: m.side };
+      return null;
+    }
+    case "armor": {
+      const piece = ARMOR_PIECES.find((p) => id === `${spec.id}_${p}`);
+      const texture = piece && spec.armor.pieces[piece];
+      return texture ? flat(texture) : null;
+    }
+    case "tree": {
+      const t = spec.tree;
+      if (id === `${spec.id}_log`) return { kind: "cube", top: t.logEnd, side: t.logSide };
+      if (id === `${spec.id}_planks`) return { kind: "cube", top: t.planks, side: t.planks };
+      if (id === `${spec.id}_leaves`) return { kind: "cube", top: t.leaves, side: t.leaves };
+      if (id === `${spec.id}_sapling`) return flat(t.sapling);
+      return null;
+    }
+    case "mob":
+      return id === `${spec.id}_spawn_egg` ? flat(spec.mob.spawnEgg) : null;
+    default:
+      return null;
+  }
+}
+
 /** Every block a spec registers. */
 export function registeredBlocks(spec: ElementSpec): string[] {
   if (spec.kind === "block" || spec.kind === "plant") return [spec.id];
