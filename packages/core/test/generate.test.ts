@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it } from "vitest";
-import { createProject, generate, itemIconArt, loadProject, oggChannels, parseStructure, plan, registeredItems, resolveRef, writeStructure } from "../src/index.js";
+import { createProject, generate, itemIconArt, loadProject, oggChannels, parseStructure, plan, registeredItems, resolveRef, vanillaOrePreset, writeStructure } from "../src/index.js";
 
 const RUBY = fileURLToPath(new URL("../../../examples/ruby", import.meta.url));
 const AZUREGROVE = fileURLToPath(new URL("../../../examples/azuregrove", import.meta.url));
@@ -236,7 +236,7 @@ describe("advancements", () => {
     await editSpec(dir, "spec/advancements/azure_grove.json", (json) => { json.advancement.parent = "tusk_rancher"; });
     await editSpec(dir, "spec/advancements/blue_rocks.json", (json) => { json.advancement.parent = "azure_grov"; });
     await editSpec(dir, "spec/advancements/tusk_rancher.json", (json) => {
-      json.advancement.criteria = [{ type: "tame", mob: "bluetusk" }, { type: "breed", mob: "grove_lurker" }, { type: "craft", recipe: "azurite_pickaxe" }, { type: "visit", biome: "azure_meadow" }];
+      json.advancement.criteria = [{ type: "tame", mob: "bluetusk" }, { type: "breed", mob: "grove_lurker" }, { type: "craft", recipe: "azurite_spear" }, { type: "visit", biome: "azure_meadow" }];
     });
     const issues = (await loadProject(dir)).issues.filter((i) => i.severity === "error");
     const at = (file: string) => issues.filter((i) => i.file === `spec/advancements/${file}.json`).map((i) => i.field);
@@ -542,6 +542,62 @@ describe("ore veins", () => {
   });
 });
 
+describe("ore shapes", () => {
+  const editVein = async (ore: Record<string, unknown>) => {
+    const dir = await copyOfRuby();
+    const file = path.join(dir, "spec/worldgen/ruby_ore_vein.json");
+    const json = JSON.parse(await readFile(file, "utf8"));
+    Object.assign(json.ore, ore);
+    await writeFile(file, JSON.stringify(json));
+    return loadProject(dir);
+  };
+  const out = (files: Map<string, unknown>, kind: string) =>
+    JSON.parse(files.get(`src/generated/resources/data/ruby/worldgen/${kind}/ruby_ore_vein.json`) as string);
+
+  it("writes a scattered ore with the same targets as a vein", async () => {
+    const files = plan(await editVein({ shape: "scattered", veinSize: 2 }));
+    const feature = out(files, "feature");
+    expect(feature.type).toBe("minecraft:scattered_ore");
+    expect(feature.size).toBe(2);
+    expect(feature.targets[0].state).toBe("ruby:ruby_ore");
+  });
+
+  it("puts a disk on the floors of water and lets disks overlap", async () => {
+    const files = plan(await editVein({ shape: "disk", replaces: "netherrack", disk: { radiusMin: 2, radiusMax: 5, halfHeight: 2, replaces: ["minecraft:sand"] } }));
+    const feature = out(files, "feature");
+    expect(feature).toMatchObject({ type: "minecraft:disk", half_height: 2, radius: { min_inclusive: 2, max_inclusive: 5 }, state_provider: { id: "ruby:ruby_ore" } });
+    expect(feature.target.blocks).toEqual(["minecraft:sand", "ruby:ruby_ore"]);
+    const types = out(files, "placed_feature").placement.map((p: any) => p.type);
+    expect(types).toEqual(["minecraft:count", "minecraft:in_square", "minecraft:heightmap", "minecraft:block_predicate_filter", "minecraft:biome"]);
+    // Disks need water, so they stay in the Overworld whatever the vein replaces.
+    expect(files.get("src/generated/java/com/example/ruby/generated/ModContent.java")).toContain("BiomeSelectors.foundInOverworld()");
+  });
+
+  it("writes a geode in layers, one in so many chunks, at the local modifications step", async () => {
+    const files = plan(
+      await editVein({ shape: "geode", chunksPerVein: 24, geode: { outerBlock: "minecraft:tuff", middleBlock: "ruby_block", buddingBlock: "minecraft:budding_amethyst", crystals: ["minecraft:amethyst_cluster"] } }),
+    );
+    const feature = out(files, "feature");
+    expect(feature.type).toBe("minecraft:geode");
+    expect(feature.blocks.inner_layer_provider.id).toBe("ruby:ruby_ore");
+    expect(feature.blocks.middle_layer_provider.id).toBe("ruby:ruby_block");
+    expect(feature.blocks.outer_layer_provider.id).toBe("minecraft:tuff");
+    expect(feature.blocks.alternate_inner_layer_provider.id).toBe("minecraft:budding_amethyst");
+    expect(feature.blocks.inner_placements).toEqual(["minecraft:amethyst_cluster"]);
+    expect(feature.use_alternate_layer0_chance).toBe(0.083);
+    expect(out(files, "placed_feature").placement[0]).toEqual({ type: "minecraft:rarity_filter", chance: 24 });
+    expect(files.get("src/generated/java/com/example/ruby/generated/ModContent.java")).toContain("GenerationStep.Decoration.LOCAL_MODIFICATIONS");
+  });
+
+  it("checks a geode's blocks and a disk's radius", async () => {
+    let fields = (await editVein({ shape: "geode", geode: { outerBlock: "sapphire_block", crystals: ["minecraft:amethyst_cluster"] } })).issues.map((i) => i.field);
+    expect(fields).toContain("ore.geode.outerBlock");
+    expect(fields).toContain("ore.geode.buddingBlock");
+    fields = (await editVein({ shape: "disk", disk: { radiusMin: 4, radiusMax: 2 } })).issues.map((i) => i.field);
+    expect(fields).toContain("ore.disk.radiusMax");
+  });
+});
+
 describe("createProject", () => {
   it("creates a Gradle project with a wrapper and an entrypoint", async () => {
     const dir = path.join(await mkdtemp(path.join(os.tmpdir(), "modcreator-")), "gems");
@@ -587,5 +643,31 @@ describe("resolveRef", () => {
     ["#gems", "#ruby:gems"],
   ])("%s -> %s", (ref, expected) => {
     expect(resolveRef("ruby", ref)).toBe(expected);
+  });
+});
+
+describe("vanilla ore presets", () => {
+  it("turns the game's placed and configured features into ore fields", () => {
+    const geode = vanillaOrePreset(
+      "minecraft:amethyst_geode",
+      { placement: [{ type: "minecraft:rarity_filter", chance: 24 }, { type: "minecraft:height_range", height: { type: "minecraft:uniform", min_inclusive: { above_bottom: 6 }, max_inclusive: { absolute: 30 } } }] },
+      {
+        type: "minecraft:geode",
+        blocks: { outer_layer_provider: { id: "minecraft:smooth_basalt" }, middle_layer_provider: { id: "minecraft:calcite" }, alternate_inner_layer_provider: { id: "minecraft:budding_amethyst" }, inner_placements: ["minecraft:amethyst_cluster"] },
+        crack: { generate_crack_chance: 0.95 },
+        use_alternate_layer0_chance: 0.083,
+      },
+    );
+    expect(geode?.ore).toMatchObject({ shape: "geode", chunksPerVein: 24, minY: -58, maxY: 30, geode: { buddingBlock: "minecraft:budding_amethyst", crystals: ["minecraft:amethyst_cluster"] } });
+
+    // Nether heights count from Y 0, and a feature with no count places one per chunk.
+    const debris = vanillaOrePreset(
+      "minecraft:ore_debris_small",
+      { placement: [{ type: "minecraft:height_range", height: { type: "minecraft:uniform", min_inclusive: { above_bottom: 8 }, max_inclusive: { below_top: 8 } } }] },
+      { type: "minecraft:scattered_ore", size: 2, discard_chance_on_air_exposure: 1, targets: [{ target: { predicate_type: "minecraft:tag_match", tag: "minecraft:base_stone_nether" } }] },
+    );
+    expect(debris?.ore).toMatchObject({ shape: "scattered", replaces: "netherrack", minY: 8, maxY: 247, veinsPerChunk: 1, airExposureSkip: 1 });
+
+    expect(vanillaOrePreset("minecraft:trees_plains", { placement: [] }, { type: "minecraft:tree" })).toBeNull();
   });
 });

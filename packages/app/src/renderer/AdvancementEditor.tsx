@@ -1,8 +1,9 @@
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 import { AdvancementFrame, CRITERION_TYPES, type AdvancementSpec } from "@modcreator/core/schema";
 import { CheckField, ListField, NumberField, Row, RowsField, Section, SelectField, TextField, getAt, setAt, type Draft, type Errors } from "./forms";
 import { TextureField } from "./TextureField";
 import { ItemContext, ItemIconView } from "./items";
+import { TagContext, TagInput, tagOptions, useElementOptions, useItemOptions, type TagOption } from "./TagField";
 
 interface EditorProps {
   draft: Draft;
@@ -21,6 +22,23 @@ const CRITERIA: Record<string, { field: string; label: string; placeholder: stri
   breed: { field: "mob", label: "Mob", placeholder: "a mob id, or minecraft:cow", hint: "Breed two of them" },
   tame: { field: "mob", label: "Mob", placeholder: "a tameable mob id, or minecraft:wolf", hint: "Tame one" },
 };
+
+/** Dropdown choices for each criterion field that takes an id or a tag: items, blocks, mobs and biomes. */
+function useCriterionChoices(): Record<string, TagOption[]> {
+  const tags = useContext(TagContext);
+  const items = useItemOptions();
+  const mobs = useElementOptions("mob");
+  const biomes = useElementOptions("biome");
+  return useMemo(
+    () => ({
+      item: [...items, ...tagOptions(tags, "item", true)],
+      block: [...items, ...tagOptions(tags, "block", true)],
+      mob: [...mobs, ...tagOptions(tags, "entity_type", true)],
+      biome: [...biomes, ...tagOptions(tags, "worldgen/biome", true)],
+    }),
+    [tags, items, mobs, biomes],
+  );
+}
 
 const FRAME_HINTS: Record<string, string> = {
   task: "Square, for ordinary steps",
@@ -97,6 +115,7 @@ function CriteriaSection(p: EditorProps) {
   const setRow = (i: number, row: Draft) => setRows(rows.map((r, n) => (n === i ? row : r)));
   const requires: string = getAt(p.draft, ["advancement", "requires"]) ?? "all";
   const listError = p.errors.get(path.join("."));
+  const choices = useCriterionChoices();
   const rowError = rows.map((row, i) => p.errors.get(`${path.join(".")}.${i}.${(CRITERIA[row.type] ?? CRITERIA.obtain).field}`)).find(Boolean);
   return (
     <Section title="To complete it">
@@ -125,7 +144,11 @@ function CriteriaSection(p: EditorProps) {
                   <td className={error ? "has-error" : ""} title={error}>
                     <span className="icon-input">
                       {kind.icon && row[kind.field] && <ItemIconView refId={row[kind.field]} size={20} />}
-                      <input value={row[kind.field] ?? ""} placeholder={kind.placeholder} onChange={(e) => setRow(i, { ...row, [kind.field]: e.target.value.trim() })} />
+                      {choices[kind.field] ? (
+                        <TagInput single compact values={row[kind.field] ? [row[kind.field]] : []} options={choices[kind.field]} placeholder={kind.placeholder} onChange={(v) => setRow(i, { ...row, [kind.field]: v[0] ?? "" })} />
+                      ) : (
+                        <input value={row[kind.field] ?? ""} placeholder={kind.placeholder} onChange={(e) => setRow(i, { ...row, [kind.field]: e.target.value.trim() })} />
+                      )}
                     </span>
                   </td>
                   <td>

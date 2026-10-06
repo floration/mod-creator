@@ -3,10 +3,11 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { TerrainAdaptation } from "@modcreator/core/schema";
 import { api, type StructureTemplate } from "./api";
-import { ListField, NumberField, Row, Section, SelectField, TextField, getAt, setAt, type Draft, type Errors } from "./forms";
+import { NumberField, Row, Section, SelectField, TextField, getAt, setAt, type Draft, type Errors } from "./forms";
 import { ItemContext, iconFor, type ItemWorld } from "./items";
 import { CUBE_SHADES, pixelTexture } from "./Preview";
 import { TextureContext } from "./TextureField";
+import { TagListField, useElementOptions } from "./TagField";
 
 interface EditorProps {
   draft: Draft;
@@ -26,6 +27,7 @@ const TERRAIN_HINTS: Record<string, string> = {
 export function StructureEditor(p: EditorProps) {
   const f = { draft: p.draft, errors: p.errors, onChange: p.onChange };
   const world = useContext(TextureContext);
+  const biomeOptions = useElementOptions("biome");
   const placement = getAt(p.draft, ["structure", "placement"]) ?? "surface";
   const terrain = getAt(p.draft, ["structure", "terrain"]) ?? "beard_thin";
   const file: string = getAt(p.draft, ["structure", "file"]) ?? "";
@@ -53,7 +55,7 @@ export function StructureEditor(p: EditorProps) {
         </Row>
       </Section>
       <Section title="Where it spawns">
-        <ListField {...f} path={["structure", "biomes"]} label="Biomes" placeholder="azure_grove, minecraft:plains, #minecraft:is_forest" hint="This mod's biomes, vanilla ones, or biome tags starting with #" />
+        <TagListField {...f} type="worldgen/biome" hash extra={biomeOptions} path={["structure", "biomes"]} label="Biomes" placeholder="azure_grove, minecraft:plains, #minecraft:is_forest" hint="This mod's biomes, vanilla ones, or biome tags starting with #" />
         <NumberField {...f} path={["structure", "spacing"]} label="Spacing (chunks)" min={2} max={4096} hint="About one per this many chunks in each direction. Villages 34, igloos 32" />
         <NumberField {...f} path={["structure", "separation"]} label="Separation (chunks)" min={0} hint="Never closer than this. Less than spacing" />
         <SelectField {...f} path={["structure", "placement"]} label="Height" options={["surface", "fixed"]} hint={placement === "surface" ? "Sits on the ground wherever it lands" : "Always at the same Y level"} />

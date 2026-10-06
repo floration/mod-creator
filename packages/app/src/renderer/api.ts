@@ -2,6 +2,7 @@ import type { BlockSpec, ElementSpec, ItemSpec, Project, RecipeSpec } from "@mod
 import type { EntityModelDef } from "@modcreator/core/blockbench";
 import type { ModrinthProject, ModrinthVersion } from "@modcreator/core/modrinth";
 import type { StructureTemplate } from "@modcreator/core/nbt";
+import type { TintRecipe } from "@modcreator/core/tint";
 
 export type { ModrinthProject, ModrinthVersion, StructureTemplate };
 
@@ -12,11 +13,35 @@ export interface CatalogEntry {
   name: string;
 }
 
+/** Mirrors OrePreset in core/src/vanilla.ts: a vanilla ore, geode or disk as spec fields. */
+export interface OrePreset {
+  id: string;
+  name: string;
+  ore: Record<string, unknown>;
+}
+
 export interface VanillaCatalog {
   /** The Minecraft jar the names and icons come from, or null when none was found. */
   jar: string | null;
   items: CatalogEntry[];
   tags: CatalogEntry[];
+  /** The game's own ores, geodes and disks, read from its worldgen files. */
+  orePresets: OrePreset[];
+}
+
+/** Mirrors TagSources in core/src/tags.ts. Tag ids have no `#`. */
+export interface TagEntry {
+  id: string;
+  values: string[];
+  name?: string;
+}
+export type TagCatalog = Record<string, TagEntry[]>;
+export interface TagSources {
+  minecraft: TagCatalog;
+  fabric: TagCatalog;
+  mod: TagCatalog;
+  biomes: string[];
+  enchantments: string[];
 }
 
 export type { BlockSpec, ElementSpec, ItemSpec, Project, RecipeSpec };
@@ -81,9 +106,19 @@ export interface ModCreatorApi {
   dataUrl(root: string, rel: string): Promise<string | null>;
   /** Write a PNG, given as a data: URL, to a project-relative path. */
   saveArt(root: string, rel: string, dataUrl: string): Promise<void>;
+  /** The tint recipe saved next to a PNG, or null when it has none. */
+  readTint(root: string, rel: string): Promise<TintRecipe | null>;
+  /** Save (or with null, remove) the tint recipe next to a PNG. */
+  saveTint(root: string, rel: string, recipe: TintRecipe | null): Promise<void>;
   loadVanilla(version: string): Promise<VanillaCatalog>;
   pickMinecraftJar(version: string): Promise<VanillaCatalog | null>;
+  /** Tags for the tag fields' autofill: Minecraft's, Fabric's `c:` tags and the mod's own. */
+  tags(root: string): Promise<TagSources>;
   vanillaIcon(id: string): Promise<ItemIcon | null>;
+  /** Ids like `minecraft:block/iron_ore` for every texture in the Minecraft jar. */
+  vanillaTextures(): Promise<string[]>;
+  /** A vanilla texture as a PNG data: URL. */
+  vanillaTexture(id: string): Promise<string | null>;
   generate(root: string): Promise<GenerateResult>;
   runGradle(root: string, task: "build" | "runClient" | "clean"): Promise<number>;
   stopGradle(): Promise<void>;

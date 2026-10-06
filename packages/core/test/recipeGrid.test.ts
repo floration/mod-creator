@@ -122,6 +122,18 @@ describe("vanilla assets", () => {
     ),
   );
 
+  it("lists textures to tint and reads one", () => {
+    expect(assets.textures()).toEqual([
+      "minecraft:block/furnace_front",
+      "minecraft:block/furnace_side",
+      "minecraft:block/furnace_top",
+      "minecraft:block/oak_planks",
+      "minecraft:item/stick",
+    ]);
+    expect(assets.texture("minecraft:item/stick")).toEqual(png("stick"));
+    expect(assets.texture("minecraft:item/../lang/en_us")).toBeNull();
+  });
+
   it("names items, blocks and tags", () => {
     expect(assets.name("minecraft:stick")).toBe("Stick");
     expect(assets.name("minecraft:furnace")).toBe("Furnace");
@@ -138,6 +150,7 @@ describe("vanilla assets", () => {
         { id: "minecraft:stick", name: "Stick" },
       ],
       tags: [{ id: "#minecraft:planks", name: "Any Planks" }],
+      orePresets: [],
     });
   });
 

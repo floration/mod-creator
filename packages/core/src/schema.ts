@@ -451,13 +451,23 @@ export type RecipeSpec = z.infer<typeof RecipeSpecSchema>;
 /** What an ore vein replaces. This also decides the dimension it generates in. */
 export const OreHost = z.enum(["stone", "deepslate", "stone_and_deepslate", "netherrack", "end_stone"]);
 
+/**
+ * The shape of an ore feature, each one a vanilla feature type:
+ * - `blob`: an ordinary ore vein, a lump of blocks like iron or diamond.
+ * - `scattered`: the same number of blocks spread out one by one, like ancient debris.
+ * - `disk`: a flat round patch on river, lake and ocean floors, like clay and sand.
+ * - `geode`: a hollow ball in layers like an amethyst geode; `block` is its inner layer.
+ */
+export const OreShape = z.enum(["blob", "scattered", "disk", "geode"]);
+
 export const OreSpecSchema = z.object({
   kind: z.literal("ore"),
   $schema: z.string().optional(),
   id: LocalId,
   name: z.string().min(1),
   ore: z.object({
-    /** Block placed in stone (or netherrack, end stone). */
+    shape: OreShape.default("blob"),
+    /** Block placed in stone (or netherrack, end stone). A disk is made of it, and a geode's inner layer. */
     block: Ref,
     /** Block placed in deepslate; defaults to `block`. */
     deepslateBlock: Ref.optional(),
@@ -465,12 +475,42 @@ export const OreSpecSchema = z.object({
     /** Blocks per vein. Vanilla iron is 9, diamond 4. */
     veinSize: z.number().int().min(1).max(64).default(8),
     veinsPerChunk: z.number().int().min(1).max(128).default(4),
+    /** For veins rarer than one per chunk: one in this many chunks, instead of `veinsPerChunk`. Vanilla geodes are 1 in 24. */
+    chunksPerVein: z.number().int().min(1).max(1000).optional(),
     minY: z.number().int().min(-64).max(320).default(-64),
     maxY: z.number().int().min(-64).max(320).default(64),
     /** `uniform` spreads veins evenly; `triangle` makes them most common halfway between minY and maxY. */
     distribution: z.enum(["uniform", "triangle"]).default("uniform"),
     /** Chance (0-1) that a vein block touching air is skipped. Vanilla diamond uses 0.5. */
     airExposureSkip: z.number().min(0).max(1).default(0),
+    /** Disk shape only. Vanilla clay is radius 2-3, half height 1; sand 2-6, half height 2. */
+    disk: z
+      .object({
+        radiusMin: z.number().int().min(1).max(8).default(2),
+        radiusMax: z.number().int().min(1).max(8).default(3),
+        /** Blocks above and below the floor it replaces. */
+        halfHeight: z.number().int().min(0).max(4).default(1),
+        /** Floor blocks it turns into `block`. Its own block is always added so disks can overlap. */
+        replaces: z.array(Ref).default(["minecraft:dirt", "minecraft:sand", "minecraft:gravel", "minecraft:clay"]),
+      })
+      .default({ radiusMin: 2, radiusMax: 3, halfHeight: 1, replaces: ["minecraft:dirt", "minecraft:sand", "minecraft:gravel", "minecraft:clay"] }),
+    /** Geode shape only. Defaults are the amethyst geode's. */
+    geode: z
+      .object({
+        /** Outside shell. */
+        outerBlock: Ref.default("minecraft:smooth_basalt"),
+        /** Layer between the shell and the inner layer. */
+        middleBlock: Ref.default("minecraft:calcite"),
+        /** Swapped in for some inner layer blocks, like budding amethyst. Crystals grow only on it. */
+        buddingBlock: Ref.optional(),
+        /** Share (0-1) of the inner layer that is the budding block. Amethyst uses 0.083. */
+        buddingChance: z.number().min(0).max(1).default(0.083),
+        /** Blocks placed on the budding blocks when the geode generates, like amethyst buds and clusters. */
+        crystals: z.array(Ref).default([]),
+        /** Chance (0-1) the geode has a crack in its side. */
+        crackChance: z.number().min(0).max(1).default(0.95),
+      })
+      .default({ outerBlock: "minecraft:smooth_basalt", middleBlock: "minecraft:calcite", buddingChance: 0.083, crystals: [], crackChance: 0.95 }),
   }),
 });
 export type OreSpec = z.infer<typeof OreSpecSchema>;

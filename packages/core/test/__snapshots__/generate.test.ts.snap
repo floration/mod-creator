@@ -80,6 +80,14 @@ import net.minecraft.world.level.material.PushReaction;
 public final class ModContent {
 	public static final String MOD_ID = "azuregrove";
 
+	private static final ToolMaterial AZURITE_AXE_MATERIAL = new ToolMaterial(BlockTags.INCORRECT_FOR_IRON_TOOL,
+			600, 7.0f, 0.0f, 18, TagKey.create(Registries.ITEM, id("azurite_axe_repair_items")));
+	private static final ToolMaterial AZURITE_HOE_MATERIAL = new ToolMaterial(BlockTags.INCORRECT_FOR_IRON_TOOL,
+			600, 7.0f, 0.0f, 18, TagKey.create(Registries.ITEM, id("azurite_hoe_repair_items")));
+	private static final ToolMaterial AZURITE_PICKAXE_MATERIAL = new ToolMaterial(BlockTags.INCORRECT_FOR_IRON_TOOL,
+			600, 7.0f, 0.0f, 18, TagKey.create(Registries.ITEM, id("azurite_pickaxe_repair_items")));
+	private static final ToolMaterial AZURITE_SHOVEL_MATERIAL = new ToolMaterial(BlockTags.INCORRECT_FOR_IRON_TOOL,
+			600, 7.0f, 0.0f, 18, TagKey.create(Registries.ITEM, id("azurite_shovel_repair_items")));
 	private static final ToolMaterial AZURITE_SWORD_MATERIAL = new ToolMaterial(BlockTags.INCORRECT_FOR_IRON_TOOL,
 			600, 7.0f, 0.0f, 18, TagKey.create(Registries.ITEM, id("azurite_sword_repair_items")));
 	private static final ArmorMaterial AZURITE_MATERIAL = new ArmorMaterial(22,
@@ -186,6 +194,22 @@ public final class ModContent {
 	/** Azurite (spec/items/azurite.json) */
 	public static final Item AZURITE = registerItem("azurite", Item::new, new Item.Properties().rarity(Rarity.UNCOMMON));
 
+	/** Azurite Axe (spec/tools/azurite_axe.json) */
+	public static final Item AZURITE_AXE = registerItem("azurite_axe", Item::new,
+			new Item.Properties().axe(AZURITE_AXE_MATERIAL, 8.5f, -3.1f));
+
+	/** Azurite Hoe (spec/tools/azurite_hoe.json) */
+	public static final Item AZURITE_HOE = registerItem("azurite_hoe", Item::new,
+			new Item.Properties().hoe(AZURITE_HOE_MATERIAL, 0.5f, -1.0f));
+
+	/** Azurite Pickaxe (spec/tools/azurite_pickaxe.json) */
+	public static final Item AZURITE_PICKAXE = registerItem("azurite_pickaxe", Item::new,
+			new Item.Properties().pickaxe(AZURITE_PICKAXE_MATERIAL, 3.5f, -2.8f));
+
+	/** Azurite Shovel (spec/tools/azurite_shovel.json) */
+	public static final Item AZURITE_SHOVEL = registerItem("azurite_shovel", Item::new,
+			new Item.Properties().shovel(AZURITE_SHOVEL_MATERIAL, 4.0f, -3.0f));
+
 	/** Azurite Sword (spec/tools/azurite_sword.json) */
 	public static final Item AZURITE_SWORD = registerItem("azurite_sword", Item::new,
 			new Item.Properties().sword(AZURITE_SWORD_MATERIAL, 5.5f, -2.4f));
@@ -255,6 +279,12 @@ public final class ModContent {
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS).register(output -> {
 			output.accept(AZURITE);
 		});
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(output -> {
+			output.accept(AZURITE_AXE);
+			output.accept(AZURITE_HOE);
+			output.accept(AZURITE_PICKAXE);
+			output.accept(AZURITE_SHOVEL);
+		});
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.COMBAT).register(output -> {
 			output.accept(AZURITE_SWORD);
 			output.accept(AZURITE_HELMET);
@@ -294,6 +324,9 @@ public final class ModContent {
 				.add(Attributes.MOVEMENT_SPEED, 0.28)
 				.add(Attributes.ATTACK_DAMAGE, 3.0));
 		SpawnPlacements.register(GROVE_LURKER, SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules);
+		// Azurite geode (spec/worldgen/azurite_geode.json)
+		BiomeModifications.addFeature(BiomeSelectors.foundInOverworld(), GenerationStep.Decoration.LOCAL_MODIFICATIONS,
+				ResourceKey.create(Registries.PLACED_FEATURE, id("azurite_geode")));
 		// Azurite ore vein (spec/worldgen/azurite_ore_vein.json)
 		BiomeModifications.addFeature(BiomeSelectors.foundInOverworld(), GenerationStep.Decoration.UNDERGROUND_ORES,
 				ResourceKey.create(Registries.PLACED_FEATURE, id("azurite_ore_vein")));
@@ -2113,6 +2146,13 @@ public record CustomTreeFeature(
   }
 }
 ",
+  "src/generated/resources/assets/azuregrove/items/azurite_axe.json": "{
+  "model": {
+    "type": "minecraft:model",
+    "model": "azuregrove:item/azurite_axe"
+  }
+}
+",
   "src/generated/resources/assets/azuregrove/items/azurite_boots.json": "{
   "model": {
     "type": "minecraft:model",
@@ -2162,6 +2202,13 @@ public record CustomTreeFeature(
   }
 }
 ",
+  "src/generated/resources/assets/azuregrove/items/azurite_hoe.json": "{
+  "model": {
+    "type": "minecraft:model",
+    "model": "azuregrove:item/azurite_hoe"
+  }
+}
+",
   "src/generated/resources/assets/azuregrove/items/azurite_leggings.json": "{
   "model": {
     "type": "minecraft:model",
@@ -2173,6 +2220,20 @@ public record CustomTreeFeature(
   "model": {
     "type": "minecraft:model",
     "model": "azuregrove:block/azurite_ore"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/items/azurite_pickaxe.json": "{
+  "model": {
+    "type": "minecraft:model",
+    "model": "azuregrove:item/azurite_pickaxe"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/items/azurite_shovel.json": "{
+  "model": {
+    "type": "minecraft:model",
+    "model": "azuregrove:item/azurite_shovel"
   }
 }
 ",
@@ -2247,6 +2308,10 @@ public record CustomTreeFeature(
   "block.azuregrove.azurite_ore": "Azurite Ore",
   "item.azuregrove.azure_plum": "Azure Plum",
   "item.azuregrove.azurite": "Azurite",
+  "item.azuregrove.azurite_axe": "Azurite Axe",
+  "item.azuregrove.azurite_hoe": "Azurite Hoe",
+  "item.azuregrove.azurite_pickaxe": "Azurite Pickaxe",
+  "item.azuregrove.azurite_shovel": "Azurite Shovel",
   "item.azuregrove.azurite_sword": "Azurite Sword",
   "item.azuregrove.azurite_helmet": "Azurite Helmet",
   "item.azuregrove.azurite_chestplate": "Azurite Chestplate",
@@ -2761,6 +2826,13 @@ public record CustomTreeFeature(
   }
 }
 ",
+  "src/generated/resources/assets/azuregrove/models/item/azurite_axe.json": "{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "azuregrove:item/azurite_axe"
+  }
+}
+",
   "src/generated/resources/assets/azuregrove/models/item/azurite_boots.json": "{
   "parent": "minecraft:item/generated",
   "textures": {
@@ -2782,10 +2854,31 @@ public record CustomTreeFeature(
   }
 }
 ",
+  "src/generated/resources/assets/azuregrove/models/item/azurite_hoe.json": "{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "azuregrove:item/azurite_hoe"
+  }
+}
+",
   "src/generated/resources/assets/azuregrove/models/item/azurite_leggings.json": "{
   "parent": "minecraft:item/generated",
   "textures": {
     "layer0": "azuregrove:item/azurite_leggings"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/models/item/azurite_pickaxe.json": "{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "azuregrove:item/azurite_pickaxe"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/models/item/azurite_shovel.json": "{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "azuregrove:item/azurite_shovel"
   }
 }
 ",
@@ -2859,10 +2952,14 @@ public record CustomTreeFeature(
   "src/generated/resources/assets/azuregrove/textures/item/azure_plum.png": "<copy of art/azure_plum.png>",
   "src/generated/resources/assets/azuregrove/textures/item/azurewood_door.png": "<copy of art/azurewood_door_icon.png>",
   "src/generated/resources/assets/azuregrove/textures/item/azurite.png": "<copy of art/azurite.png>",
+  "src/generated/resources/assets/azuregrove/textures/item/azurite_axe.png": "<copy of art/azurite_axe.png>",
   "src/generated/resources/assets/azuregrove/textures/item/azurite_boots.png": "<copy of art/azurite_boots.png>",
   "src/generated/resources/assets/azuregrove/textures/item/azurite_chestplate.png": "<copy of art/azurite_chestplate.png>",
   "src/generated/resources/assets/azuregrove/textures/item/azurite_helmet.png": "<copy of art/azurite_helmet.png>",
+  "src/generated/resources/assets/azuregrove/textures/item/azurite_hoe.png": "<copy of art/azurite_hoe.png>",
   "src/generated/resources/assets/azuregrove/textures/item/azurite_leggings.png": "<copy of art/azurite_leggings.png>",
+  "src/generated/resources/assets/azuregrove/textures/item/azurite_pickaxe.png": "<copy of art/azurite_pickaxe.png>",
+  "src/generated/resources/assets/azuregrove/textures/item/azurite_shovel.png": "<copy of art/azurite_shovel.png>",
   "src/generated/resources/assets/azuregrove/textures/item/azurite_sword.png": "<copy of art/azurite_sword.png>",
   "src/generated/resources/assets/azuregrove/textures/item/bluetusk_spawn_egg.png": "<copy of art/bluetusk_spawn_egg.png>",
   "src/generated/resources/assets/azuregrove/textures/item/grove_lurker_spawn_egg.png": "<copy of art/grove_lurker_spawn_egg.png>",
@@ -4219,6 +4316,24 @@ public record CustomTreeFeature(
   }
 }
 ",
+  "src/generated/resources/data/azuregrove/recipe/azurite_axe.json": "{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "AA",
+    "AS",
+    " S"
+  ],
+  "key": {
+    "A": "azuregrove:azurite",
+    "S": "minecraft:stick"
+  },
+  "result": {
+    "id": "azuregrove:azurite_axe",
+    "count": 1
+  }
+}
+",
   "src/generated/resources/data/azuregrove/recipe/azurite_boots.json": "{
   "type": "minecraft:crafting_shaped",
   "category": "misc",
@@ -4372,6 +4487,24 @@ public record CustomTreeFeature(
   }
 }
 ",
+  "src/generated/resources/data/azuregrove/recipe/azurite_hoe.json": "{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "AA",
+    " S",
+    " S"
+  ],
+  "key": {
+    "A": "azuregrove:azurite",
+    "S": "minecraft:stick"
+  },
+  "result": {
+    "id": "azuregrove:azurite_hoe",
+    "count": 1
+  }
+}
+",
   "src/generated/resources/data/azuregrove/recipe/azurite_leggings.json": "{
   "type": "minecraft:crafting_shaped",
   "category": "misc",
@@ -4385,6 +4518,42 @@ public record CustomTreeFeature(
   },
   "result": {
     "id": "azuregrove:azurite_leggings",
+    "count": 1
+  }
+}
+",
+  "src/generated/resources/data/azuregrove/recipe/azurite_pickaxe.json": "{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "AAA",
+    " S ",
+    " S "
+  ],
+  "key": {
+    "A": "azuregrove:azurite",
+    "S": "minecraft:stick"
+  },
+  "result": {
+    "id": "azuregrove:azurite_pickaxe",
+    "count": 1
+  }
+}
+",
+  "src/generated/resources/data/azuregrove/recipe/azurite_shovel.json": "{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "A",
+    "S",
+    "S"
+  ],
+  "key": {
+    "A": "azuregrove:azurite",
+    "S": "minecraft:stick"
+  },
+  "result": {
+    "id": "azuregrove:azurite_shovel",
     "count": 1
   }
 }
@@ -4789,7 +4958,35 @@ public record CustomTreeFeature(
   ]
 }
 ",
+  "src/generated/resources/data/azuregrove/tags/item/azurite_axe_repair_items.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azurite"
+  ]
+}
+",
+  "src/generated/resources/data/azuregrove/tags/item/azurite_hoe_repair_items.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azurite"
+  ]
+}
+",
+  "src/generated/resources/data/azuregrove/tags/item/azurite_pickaxe_repair_items.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azurite"
+  ]
+}
+",
   "src/generated/resources/data/azuregrove/tags/item/azurite_repair_items.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azurite"
+  ]
+}
+",
+  "src/generated/resources/data/azuregrove/tags/item/azurite_shovel_repair_items.json": "{
   "replace": false,
   "values": [
     "azuregrove:azurite"
@@ -5048,6 +5245,43 @@ public record CustomTreeFeature(
     "min_clipped_height": 4,
     "type": "minecraft:two_layers_feature_size"
   }
+}
+",
+  "src/generated/resources/data/azuregrove/worldgen/feature/azurite_geode.json": "{
+  "type": "minecraft:geode",
+  "blocks": {
+    "filling_provider": {
+      "id": "minecraft:air"
+    },
+    "inner_layer_provider": {
+      "id": "azuregrove:azurite_ore"
+    },
+    "alternate_inner_layer_provider": {
+      "id": "azuregrove:azurite_ore"
+    },
+    "middle_layer_provider": {
+      "id": "minecraft:calcite"
+    },
+    "outer_layer_provider": {
+      "id": "minecraft:smooth_basalt"
+    },
+    "inner_placements": [
+      "azuregrove:azurite_ore"
+    ],
+    "cannot_replace": "#minecraft:features_cannot_replace",
+    "invalid_blocks": "#minecraft:geode_invalid_blocks"
+  },
+  "crack": {
+    "generate_crack_chance": 0.95
+  },
+  "invalid_blocks_threshold": 1,
+  "layers": {},
+  "outer_wall_distance": {
+    "type": "minecraft:uniform",
+    "min_inclusive": 4,
+    "max_inclusive": 6
+  },
+  "use_alternate_layer0_chance": 0
 }
 ",
   "src/generated/resources/data/azuregrove/worldgen/feature/azurite_ore_vein.json": "{
@@ -5869,6 +6103,34 @@ public record CustomTreeFeature(
   ]
 }
 ",
+  "src/generated/resources/data/azuregrove/worldgen/placed_feature/azurite_geode.json": "{
+  "feature": "azuregrove:azurite_geode",
+  "placement": [
+    {
+      "type": "minecraft:rarity_filter",
+      "chance": 32
+    },
+    {
+      "type": "minecraft:in_square"
+    },
+    {
+      "type": "minecraft:height_range",
+      "height": {
+        "type": "minecraft:uniform",
+        "min_inclusive": {
+          "absolute": -40
+        },
+        "max_inclusive": {
+          "absolute": 30
+        }
+      }
+    },
+    {
+      "type": "minecraft:biome"
+    }
+  ]
+}
+",
   "src/generated/resources/data/azuregrove/worldgen/placed_feature/azurite_ore_vein.json": "{
   "feature": "azuregrove:azurite_ore_vein",
   "placement": [
@@ -6162,6 +6424,13 @@ public record CustomTreeFeature(
   ]
 }
 ",
+  "src/generated/resources/data/minecraft/tags/item/axes.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azurite_axe"
+  ]
+}
+",
   "src/generated/resources/data/minecraft/tags/item/buttons.json": "{
   "replace": false,
   "values": [
@@ -6211,6 +6480,13 @@ public record CustomTreeFeature(
   ]
 }
 ",
+  "src/generated/resources/data/minecraft/tags/item/hoes.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azurite_hoe"
+  ]
+}
+",
   "src/generated/resources/data/minecraft/tags/item/leaves.json": "{
   "replace": false,
   "values": [
@@ -6234,6 +6510,13 @@ public record CustomTreeFeature(
   ]
 }
 ",
+  "src/generated/resources/data/minecraft/tags/item/pickaxes.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azurite_pickaxe"
+  ]
+}
+",
   "src/generated/resources/data/minecraft/tags/item/planks.json": "{
   "replace": false,
   "values": [
@@ -6254,6 +6537,13 @@ public record CustomTreeFeature(
   "values": [
     "azuregrove:azurewood_sapling",
     "azuregrove:sky_willow_sapling"
+  ]
+}
+",
+  "src/generated/resources/data/minecraft/tags/item/shovels.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azurite_shovel"
   ]
 }
 ",

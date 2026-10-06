@@ -38,6 +38,7 @@ From the app:
 - **Build** runs `gradlew build`. The mod jar lands in `build/libs/`.
 - **Run client** runs `gradlew runClient`, Loom's dev client with its own `run/` folder.
 - **Edit** (or **Draw**, for a texture that doesn't exist yet) next to any texture opens the pixel editor: pencil, eraser, fill, color picker, mirror, undo. Saving writes the PNG in `art/` and the 3D preview updates. Mob textures can show the model's parts on the sheet.
+- **Tint** next to any texture makes it from another one through color masks, the way Factorio mods recolor sprites. Start from any Minecraft texture (read from your 26.3 jar, searchable), a PNG in `art/`, or the texture as it is, then add layers. Each layer has a color, a mode (**Recolor** keeps the shading and moves the average color to yours, **Multiply** is Factorio's tint, **Paint** is flat color), a strength and a mask that picks its pixels: the whole texture, colors you click, pixels that differ from another texture (a vanilla ore starts out masked against its stone, so only the ore changes), or a mask image. Saving bakes an ordinary PNG into `art/`, so the mod ships a real texture, and keeps the recipe next to it as `<name>.tint.json` so **Tint** can reopen and change it. The pixel editor has a **Tint…** button too, which applies the tint to the drawing (undoable).
 - Problems (bad fields, broken references, missing textures) appear in the Problems panel and next to the field.
 - **Duplicate** copies the open element under a new id. **Delete** removes its spec file, after listing any other specs that still point at it. Changing an element's **Id** and saving renames the file and updates the recipes, biomes, drops and repair items that used the old id, including derived ids like `ruby_helmet`; the Output panel lists what changed.
 - The box above the element list filters by name or id.
@@ -66,7 +67,7 @@ gems/
     tools/<id>.json        swords, pickaxes, axes, shovels, hoes
     armor/<id>.json        an armor set (up to four pieces)
     recipes/<id>.json
-    worldgen/<id>.json     ore veins
+    worldgen/<id>.json     ore veins, scattered ores, disks and geodes
     trees/<id>.json        a wood type: log, planks, leaves, sapling and the tree it grows
     plants/<id>.json       grass-like plants
     mobs/<id>.json         animals on the vanilla pig or cow body, or a Blockbench model
@@ -93,7 +94,7 @@ Rules the generator follows:
 Two example mods show every supported field:
 
 - [`examples/ruby`](examples/ruby): an ore that drops gems with Fortune, a storage block, a lamp with a custom Java class, a gem item, shaped, shapeless and smelting recipes, a ruby ore vein that generates between Y -16 and 48, the Glowmoth, a tameable flying mob with its own Blockbench model whose wings flap, and a two-step quest tab (find a ruby, then tame a Glowmoth).
-- [`examples/azuregrove`](examples/azuregrove): one of each of the other kinds. Azurite ore and bricks (with brick stairs, slab and wall), the Azure Plum food, an Azurite Sword and armor set, the Azurewood tree (fancy oak shape, its leaves drop plums) and its full wood set, the Sky Willow (a weeping willow built by hand as a custom tree shape), Azure Grass, the Bluetusk (a blue pig that eats plums, fights back and grunts with its own sound), the Grove Lurker (a hostile one that comes out at night), the Azure Grove biome, which takes over part of Plains and Forest and grows all of them, an Azure Grove quest tab with seven quests that use every kind of criterion and reward, and the Azure Shrine, a small azurite brick structure that spawns in the biome.
+- [`examples/azuregrove`](examples/azuregrove): one of each of the other kinds. Azurite ore and bricks (with brick stairs, slab and wall), the Azure Plum food, a full set of Azurite tools (sword, pickaxe, axe, shovel and hoe) and armor, an azurite geode, the Azurewood tree (fancy oak shape, its leaves drop plums) and its full wood set, the Sky Willow (a weeping willow built by hand as a custom tree shape), Azure Grass, the Bluetusk (a blue pig that eats plums, fights back and grunts with its own sound), the Grove Lurker (a hostile one that comes out at night), the Azure Grove biome, which takes over part of Plains and Forest and grows all of them, an Azure Grove quest tab with seven quests that use every kind of criterion and reward, and the Azure Shrine, a small azurite brick structure that spawns in the biome.
 
 ### Tree shapes
 
@@ -106,6 +107,8 @@ A tree's **Grows like** picks one of 17 vanilla shapes (oak, fancy oak, birch, t
 A block with a `cube_all` or `cube_column` model can tick **Stairs**, **Slab**, **Wall**, **Fence**, **Fence gate**, **Button** and **Pressure plate** under **Shapes**, and a tree has the same list under **Wood set** for its planks. Each shape copies the base block's hardness, sound and tool, and comes with its vanilla recipe, loot, tags and block models (stone-like shapes also get stonecutter recipes). A door needs top and bottom half textures and an icon, and a trapdoor its own texture; transparent pixels make windows. Ids follow vanilla: `azurite_bricks` makes `azurite_brick_stairs` and `ruby_block` makes `ruby_stairs`. Wooden shapes open by hand and sound like oak; the rest act like stone.
 
 ### Biomes
+
+An ore has a **Shape**, each one a vanilla feature: **blob** is an ordinary vein like iron, **scattered** spreads the same number of blocks out one by one like ancient debris, **disk** is a flat patch on river, lake and ocean floors like clay or sand, and **geode** is a hollow ball in layers like an amethyst geode, with the ore block as its inner layer, a shell and middle layer you pick, and an optional budding block that grows crystals. A vein whose **Skip chance next to air** is 1 is buried and never shows in caves, like buried diamonds. **Or one in this many chunks** makes rare ones (vanilla geodes are 1 in 24). **Start from vanilla** copies the shape, size, rarity and heights of any of the game's own ores, geodes and disks, read from your Minecraft jar so the list follows the game version; your blocks stay. The giant copper and iron veins are built into the game's terrain noise rather than data, so they can't be added this way.
 
 Biomes are placed with the [Biolith](https://modrinth.com/mod/biolith) library, which turns a share of a vanilla Overworld biome into yours through a data file, so no code touches world generation. A project with a biome needs Biolith in `modcreator.json`'s `dependencies` (see Azure Grove); `check` warns when it is missing. A biome keeps vanilla's caves, ores, lakes and monsters and adds its own colors, trees, plants and creatures.
 
@@ -161,6 +164,10 @@ Quests are vanilla advancements, so they show in the game's advancements screen 
 ### Recipes
 
 The recipe editor is a crafting table: pick an item from the list under it and click slots to place it, or drag it in, and right-click a slot to empty it. Furnace, blast furnace, smoker and campfire recipes show one input slot. Each slot shows the item's icon and name. This mod's items use their art files; Minecraft's items, names and tags are read from your own Minecraft 26.3 jar (Loom's cache after the first Build, or Prism or the official launcher's copy), so nothing from Mojang ships with the tool. If none is found, the item list has a link to choose the jar. The spec file still stores the usual `pattern` and `key`, so hand edits keep working.
+
+### Tags
+
+Every field that takes a tag has a dropdown that filters as you type: an element's **Tags**, a structure's **Biomes**, an enchantment's **Goes on**, **Can't be combined with** and damage target, a mob's **Food**, and quest criteria. It lists Minecraft's tags (from the same jar as the recipe items), Fabric's shared `c:` tags such as `c:ingots/iron` (from the Fabric API jar in the Gradle cache, after the first Build), and the tags this mod already makes, with a look at what is in each. Arrow keys and Enter pick one; a name that isn't listed becomes a new tag of this mod's, and a `minecraft:` or `c:` tag that doesn't exist is marked red. The recipe picker's Tags tab lists the `c:` and mod item tags too.
 
 ## Repository layout
 
