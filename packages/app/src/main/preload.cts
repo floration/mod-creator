@@ -20,6 +20,7 @@ const api = {
   saveArt: (root: string, rel: string, dataUrl: string) => ipcRenderer.invoke("art:save", root, rel, dataUrl),
   loadVanilla: (version: string) => ipcRenderer.invoke("vanilla:load", version),
   pickMinecraftJar: (version: string) => ipcRenderer.invoke("vanilla:pickJar", version),
+  tags: (root: string) => ipcRenderer.invoke("tags:list", root),
   vanillaIcon: (id: string) => ipcRenderer.invoke("vanilla:icon", id),
   generate: (root: string) => ipcRenderer.invoke("project:generate", root),
   runGradle: (root: string, task: string) => ipcRenderer.invoke("gradle:run", root, task),

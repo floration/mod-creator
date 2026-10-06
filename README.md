@@ -156,6 +156,10 @@ Quests are vanilla advancements, so they show in the game's advancements screen 
 
 The recipe editor is a crafting table: pick an item from the list under it and click slots to place it, or drag it in, and right-click a slot to empty it. Furnace, blast furnace, smoker and campfire recipes show one input slot. Each slot shows the item's icon and name. This mod's items use their art files; Minecraft's items, names and tags are read from your own Minecraft 26.3 jar (Loom's cache after the first Build, or Prism or the official launcher's copy), so nothing from Mojang ships with the tool. If none is found, the item list has a link to choose the jar. The spec file still stores the usual `pattern` and `key`, so hand edits keep working.
 
+### Tags
+
+Every field that takes a tag has a dropdown that filters as you type: an element's **Tags**, a structure's **Biomes**, an enchantment's **Goes on**, **Can't be combined with** and damage target, a mob's **Food**, and quest criteria. It lists Minecraft's tags (from the same jar as the recipe items), Fabric's shared `c:` tags such as `c:ingots/iron` (from the Fabric API jar in the Gradle cache, after the first Build), and the tags this mod already makes, with a look at what is in each. Arrow keys and Enter pick one; a name that isn't listed becomes a new tag of this mod's, and a `minecraft:` or `c:` tag that doesn't exist is marked red. The recipe picker's Tags tab lists the `c:` and mod item tags too.
+
 ## Repository layout
 
 | Path | What it is |

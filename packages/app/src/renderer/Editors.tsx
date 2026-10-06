@@ -20,6 +20,7 @@ import { pickAnimations, type EntityModelDef } from "@modcreator/core/blockbench
 import { api } from "./api";
 import { blockbenchSheetLayout, mobSheetLayout } from "./Preview";
 import { TextureContext, TextureField } from "./TextureField";
+import { TagListField, TagTextField, elementTagType, useItemOptions } from "./TagField";
 import { ItemContext, ItemIconView, ItemPicker, acceptsItem, dragItem, droppedItem, itemInfo } from "./items";
 
 interface EditorProps {
@@ -35,7 +36,9 @@ function Common(p: EditorProps & { nameHint?: string; idHint?: string; tab?: boo
       <TextField {...f} path={["name"]} label="Display name" hint={p.nameHint} />
       <TextField {...f} path={["id"]} label="Id" hint={p.idHint ?? "Lowercase, used in registry names and file names"} />
       {p.tab !== false && <SelectField {...f} path={["creativeTab"]} label="Creative tab" options={CreativeTab.options} optional />}
-      {p.tags !== "" && <ListField {...f} path={["tags"]} label="Tags" placeholder={p.tags ?? "minecraft:mineable/pickaxe, minecraft:needs_iron_tool"} />}
+      {p.tags !== "" && (
+        <TagListField {...f} path={["tags"]} label="Tags" type={elementTagType(p.draft.kind) ?? "block"} placeholder={p.tags ?? "minecraft:mineable/pickaxe, minecraft:needs_iron_tool"} hint="Type to search Minecraft's, Fabric's and this mod's tags. A new name makes a new tag" />
+      )}
       {p.customClass !== false && (
         <TextField
           {...f}
@@ -348,6 +351,7 @@ export function MobEditor(p: EditorProps) {
   const custom = model === "blockbench";
   const bb = useBlockbench(custom ? getAt(p.draft, ["mob", "blockbench"]) : undefined);
   const world = useContext(TextureContext);
+  const itemOptions = useItemOptions();
   const sheet: [number, number] = bb.model ? [bb.model.textureWidth, bb.model.textureHeight] : [64, 64];
   const { walk, idle } = bb.model ? pickAnimations(bb.model) : { walk: null, idle: null };
   const behavior: string = getAt(p.draft, ["mob", "behavior"]) ?? "animal";
@@ -400,8 +404,10 @@ export function MobEditor(p: EditorProps) {
         {behavior !== "animal" && (
           <NumberField {...f} path={["mob", "attackDamage"]} label="Attack damage" step={0.5} min={0} max={100} hint="Per hit, in half hearts. Zombie 3, wolf 4" />
         )}
-        <TextField
+        <TagTextField
           {...f}
+          type="item"
+          extra={itemOptions}
           path={["mob", "food"]}
           label="Food"
           optional={behavior === "hostile"}

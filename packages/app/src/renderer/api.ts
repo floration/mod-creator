@@ -19,6 +19,21 @@ export interface VanillaCatalog {
   tags: CatalogEntry[];
 }
 
+/** Mirrors TagSources in core/src/tags.ts. Tag ids have no `#`. */
+export interface TagEntry {
+  id: string;
+  values: string[];
+  name?: string;
+}
+export type TagCatalog = Record<string, TagEntry[]>;
+export interface TagSources {
+  minecraft: TagCatalog;
+  fabric: TagCatalog;
+  mod: TagCatalog;
+  biomes: string[];
+  enchantments: string[];
+}
+
 export type { BlockSpec, ElementSpec, ItemSpec, Project, RecipeSpec };
 
 export interface Issue {
@@ -83,6 +98,8 @@ export interface ModCreatorApi {
   saveArt(root: string, rel: string, dataUrl: string): Promise<void>;
   loadVanilla(version: string): Promise<VanillaCatalog>;
   pickMinecraftJar(version: string): Promise<VanillaCatalog | null>;
+  /** Tags for the tag fields' autofill: Minecraft's, Fabric's `c:` tags and the mod's own. */
+  tags(root: string): Promise<TagSources>;
   vanillaIcon(id: string): Promise<ItemIcon | null>;
   generate(root: string): Promise<GenerateResult>;
   runGradle(root: string, task: "build" | "runClient" | "clean"): Promise<number>;
