@@ -1,0 +1,18 @@
+{
+  "$schema": "../../.modcreator/schema/mob.json",
+  "kind": "mob",
+  "id": "grove_lurker",
+  "name": "Grove Lurker",
+  "mob": {
+    "model": "pig",
+    "behavior": "hostile",
+    "attackDamage": 3,
+    "texture": "art/grove_lurker.png",
+    "health": 16,
+    "speed": 0.28,
+    "width": 0.9,
+    "height": 0.9,
+    "drops": [{ "item": "azure_plum", "min": 0, "max": 2 }],
+    "spawnEgg": "art/grove_lurker_spawn_egg.png"
+  }
+}

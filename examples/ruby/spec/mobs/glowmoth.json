@@ -6,6 +6,9 @@
   "mob": {
     "model": "blockbench",
     "blockbench": "art/glowmoth.bbmodel",
+    "behavior": "tameable",
+    "flies": true,
+    "attackDamage": 1,
     "texture": "art/glowmoth.png",
     "health": 6,
     "speed": 0.3,

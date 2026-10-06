@@ -5,6 +5,8 @@
   "name": "Bluetusk",
   "mob": {
     "model": "pig",
+    "behavior": "neutral",
+    "attackDamage": 4,
     "texture": "art/bluetusk.png",
     "babyTexture": "art/bluetusk_baby.png",
     "health": 12,

@@ -203,7 +203,8 @@ export function checkReferences(root: string, elements: LoadedElement[]): Issue[
       if (m.babyTexture) checkArt(file, "mob.babyTexture", m.babyTexture);
       checkArt(file, "mob.spawnEgg", m.spawnEgg);
       if (m.model === "blockbench" && m.blockbench) checkArt(file, "mob.blockbench", m.blockbench);
-      checkItem(file, "mob.food", m.food);
+      if (m.food) checkItem(file, "mob.food", m.food);
+      else if (m.behavior !== "hostile") err(file, "mob.food", "Pick the item that tempts and breeds it (only hostile mobs go without)");
       m.drops.forEach((d, i) => {
         checkItem(file, `mob.drops.${i}.item`, d.item, false);
         if (d.max < d.min) err(file, `mob.drops.${i}.max`, "max must be at least min");
