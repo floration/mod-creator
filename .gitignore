@@ -1,0 +1,10 @@
+node_modules/
+dist/
+out/
+*.log
+.DS_Store
+# Build output inside example mods
+examples/*/build/
+examples/*/.gradle/
+examples/*/run/
+examples/*/src/generated/
