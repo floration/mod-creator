@@ -52,6 +52,7 @@ export class VanillaAssets {
   private catalogCache: { items: CatalogEntry[]; tags: CatalogEntry[] } | null = null;
   private tagCache: TagCatalog | null = null;
   private idCache = new Map<string, string[]>();
+  private textureList: string[] | null = null;
 
   constructor(private readonly zip: ZipFile) {
     this.lang = this.json("assets/minecraft/lang/en_us.json") ?? {};
@@ -96,6 +97,23 @@ export class VanillaAssets {
   ids(registry: string): string[] {
     if (!this.idCache.has(registry)) this.idCache.set(registry, zipIds(this.zip, registry));
     return this.idCache.get(registry)!;
+  }
+
+  /** Every texture in the jar as an id like `minecraft:block/iron_ore`, sorted, for picking one to tint. */
+  textures(): string[] {
+    this.textureList ??= [...this.zip.names()]
+      .map((name) => /^assets\/minecraft\/textures\/([a-z0-9_./-]+)\.png$/.exec(name)?.[1])
+      .filter((p): p is string => !!p)
+      .map((p) => `minecraft:${p}`)
+      .sort();
+    return this.textureList;
+  }
+
+  /** One texture's PNG bytes, by the same kind of id. */
+  texture(id: string): Buffer | null {
+    const [ns, p] = split(id);
+    if (!/^[a-z0-9_./-]+$/.test(p) || p.includes("..")) return null;
+    return this.zip.read(`assets/${ns}/textures/${p}.png`);
   }
 
   /** English display name: `minecraft:glowstone` -> `Glowstone`, `#minecraft:planks` -> `Any Planks`. */

@@ -4,7 +4,7 @@ import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { app, BrowserWindow, dialog, ipcMain, shell } from "electron";
-import { VanillaAssets, createProject, modrinthVersions, searchModrinth, dependentsOf, parseBlockbench, parseStructure, oggChannels, findMinecraftJar, generate, loadProject, conventionTags, findConventionTagsJar, modTags, type TagCatalog, type TagSources, renameEdits, type CreateOptions, type ElementSpec } from "@modcreator/core";
+import { VanillaAssets, createProject, modrinthVersions, searchModrinth, dependentsOf, parseBlockbench, parseStructure, oggChannels, findMinecraftJar, generate, loadProject, conventionTags, findConventionTagsJar, modTags, type TagCatalog, type TagSources, renameEdits, TintRecipe, tintRecipePath, type CreateOptions, type ElementSpec } from "@modcreator/core";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 let window: BrowserWindow | null = null;
@@ -161,6 +161,26 @@ ipcMain.handle("art:save", async (_e, root: string, rel: string, dataUrl: string
   await writeFile(file, Buffer.from(match[1], "base64"));
 });
 
+/** The recipe kept next to a tinted PNG, or null when the PNG wasn't made by tinting. */
+ipcMain.handle("art:readTint", async (_e, root: string, rel: string) => {
+  const file = inside(root, tintRecipePath(rel));
+  if (!existsSync(file)) return null;
+  const parsed = TintRecipe.safeParse(JSON.parse(await readFile(file, "utf8")));
+  return parsed.success ? parsed.data : null;
+});
+
+/** Save a tinted PNG's recipe next to it, or remove it (null) when the PNG no longer comes from one. */
+ipcMain.handle("art:saveTint", async (_e, root: string, rel: string, recipe: unknown) => {
+  if (!/\.png$/i.test(rel)) throw new Error(`${rel} is not a .png file`);
+  const file = inside(root, tintRecipePath(rel));
+  if (recipe === null) {
+    await rm(file, { force: true });
+    return;
+  }
+  await mkdir(path.dirname(file), { recursive: true });
+  await writeFile(file, JSON.stringify(TintRecipe.parse(recipe), null, 2) + "\n");
+});
+
 /** App settings that belong to this computer rather than to a mod project. */
 const settingsFile = () => path.join(app.getPath("userData"), "settings.json");
 async function settings(): Promise<{ minecraftJar?: string }> {
@@ -218,6 +238,14 @@ ipcMain.handle("tags:list", async (_e, root: string): Promise<TagSources> => {
 });
 
 ipcMain.handle("vanilla:icon", (_e, id: string) => vanilla?.assets.icon(id) ?? null);
+
+/** Every texture in the Minecraft jar, for starting a tint from one. */
+ipcMain.handle("vanilla:textures", () => vanilla?.assets.textures() ?? []);
+
+ipcMain.handle("vanilla:texture", (_e, id: string) => {
+  const png = vanilla?.assets.texture(id);
+  return png ? `data:image/png;base64,${png.toString("base64")}` : null;
+});
 
 ipcMain.handle("project:generate", async (_e, root: string) => generate(root));
 
