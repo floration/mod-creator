@@ -1,5 +1,6 @@
 import { ARMOR_PIECES, shapeBlocks, type BlockSpec, type EffectSpec, type ElementSpec, type ItemSpec, type MobSpec, type OreSpec, type Project, type ToolSpec, type TreeSpec } from "../../schema.js";
 import { resolveRef } from "./refs.js";
+import { TWO_BY_TWO_SHAPES } from "../../trees.js";
 import { allParts, pickAnimations, type EntityModelDef, type ModelAnimation, type ModelPartDef } from "../../blockbench.js";
 import { pickConstructor, presetGoals, simpleName, VANILLA_MOBS, vanillaGoal, type GoalArgValue, type GoalParam, type MobGoalEntry } from "../../vanillaMobs.js";
 
@@ -279,8 +280,12 @@ export function modContentJava(project: Project, elements: ElementSpec[]): strin
     const feature = `ResourceKey.create(Registries.FEATURE, id("${t.id}"))`;
     fields.push(
       `\t// ${t.name} wood (spec/trees/${t.id}.json)\n` +
-        `\tprivate static final TreeGrower ${C}_GROWER = new TreeGrower("${modId}:${t.id}",\n` +
-        `\t\t\tWeightedList.of(${feature}), WeightedList.of(), WeightedList.of(), ${feature});\n` +
+        // Dark oak and the giant shapes only grow from four saplings in a square, like vanilla dark oak.
+        (TWO_BY_TWO_SHAPES.includes(t.tree.shape)
+          ? `\tprivate static final TreeGrower ${C}_GROWER = new TreeGrower("${modId}:${t.id}",\n` +
+            `\t\t\tWeightedList.of(), WeightedList.of(${feature}), WeightedList.of(), null);\n`
+          : `\tprivate static final TreeGrower ${C}_GROWER = new TreeGrower("${modId}:${t.id}",\n` +
+            `\t\t\tWeightedList.of(${feature}), WeightedList.of(), WeightedList.of(), ${feature});\n`) +
         `\tpublic static final Block ${C}_LOG = registerBlock("${t.id}_log", RotatedPillarBlock::new,\n\t\t\tBlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LOG), true);\n` +
         `\tpublic static final Block ${C}_PLANKS = registerBlock("${t.id}_planks", Block::new,\n\t\t\tBlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS), true);\n` +
         `\tpublic static final Block ${C}_LEAVES = registerBlock("${t.id}_leaves", properties -> new TintedParticleLeavesBlock(0.01f, properties),\n\t\t\tBlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LEAVES), true);\n` +
@@ -299,6 +304,14 @@ export function modContentJava(project: Project, elements: ElementSpec[]): strin
           .filter((s) => ["stairs", "slab", "fence", "fenceGate"].includes(s.shape))
           .map((s) => `\n\t\tFlammableBlockRegistry.getDefaultInstance().add(${constName(s.id)}, 5, 20);`)
           .join(""),
+    );
+  }
+
+  if (trees.some((t) => t.tree.shape === "custom")) {
+    use(`${pkg}.world.CustomTreeFeature`);
+    body.push(
+      `\t\t// Grows hand-built trees (spec/trees with "shape": "custom").\n` +
+        `\t\tRegistry.register(BuiltInRegistries.FEATURE_TYPE, id("custom_tree"), CustomTreeFeature.CODEC);`,
     );
   }
 
@@ -901,6 +914,7 @@ ${[...layers, ...mobs.map((m) => `\t\tEntityRenderers.register(ModContent.${cons
 export function extraJavaFiles(project: Project, elements: ElementSpec[], models: Record<string, EntityModelDef> = {}): Map<string, string> {
   const out = new Map<string, string>();
   out.set("ModContentClient.java", modContentClientJava(project, elements));
+  if (elements.some((e) => e.kind === "tree" && e.tree.shape === "custom")) out.set("world/CustomTreeFeature.java", customTreeFeatureJava(project));
   for (const e of elements) {
     if (e.kind !== "mob") continue;
     out.set(`entity/${pascal(e.id)}.java`, mobEntityJava(project, e));
@@ -1081,6 +1095,98 @@ import net.minecraft.world.item.Item;
 public class ${name} extends Item {
 \tpublic ${name}(Item.Properties properties) {
 \t\tsuper(properties);
+\t}
+}
+`;
+}
+
+/** The feature type that places hand-built trees; resources.ts writes each tree's blocks as its config. */
+function customTreeFeatureJava(project: Project): string {
+  return `${GENERATED_HEADER}
+package ${project.package}.generated.world;
+
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.List;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LeavesBlock;
+import net.minecraft.world.level.block.RotatedPillarBlock;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.TreeFeature;
+
+/**
+ * A tree built by hand in Mod Creator: fixed log and leaf positions relative to the sapling, optionally turned
+ * a random quarter turn. Like a vanilla tree it only grows if every block it needs is air or replaceable.
+ */
+public record CustomTreeFeature(
+\t\tBlock log,
+\t\tBlock leaves,
+\t\tList<BlockPos> logsY,
+\t\tList<BlockPos> logsX,
+\t\tList<BlockPos> logsZ,
+\t\tList<List<BlockPos>> leavesByDistance,
+\t\tboolean randomRotation
+) implements Feature {
+\tpublic static final MapCodec<CustomTreeFeature> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+\t\t\tBuiltInRegistries.BLOCK.byNameCodec().fieldOf("log").forGetter(CustomTreeFeature::log),
+\t\t\tBuiltInRegistries.BLOCK.byNameCodec().fieldOf("leaves").forGetter(CustomTreeFeature::leaves),
+\t\t\tBlockPos.CODEC.listOf().optionalFieldOf("logs_y", List.of()).forGetter(CustomTreeFeature::logsY),
+\t\t\tBlockPos.CODEC.listOf().optionalFieldOf("logs_x", List.of()).forGetter(CustomTreeFeature::logsX),
+\t\t\tBlockPos.CODEC.listOf().optionalFieldOf("logs_z", List.of()).forGetter(CustomTreeFeature::logsZ),
+\t\t\tBlockPos.CODEC.listOf().listOf().optionalFieldOf("leaves_by_distance", List.of()).forGetter(CustomTreeFeature::leavesByDistance),
+\t\t\tCodec.BOOL.optionalFieldOf("random_rotation", true).forGetter(CustomTreeFeature::randomRotation)
+\t).apply(i, CustomTreeFeature::new));
+
+\t@Override
+\tpublic MapCodec<CustomTreeFeature> codec() {
+\t\treturn CODEC;
+\t}
+
+\t@Override
+\tpublic boolean place(WorldGenLevel level, ChunkGenerator generator, RandomSource random, BlockPos origin) {
+\t\tRotation rotation = this.randomRotation ? Rotation.getRandom(random) : Rotation.NONE;
+\t\tfor (List<BlockPos> part : List.of(this.logsY, this.logsX, this.logsZ)) {
+\t\t\tfor (BlockPos offset : part) {
+\t\t\t\tif (!TreeFeature.validTreePos(level, origin.offset(offset.rotate(rotation)))) return false;
+\t\t\t}
+\t\t}
+\t\tfor (List<BlockPos> ring : this.leavesByDistance) {
+\t\t\tfor (BlockPos offset : ring) {
+\t\t\t\tif (!TreeFeature.validTreePos(level, origin.offset(offset.rotate(rotation)))) return false;
+\t\t\t}
+\t\t}
+\t\tplaceLogs(level, origin, rotation, this.logsY, Direction.Axis.Y);
+\t\tplaceLogs(level, origin, rotation, this.logsX, Direction.Axis.X);
+\t\tplaceLogs(level, origin, rotation, this.logsZ, Direction.Axis.Z);
+\t\tfor (int i = 0; i < this.leavesByDistance.size(); i++) {
+\t\t\tBlockState state = this.leaves.defaultBlockState().trySetValue(LeavesBlock.DISTANCE, Math.min(i + 1, LeavesBlock.DECAY_DISTANCE));
+\t\t\tfor (BlockPos offset : this.leavesByDistance.get(i)) {
+\t\t\t\tlevel.setBlock(origin.offset(offset.rotate(rotation)), state, Block.UPDATE_ALL);
+\t\t\t}
+\t\t}
+\t\treturn true;
+\t}
+
+\tprivate void placeLogs(WorldGenLevel level, BlockPos origin, Rotation rotation, List<BlockPos> offsets, Direction.Axis axis) {
+\t\tBlockState state = this.log.defaultBlockState().trySetValue(RotatedPillarBlock.AXIS, axis).rotate(rotation);
+\t\tfor (BlockPos offset : offsets) {
+\t\t\tBlockPos pos = origin.offset(offset.rotate(rotation));
+\t\t\tlevel.setBlock(pos, state, Block.UPDATE_ALL);
+\t\t\t// Logs standing on grass turn it to dirt, as vanilla trees do.
+\t\t\tif (offset.getY() == 0 && level.getBlockState(pos.below()).is(Blocks.GRASS_BLOCK)) {
+\t\t\t\tlevel.setBlock(pos.below(), Blocks.DIRT.defaultBlockState(), Block.UPDATE_ALL);
+\t\t\t}
+\t\t}
 \t}
 }
 `;

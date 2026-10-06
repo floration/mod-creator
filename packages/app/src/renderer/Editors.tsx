@@ -1,6 +1,6 @@
 import { useContext, useEffect, useMemo, useState } from "react";
 import { EMPTY_SLOTS, listFromSlots, patternFromSlots, sameShape, slotsFromList, slotsFromPattern, type Slots } from "@modcreator/core/recipe-grid";
-import { ARMOR_PIECES, CreativeTab, EquipSound, MobBehavior, OreHost, OreShape, Rarity, SoundType, ToolTier, TreeShape, VANILLA_EFFECTS, shapeBlocks, type ElementSpec } from "@modcreator/core/schema";
+import { ARMOR_PIECES, CreativeTab, EquipSound, MobBehavior, OreHost, OreShape, Rarity, SoundType, ToolTier, VANILLA_EFFECTS, shapeBlocks, type ElementSpec } from "@modcreator/core/schema";
 import {
   CheckField,
   ColorField,
@@ -23,6 +23,7 @@ import { blockbenchSheetLayout, mobSheetLayout } from "./Preview";
 import { TextureContext, TextureField } from "./TextureField";
 import { GoalsEditor, ModelPicker } from "./MobParts";
 import { VANILLA_MOBS, textureId } from "@modcreator/core/vanilla-mobs";
+import { TreeShapeSection } from "./TreeShapeEditor";
 import { TagListField, TagTextField, elementTagType, useItemOptions } from "./TagField";
 import { ItemContext, ItemIconView, ItemPicker, acceptsItem, dragItem, droppedItem, itemInfo } from "./items";
 
@@ -269,12 +270,7 @@ export function TreeEditor(p: EditorProps) {
         <TextureField {...f} path={["tree", "leaves"]} label="Leaves" hint="Use transparent pixels for gaps" />
         <TextureField {...f} path={["tree", "sapling"]} label="Sapling" />
       </Section>
-      <Section title="Shape">
-        <SelectField {...f} path={["tree", "shape"]} label="Grows like" options={TreeShape.options} />
-        <NumberField {...f} path={["tree", "trunkHeight"]} label="Trunk height" min={1} max={32} hint="Optional. Leave empty for the shape's own" />
-        <NumberField {...f} path={["tree", "trunkHeightRandom"]} label="Extra random height" min={0} max={24} hint="Optional. Up to this many more blocks" />
-        <NumberField {...f} path={["tree", "leafRadius"]} label="Leaf radius" min={0} max={8} hint="Optional. Oak, birch and fancy oak only" />
-      </Section>
+      <TreeShapeSection {...p} />
       <Section title="Leaf drops">
         <NumberField {...f} path={["tree", "saplingChance"]} label="Sapling chance" step={0.01} min={0} max={1} hint="Oak 0.05, jungle 0.025" />
         <OptionalGroup {...f} path={["tree", "fruit"]} label="Drops a fruit, like oak apples" template={{ item: "", chance: 0.02 }}>

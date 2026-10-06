@@ -4,7 +4,11 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { pickAnimations, sampleChannel, type EntityModelDef, type ModelAnimation, type ModelPartDef } from "@modcreator/core/blockbench";
 import { VANILLA_MOBS, textureId } from "@modcreator/core/vanilla-mobs";
 import { VANILLA_MODELS, type PartPose, type VanillaGeometry, type VanillaPart } from "@modcreator/core/vanilla-models";
+import { previewTree, type TreeBlock } from "@modcreator/core/trees";
+import type { TreeSpec } from "@modcreator/core/schema";
 import { api, type ElementSpec } from "./api";
+
+type TreeOptions = TreeSpec["tree"];
 
 /** Minecraft's fixed face shading: the top is brightest, the bottom darkest. */
 const SHADE = { top: 1.0, bottom: 0.5, northSouth: 0.8, eastWest: 0.6 };
@@ -67,30 +71,46 @@ async function cross(load: Loader, file: string | undefined): Promise<THREE.Grou
   return group;
 }
 
-/** A small tree: a log trunk with a rounded block of leaves, the way an oak looks. */
-async function tree(load: Loader, t: { logSide: string; logEnd: string; leaves: string; trunkHeight?: number }): Promise<THREE.Group> {
+/** A texture turned a quarter turn, for the bark of logs lying on their side. */
+function turned(tex: THREE.Texture | null): THREE.Texture | null {
+  if (!tex) return null;
+  const t = tex.clone();
+  t.center.set(0.5, 0.5);
+  t.rotation = Math.PI / 2;
+  t.needsUpdate = true;
+  return t;
+}
+
+/**
+ * The tree its sapling grows: the game's own trunk and foliage placers (ported in @modcreator/core/trees, checked
+ * block for block against the game) with this seed, or the hand-built layout. Scaled to fit the view.
+ */
+async function tree(load: Loader, t: TreeOptions, seed: number): Promise<THREE.Group> {
   const group = new THREE.Group();
-  const trunk = Math.min(6, Math.max(3, t.trunkHeight ?? 4));
-  const log = await cube(load, [t.logSide, t.logSide, t.logEnd, t.logEnd, t.logSide, t.logSide]);
-  const leaves = await cube(load, Array(6).fill(t.leaves));
-  for (let y = 0; y < trunk; y++) {
-    const block = log.clone();
-    block.position.set(0, y + 0.5, 0);
-    group.add(block);
+  const blocks = previewTree(t, seed).filter((b) => b.kind !== "soil");
+  if (!blocks.length) return group;
+  const [side, end, leaves] = await Promise.all([load(t.logSide), load(t.logEnd), load(t.leaves)]);
+  const sideTurned = turned(side);
+  // Faces in BoxGeometry order (+x, -x, +y, -y, +z, -z); the ring texture goes on the ends along the log's axis.
+  const faces: Record<string, (THREE.Texture | null)[]> = {
+    y: [side, side, end, end, side, side],
+    x: [end, end, sideTurned, sideTurned, sideTurned, sideTurned],
+    z: [sideTurned, sideTurned, side, side, end, end],
+  };
+  const geometry = new THREE.BoxGeometry(1, 1, 1);
+  const matrix = new THREE.Matrix4();
+  const add = (list: TreeBlock[], materials: THREE.Material[]) => {
+    if (!list.length) return;
+    const mesh = new THREE.InstancedMesh(geometry, materials, list.length);
+    list.forEach((b, i) => mesh.setMatrixAt(i, matrix.makeTranslation(b.x, b.y + 0.5, b.z)));
+    group.add(mesh);
+  };
+  for (const axis of ["y", "x", "z"] as const) {
+    add(blocks.filter((b) => b.kind === "log" && (b.axis ?? "y") === axis), faces[axis].map((tex, i) => shaded(tex, CUBE_SHADES[i])));
   }
-  for (let y = trunk - 1; y <= trunk + 1; y++) {
-    const r = y >= trunk ? 1 : 2;
-    for (let x = -r; x <= r; x++) {
-      for (let z = -r; z <= r; z++) {
-        if (x === 0 && z === 0 && y < trunk) continue;
-        if (Math.abs(x) === r && Math.abs(z) === r && (r === 2 || y === trunk + 1)) continue;
-        const block = leaves.clone();
-        block.position.set(x, y + 0.5, z);
-        group.add(block);
-      }
-    }
-  }
-  group.scale.setScalar(1 / (trunk + 2));
+  add(blocks.filter((b) => b.kind === "leaves"), CUBE_SHADES.map((shade) => shaded(leaves, shade)));
+  const span = Math.max(...blocks.map((b) => Math.max(Math.abs(b.x), Math.abs(b.z)) * 2 + 1), ...blocks.map((b) => b.y + 1));
+  group.scale.setScalar(1.3 / span);
   return group;
 }
 
@@ -342,7 +362,7 @@ function applyAnimation(parts: Map<string, THREE.Object3D>, animation: ModelAnim
   }
 }
 
-async function buildObject(root: string, spec: ElementSpec): Promise<THREE.Object3D | null> {
+async function buildObject(root: string, spec: ElementSpec, seed: number): Promise<THREE.Object3D | null> {
   const load = loader(root);
   const faces = cubeFaces(spec);
   if (faces) {
@@ -362,7 +382,7 @@ async function buildObject(root: string, spec: ElementSpec): Promise<THREE.Objec
     case "plant":
       return lifted(await cross(load, spec.plant.texture), 0.5);
     case "tree":
-      return tree(load, spec.tree);
+      return tree(load, spec.tree, seed);
     case "mob": {
       if (spec.mob.model !== "blockbench") return vanillaMob(load, spec.mob.model, spec.mob.texture, spec.mob.scale ?? 1);
       if (!spec.mob.blockbench) return null;
@@ -391,6 +411,7 @@ export function Preview({ root, spec, version }: { root: string; spec: ElementSp
   const [failed, setFailed] = useState(false);
   const [animated, setAnimated] = useState(false);
   const [walking, setWalking] = useState(false);
+  const [seed, setSeed] = useState(0);
   const walkingRef = useRef(walking);
   walkingRef.current = walking;
 
@@ -441,7 +462,7 @@ export function Preview({ root, spec, version }: { root: string; spec: ElementSp
 
   useEffect(() => {
     let cancelled = false;
-    buildObject(root, spec).then((object) => {
+    buildObject(root, spec, seed).then((object) => {
       const s = scene.current;
       if (cancelled || !s) return;
       if (s.object) s.scene.remove(s.object);
@@ -460,7 +481,7 @@ export function Preview({ root, spec, version }: { root: string; spec: ElementSp
     return () => {
       cancelled = true;
     };
-  }, [root, spec, version]);
+  }, [root, spec, version, seed]);
 
   const supported = cubeFaces(spec) !== null || ["item", "tool", "armor", "plant", "tree", "mob"].includes(spec.kind);
   return (
@@ -468,6 +489,14 @@ export function Preview({ root, spec, version }: { root: string; spec: ElementSp
       <div className="preview-canvas" ref={host} />
       {failed && <div className="preview-note">3D preview needs WebGL, which this computer's graphics driver did not provide.</div>}
       {!failed && !supported && <div className="preview-note">No 3D preview for this element yet.</div>}
+      {spec.kind === "tree" && spec.tree.shape !== "custom" && (
+        <div className="preview-toggle">
+          <button type="button" onClick={() => setSeed((s) => s + 1)} title="Grow another one: same shape, different random numbers">
+            Grow another
+          </button>{" "}
+          <span className="preview-seed">seed {seed}</span>
+        </div>
+      )}
       {animated && (
         <label className="preview-toggle">
           <input type="checkbox" checked={walking} onChange={(e) => setWalking(e.target.checked)} /> Walking
