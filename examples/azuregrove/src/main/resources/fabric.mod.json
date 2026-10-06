@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "azuregrove",
+  "version": "${version}",
+  "name": "Azure Grove",
+  "description": "Mod Creator example: one of each content type, around a blue Azure Grove biome.",
+  "authors": [
+    "Mod Creator"
+  ],
+  "license": "All-Rights-Reserved",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.example.azuregrove.AzuregroveMod"
+    ],
+    "client": [
+      "com.example.azuregrove.generated.ModContentClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "minecraft": "~26.3",
+    "java": ">=25",
+    "fabric-api": "*",
+    "biolith": "*"
+  }
+}

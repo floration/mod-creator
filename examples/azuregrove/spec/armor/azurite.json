@@ -1,0 +1,23 @@
+{
+  "$schema": "../../.modcreator/schema/armor.json",
+  "kind": "armor",
+  "id": "azurite",
+  "name": "Azurite",
+  "creativeTab": "combat",
+  "armor": {
+    "pieces": {
+      "helmet": "art/azurite_helmet.png",
+      "chestplate": "art/azurite_chestplate.png",
+      "leggings": "art/azurite_leggings.png",
+      "boots": "art/azurite_boots.png"
+    },
+    "layer1": "art/azurite_layer_1.png",
+    "layer2": "art/azurite_layer_2.png",
+    "durability": 22,
+    "defense": { "helmet": 2, "chestplate": 7, "leggings": 5, "boots": 2 },
+    "toughness": 1.0,
+    "enchantability": 18,
+    "equipSound": "diamond",
+    "repairItem": "azurite"
+  }
+}

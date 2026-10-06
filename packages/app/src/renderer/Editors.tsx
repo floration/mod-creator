@@ -1,10 +1,13 @@
 import { useContext, useEffect, useMemo, useState } from "react";
 import { EMPTY_SLOTS, listFromSlots, patternFromSlots, sameShape, slotsFromList, slotsFromPattern, type Slots } from "@modcreator/core/recipe-grid";
-import { CreativeTab, OreHost, SoundType } from "@modcreator/core/schema";
+import { ARMOR_PIECES, CreativeTab, EquipSound, MobModel, OreHost, Rarity, SoundType, ToolTier, TreeShape } from "@modcreator/core/schema";
 import {
   CheckField,
+  ColorField,
   ListField,
   NumberField,
+  OptionalGroup,
+  RowsField,
   Section,
   SelectField,
   TextField,
@@ -21,22 +24,24 @@ interface EditorProps {
   onChange: (draft: Draft) => void;
 }
 
-function Common(p: EditorProps) {
+function Common(p: EditorProps & { nameHint?: string; idHint?: string; tab?: boolean; tags?: string; customClass?: boolean }) {
   const f = { draft: p.draft, errors: p.errors, onChange: p.onChange };
   return (
     <Section title="General">
-      <TextField {...f} path={["name"]} label="Display name" />
-      <TextField {...f} path={["id"]} label="Id" hint="Lowercase, used in registry names and file names" />
-      <SelectField {...f} path={["creativeTab"]} label="Creative tab" options={CreativeTab.options} optional />
-      <ListField {...f} path={["tags"]} label="Tags" placeholder="minecraft:mineable/pickaxe, minecraft:needs_iron_tool" />
-      <TextField
-        {...f}
-        path={["customClass"]}
-        label="Custom class"
-        optional
-        placeholder="com.example.mymod.MyBlock"
-        hint="Optional. A hand-written Java class to use instead of the vanilla one. Created once as a starter file."
-      />
+      <TextField {...f} path={["name"]} label="Display name" hint={p.nameHint} />
+      <TextField {...f} path={["id"]} label="Id" hint={p.idHint ?? "Lowercase, used in registry names and file names"} />
+      {p.tab !== false && <SelectField {...f} path={["creativeTab"]} label="Creative tab" options={CreativeTab.options} optional />}
+      {p.tags !== "" && <ListField {...f} path={["tags"]} label="Tags" placeholder={p.tags ?? "minecraft:mineable/pickaxe, minecraft:needs_iron_tool"} />}
+      {p.customClass !== false && (
+        <TextField
+          {...f}
+          path={["customClass"]}
+          label="Custom class"
+          optional
+          placeholder="com.example.mymod.MyBlock"
+          hint="Optional. A hand-written Java class to use instead of the vanilla one. Created once as a starter file."
+        />
+      )}
     </Section>
   );
 }
@@ -117,7 +122,264 @@ export function ItemEditor(p: EditorProps) {
       <Section title="Item">
         <TextField {...f} path={["item", "texture"]} label="Texture" hint="A 16x16 PNG in art/" />
         <NumberField {...f} path={["item", "maxStackSize"]} label="Max stack size" min={1} max={99} />
-        <SelectField {...f} path={["item", "rarity"]} label="Rarity" options={["common", "uncommon", "rare", "epic"]} />
+        <SelectField {...f} path={["item", "rarity"]} label="Rarity" options={Rarity.options} />
+      </Section>
+      <Section title="Food">
+        <OptionalGroup {...f} path={["item", "food"]} label="Can be eaten" template={{ nutrition: 4, saturation: 0.3 }}>
+          <NumberField {...f} path={["item", "food", "nutrition"]} label="Nutrition" min={0} max={20} hint="Hunger points; each drumstick is 2. Apple 4, bread 5, steak 8" />
+          <NumberField {...f} path={["item", "food", "saturation"]} label="Saturation" step={0.1} min={0} max={2} hint="How long it keeps you full. Apple 0.3, bread 0.6, steak 0.8" />
+          <CheckField {...f} path={["item", "food", "alwaysEdible"]} label="Can be eaten when not hungry" />
+        </OptionalGroup>
+      </Section>
+    </>
+  );
+}
+
+export function ToolEditor(p: EditorProps) {
+  const f = { draft: p.draft, errors: p.errors, onChange: p.onChange };
+  return (
+    <>
+      <Common {...p} customClass={false} tags="minecraft:enchantable/fire_aspect" />
+      <Section title="Tool">
+        <SelectField {...f} path={["tool", "type"]} label="Type" options={["sword", "pickaxe", "axe", "shovel", "hoe"]} />
+        <TextField {...f} path={["tool", "texture"]} label="Texture" hint="A 16x16 PNG in art/, drawn pointing up and to the right" />
+        <SelectField {...f} path={["tool", "tier"]} label="Can mine what this tier mines" options={ToolTier.options} />
+        <TextField {...f} path={["tool", "repairItem"]} label="Repaired with" optional hint="Optional. An item from this mod or minecraft:..., used in an anvil" />
+        <SelectField {...f} path={["tool", "rarity"]} label="Rarity" options={Rarity.options} />
+      </Section>
+      <Section title="Stats">
+        <NumberField {...f} path={["tool", "durability"]} label="Durability" min={1} max={10000} hint="Iron 250, diamond 1561" />
+        <NumberField {...f} path={["tool", "attackDamage"]} label="Attack damage" step={0.5} min={0} hint="Added to the base 1. Iron sword 5, diamond sword 6" />
+        <NumberField {...f} path={["tool", "attackSpeed"]} label="Attack speed" step={0.1} min={-4} max={4} hint="Added to the base 4. Swords -2.4, axes about -3" />
+        <NumberField {...f} path={["tool", "miningSpeed"]} label="Mining speed" step={0.5} min={0} hint="Iron 6, diamond 8, gold 12" />
+        <NumberField {...f} path={["tool", "enchantability"]} label="Enchantability" min={0} max={50} hint="Iron 14, diamond 10, gold 22" />
+      </Section>
+    </>
+  );
+}
+
+const PIECE_NAMES: Record<string, string> = { helmet: "Helmet", chestplate: "Chestplate", leggings: "Leggings", boots: "Boots" };
+
+export function ArmorEditor(p: EditorProps) {
+  const f = { draft: p.draft, errors: p.errors, onChange: p.onChange };
+  const id = getAt(p.draft, ["id"]) ?? "";
+  return (
+    <>
+      <Common {...p} customClass={false} tags="" nameHint="Set name; pieces are called Name Helmet, Name Chestplate and so on" />
+      <Section title="Pieces">
+        {ARMOR_PIECES.map((piece) => {
+          const on = getAt(p.draft, ["armor", "pieces", piece]) !== undefined;
+          return (
+            <div key={piece}>
+              <label className="field field-check">
+                <input type="checkbox" checked={on} onChange={(e) => p.onChange(setAt(p.draft, ["armor", "pieces", piece], e.target.checked ? `art/${id}_${piece}.png` : undefined))} />
+                <span className="field-label">{PIECE_NAMES[piece]} <span className="muted">({id}_{piece})</span></span>
+              </label>
+              {on && <TextField {...f} path={["armor", "pieces", piece]} label="Icon" />}
+            </div>
+          );
+        })}
+      </Section>
+      <Section title="Worn look">
+        <TextField {...f} path={["armor", "layer1"]} label="Layer 1 texture" hint="64x32 PNG in the vanilla armor layout, for the helmet, chestplate and boots" />
+        <TextField {...f} path={["armor", "layer2"]} label="Layer 2 texture" hint="64x32 PNG for the leggings" />
+        <SelectField {...f} path={["armor", "equipSound"]} label="Equip sound" options={EquipSound.options} />
+      </Section>
+      <Section title="Stats">
+        {ARMOR_PIECES.map((piece) => (
+          <NumberField key={piece} {...f} path={["armor", "defense", piece]} label={`${PIECE_NAMES[piece]} armor points`} min={0} max={30} />
+        ))}
+        <span className="field-hint">Iron is 2, 6, 5, 2 and diamond 3, 8, 6, 3.</span>
+        <NumberField {...f} path={["armor", "durability"]} label="Durability multiplier" min={1} max={200} hint="Iron 15, diamond 33" />
+        <NumberField {...f} path={["armor", "toughness"]} label="Toughness" step={0.5} min={0} max={20} hint="Diamond 2, netherite 3" />
+        <NumberField {...f} path={["armor", "knockbackResistance"]} label="Knockback resistance" step={0.05} min={0} max={1} hint="Netherite 0.1" />
+        <NumberField {...f} path={["armor", "enchantability"]} label="Enchantability" min={0} max={50} />
+        <TextField {...f} path={["armor", "repairItem"]} label="Repaired with" optional />
+        <SelectField {...f} path={["armor", "rarity"]} label="Rarity" options={Rarity.options} />
+      </Section>
+    </>
+  );
+}
+
+export function TreeEditor(p: EditorProps) {
+  const f = { draft: p.draft, errors: p.errors, onChange: p.onChange };
+  const id = getAt(p.draft, ["id"]) ?? "";
+  return (
+    <>
+      <Common {...p} customClass={false} tags="" nameHint="Wood name; blocks are called Name Log, Name Planks, Name Leaves and Name Sapling" idHint={`Blocks are ${id}_log, ${id}_planks, ${id}_leaves and ${id}_sapling`} />
+      <Section title="Textures">
+        <TextField {...f} path={["tree", "logSide"]} label="Log bark" />
+        <TextField {...f} path={["tree", "logEnd"]} label="Log rings" />
+        <TextField {...f} path={["tree", "planks"]} label="Planks" />
+        <TextField {...f} path={["tree", "leaves"]} label="Leaves" hint="Use transparent pixels for gaps" />
+        <TextField {...f} path={["tree", "sapling"]} label="Sapling" />
+      </Section>
+      <Section title="Shape">
+        <SelectField {...f} path={["tree", "shape"]} label="Grows like" options={TreeShape.options} />
+        <NumberField {...f} path={["tree", "trunkHeight"]} label="Trunk height" min={1} max={32} hint="Optional. Leave empty for the shape's own" />
+        <NumberField {...f} path={["tree", "trunkHeightRandom"]} label="Extra random height" min={0} max={24} hint="Optional. Up to this many more blocks" />
+        <NumberField {...f} path={["tree", "leafRadius"]} label="Leaf radius" min={0} max={8} hint="Optional. Oak, birch and fancy oak only" />
+      </Section>
+      <Section title="Leaf drops">
+        <NumberField {...f} path={["tree", "saplingChance"]} label="Sapling chance" step={0.01} min={0} max={1} hint="Oak 0.05, jungle 0.025" />
+        <OptionalGroup {...f} path={["tree", "fruit"]} label="Drops a fruit, like oak apples" template={{ item: "", chance: 0.02 }}>
+          <TextField {...f} path={["tree", "fruit", "item"]} label="Fruit item" />
+          <NumberField {...f} path={["tree", "fruit", "chance"]} label="Chance" step={0.005} min={0} max={1} hint="Oak apples are 0.005" />
+        </OptionalGroup>
+      </Section>
+    </>
+  );
+}
+
+export function PlantEditor(p: EditorProps) {
+  const f = { draft: p.draft, errors: p.errors, onChange: p.onChange };
+  const drops = getAt(p.draft, ["plant", "drops"]) ?? "nothing";
+  const dropKind = typeof drops === "object" ? "item" : drops;
+  return (
+    <>
+      <Common {...p} tags="minecraft:replaceable_by_trees, minecraft:sword_efficient" />
+      <Section title="Plant">
+        <TextField {...f} path={["plant", "texture"]} label="Texture" hint="A 16x16 PNG drawn as two crossed planes, like short grass" />
+        <CheckField {...f} path={["plant", "offset"]} label="Nudge each plant randomly, like grass" />
+      </Section>
+      <Section title="Drops">
+        <label className="field">
+          <span className="field-label">When broken without shears</span>
+          <select
+            value={dropKind}
+            onChange={(e) => {
+              const v = e.target.value;
+              p.onChange(setAt(p.draft, ["plant", "drops"], v === "item" ? { item: "minecraft:wheat_seeds", chance: 0.125 } : v));
+            }}
+          >
+            <option value="nothing">Nothing</option>
+            <option value="self">Itself</option>
+            <option value="item">Sometimes an item, like seeds</option>
+          </select>
+        </label>
+        {dropKind === "item" && (
+          <>
+            <TextField {...f} path={["plant", "drops", "item"]} label="Item" />
+            <NumberField {...f} path={["plant", "drops", "chance"]} label="Chance" step={0.005} min={0} max={1} hint="Grass drops seeds 0.125 of the time" />
+          </>
+        )}
+        <span className="field-hint">Shears always drop the plant itself.</span>
+      </Section>
+    </>
+  );
+}
+
+export function MobEditor(p: EditorProps) {
+  const f = { draft: p.draft, errors: p.errors, onChange: p.onChange };
+  const model = getAt(p.draft, ["mob", "model"]) ?? "pig";
+  return (
+    <>
+      <Common {...p} tab={false} tags="" customClass={false} idHint="Lowercase. The spawn egg is <id>_spawn_egg" />
+      <Section title="Look">
+        <SelectField {...f} path={["mob", "model"]} label="Body" options={MobModel.options} hint="Borrows this animal's model and animations" />
+        <TextField {...f} path={["mob", "texture"]} label="Texture" hint={`64x64 PNG in the vanilla ${model} layout`} />
+        <TextField {...f} path={["mob", "babyTexture"]} label="Baby texture" optional hint={`Optional. In the vanilla baby ${model} layout`} />
+        <TextField {...f} path={["mob", "spawnEgg"]} label="Spawn egg icon" />
+      </Section>
+      <Section title="Behavior">
+        <NumberField {...f} path={["mob", "health"]} label="Health" min={1} max={1024} hint="In half hearts. Pig 10, cow 10" />
+        <NumberField {...f} path={["mob", "speed"]} label="Speed" step={0.05} min={0} max={2} hint="Pig 0.25, cow 0.2" />
+        <TextField {...f} path={["mob", "food"]} label="Food" hint="Tempts and breeds it. An item, or a tag like #minecraft:pig_food" />
+        <NumberField {...f} path={["mob", "width"]} label="Hitbox width" step={0.1} min={0.1} max={16} />
+        <NumberField {...f} path={["mob", "height"]} label="Hitbox height" step={0.1} min={0.1} max={16} />
+      </Section>
+      <Section title="Drops">
+        <RowsField
+          {...f}
+          path={["mob", "drops"]}
+          label="Drops when killed"
+          hint="Looting adds up to one more per level"
+          columns={[
+            { key: "item", label: "Item", type: "text", placeholder: "minecraft:porkchop" },
+            { key: "min", label: "Min", type: "number", min: 0 },
+            { key: "max", label: "Max", type: "number", min: 0 },
+          ]}
+          template={{ item: "", min: 1, max: 1 }}
+        />
+      </Section>
+      <Section title="Sounds">
+        <TextField {...f} path={["mob", "sounds", "ambient"]} label="Ambient" optional placeholder={`minecraft:entity.${model}.ambient`} />
+        <TextField {...f} path={["mob", "sounds", "hurt"]} label="Hurt" optional placeholder={`minecraft:entity.${model}.hurt`} />
+        <TextField {...f} path={["mob", "sounds", "death"]} label="Death" optional placeholder={`minecraft:entity.${model}.death`} />
+        <span className="field-hint">Leave empty to use the {model}'s own sounds.</span>
+      </Section>
+    </>
+  );
+}
+
+export function BiomeEditor(p: EditorProps) {
+  const f = { draft: p.draft, errors: p.errors, onChange: p.onChange };
+  return (
+    <>
+      <Common {...p} tab={false} customClass={false} tags="minecraft:is_forest" />
+      <Section title="Where it generates">
+        <RowsField
+          {...f}
+          path={["biome", "replaces"]}
+          label="Takes over part of"
+          hint="Vanilla Overworld biomes. Share 0.3 turns about 30% of that biome into this one. Placed by the Biolith library."
+          columns={[
+            { key: "biome", label: "Biome", type: "text", placeholder: "minecraft:plains" },
+            { key: "share", label: "Share", type: "number", step: 0.05, min: 0.01, max: 1 },
+          ]}
+          template={{ biome: "minecraft:plains", share: 0.25 }}
+        />
+      </Section>
+      <Section title="Climate">
+        <NumberField {...f} path={["biome", "temperature"]} label="Temperature" step={0.05} min={-2} max={2} hint="Snow below 0.15. Plains 0.8, taiga 0.25, desert 2" />
+        <NumberField {...f} path={["biome", "downfall"]} label="Downfall" step={0.05} min={0} max={1} hint="Wetness; affects grass and foliage colors when not set" />
+        <CheckField {...f} path={["biome", "precipitation"]} label="Rains or snows" />
+      </Section>
+      <Section title="Colors">
+        <ColorField {...f} path={["biome", "colors", "sky"]} label="Sky" fallback="#78a7ff" />
+        <ColorField {...f} path={["biome", "colors", "fog"]} label="Fog" optional fallback="#c0d8ff" />
+        <ColorField {...f} path={["biome", "colors", "water"]} label="Water" fallback="#3f76e4" />
+        <ColorField {...f} path={["biome", "colors", "waterFog"]} label="Underwater fog" optional fallback="#050533" />
+        <ColorField {...f} path={["biome", "colors", "grass"]} label="Grass" optional fallback="#91bd59" />
+        <ColorField {...f} path={["biome", "colors", "foliage"]} label="Leaves" optional fallback="#77ab2f" />
+      </Section>
+      <Section title="Vegetation">
+        <RowsField
+          {...f}
+          path={["biome", "trees"]}
+          label="Trees"
+          columns={[
+            { key: "tree", label: "Tree", type: "text", placeholder: "a tree id from this mod" },
+            { key: "perChunk", label: "Per chunk", type: "number", min: 1, max: 64 },
+          ]}
+          template={{ tree: "", perChunk: 4 }}
+        />
+        <RowsField
+          {...f}
+          path={["biome", "plants"]}
+          label="Plants"
+          columns={[
+            { key: "plant", label: "Plant", type: "text", placeholder: "a plant id from this mod" },
+            { key: "patchesPerChunk", label: "Patches per chunk", type: "number", min: 1, max: 32 },
+          ]}
+          template={{ plant: "", patchesPerChunk: 4 }}
+        />
+        <ListField {...f} path={["biome", "vanillaFeatures"]} label="Vanilla features" placeholder="minecraft:flower_default, minecraft:patch_grass_plain" hint="Vanilla placed features to add, like flowers" />
+      </Section>
+      <Section title="Creatures">
+        <RowsField
+          {...f}
+          path={["biome", "spawns"]}
+          label="Spawns"
+          hint="Vanilla monsters, bats and glow squid always spawn too"
+          columns={[
+            { key: "mob", label: "Mob", type: "text", placeholder: "minecraft:sheep" },
+            { key: "weight", label: "Weight", type: "number", min: 1 },
+            { key: "min", label: "Min", type: "number", min: 1 },
+            { key: "max", label: "Max", type: "number", min: 1 },
+          ]}
+          template={{ mob: "", weight: 10, min: 2, max: 4 }}
+        />
       </Section>
     </>
   );
@@ -346,16 +608,43 @@ export function OreEditor(p: EditorProps) {
   );
 }
 
+export type Kind = "block" | "item" | "recipe" | "ore" | "tool" | "armor" | "tree" | "plant" | "mob" | "biome";
+
 /** Starting point for a new spec of each kind. */
-export function newSpec(kind: "block" | "item" | "recipe" | "ore", id: string): Draft {
+export function newSpec(kind: Kind, id: string): Draft {
   const name = id.split("_").map((w) => w[0]?.toUpperCase() + w.slice(1)).join(" ");
-  const schema = `../../.modcreator/schema/${kind}.json`;
-  if (kind === "block") {
-    return { $schema: schema, kind, id, name, tags: [], block: { hardness: 1.5, resistance: 6, sound: "stone", model: { type: "cube_all", texture: `art/${id}.png` } } };
+  const base = { $schema: `../../.modcreator/schema/${kind}.json`, kind, id, name };
+  const art = (suffix = "") => `art/${id}${suffix}.png`;
+  switch (kind) {
+    case "block":
+      return { ...base, tags: [], block: { hardness: 1.5, resistance: 6, sound: "stone", model: { type: "cube_all", texture: art() } } };
+    case "item":
+      return { ...base, item: { texture: art() } };
+    case "ore":
+      return { ...base, ore: { block: "", replaces: "stone_and_deepslate", veinSize: 8, veinsPerChunk: 4, minY: -64, maxY: 64, distribution: "uniform" } };
+    case "tool":
+      return { ...base, creativeTab: "combat", tool: { type: "sword", texture: art(), tier: "iron", durability: 250, miningSpeed: 6, attackDamage: 5, attackSpeed: -2.4, enchantability: 14 } };
+    case "armor":
+      return {
+        ...base,
+        creativeTab: "combat",
+        armor: {
+          pieces: Object.fromEntries(ARMOR_PIECES.map((piece) => [piece, art(`_${piece}`)])),
+          layer1: art("_layer_1"),
+          layer2: art("_layer_2"),
+          durability: 15,
+          defense: { helmet: 2, chestplate: 6, leggings: 5, boots: 2 },
+        },
+      };
+    case "tree":
+      return { ...base, tree: { logSide: art("_log"), logEnd: art("_log_top"), planks: art("_planks"), leaves: art("_leaves"), sapling: art("_sapling"), shape: "oak" } };
+    case "plant":
+      return { ...base, creativeTab: "natural_blocks", plant: { texture: art(), drops: "nothing" } };
+    case "mob":
+      return { ...base, mob: { model: "pig", texture: art(), spawnEgg: art("_spawn_egg"), health: 10, speed: 0.25, food: "minecraft:carrot", drops: [] } };
+    case "biome":
+      return { ...base, tags: [], biome: { temperature: 0.7, downfall: 0.8, colors: { sky: "#78a7ff", water: "#3f76e4" }, replaces: [{ biome: "minecraft:plains", share: 0.25 }], trees: [], plants: [], spawns: [] } };
+    case "recipe":
+      return { $schema: base.$schema, kind, id, recipe: RECIPE_TEMPLATES.shaped({ item: "", count: 1 }) };
   }
-  if (kind === "item") return { $schema: schema, kind, id, name, item: { texture: `art/${id}.png` } };
-  if (kind === "ore") {
-    return { $schema: schema, kind, id, name, ore: { block: "", replaces: "stone_and_deepslate", veinSize: 8, veinsPerChunk: 4, minY: -64, maxY: 64, distribution: "uniform" } };
-  }
-  return { $schema: schema, kind, id, recipe: RECIPE_TEMPLATES.shaped({ item: "", count: 1 }) };
 }

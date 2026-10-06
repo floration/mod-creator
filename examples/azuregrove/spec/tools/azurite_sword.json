@@ -1,0 +1,18 @@
+{
+  "$schema": "../../.modcreator/schema/tool.json",
+  "kind": "tool",
+  "id": "azurite_sword",
+  "name": "Azurite Sword",
+  "creativeTab": "combat",
+  "tool": {
+    "type": "sword",
+    "texture": "art/azurite_sword.png",
+    "tier": "iron",
+    "durability": 600,
+    "miningSpeed": 7,
+    "attackDamage": 5.5,
+    "attackSpeed": -2.4,
+    "enchantability": 18,
+    "repairItem": "azurite"
+  }
+}

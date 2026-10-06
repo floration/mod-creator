@@ -1,0 +1,206 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "kind": {
+      "type": "string",
+      "const": "block"
+    },
+    "$schema": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "tags": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+      }
+    },
+    "creativeTab": {
+      "type": "string",
+      "enum": [
+        "building_blocks",
+        "colored_blocks",
+        "natural_blocks",
+        "functional_blocks",
+        "redstone_blocks",
+        "tools_and_utilities",
+        "combat",
+        "food_and_drinks",
+        "ingredients",
+        "spawn_eggs"
+      ]
+    },
+    "customClass": {
+      "default": null,
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "block": {
+      "type": "object",
+      "properties": {
+        "hardness": {
+          "default": 1.5,
+          "type": "number",
+          "minimum": -1
+        },
+        "resistance": {
+          "default": 6,
+          "type": "number",
+          "minimum": 0
+        },
+        "sound": {
+          "default": "stone",
+          "type": "string",
+          "enum": [
+            "stone",
+            "wood",
+            "gravel",
+            "grass",
+            "metal",
+            "glass",
+            "wool",
+            "sand",
+            "amethyst",
+            "deepslate",
+            "copper",
+            "netherrack",
+            "nether_bricks",
+            "bone_block"
+          ]
+        },
+        "requiresTool": {
+          "default": false,
+          "type": "boolean"
+        },
+        "lightLevel": {
+          "default": 0,
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 15
+        },
+        "model": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "const": "cube_all"
+                },
+                "texture": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "type",
+                "texture"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "const": "cube_column"
+                },
+                "side": {
+                  "type": "string"
+                },
+                "end": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "type",
+                "side",
+                "end"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "const": "custom"
+                },
+                "model": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "type",
+                "model"
+              ]
+            }
+          ]
+        }
+      },
+      "required": [
+        "model"
+      ]
+    },
+    "drops": {
+      "default": "self",
+      "anyOf": [
+        {
+          "type": "string",
+          "const": "self"
+        },
+        {
+          "type": "string",
+          "const": "none"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "item": {
+              "type": "string",
+              "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+            },
+            "min": {
+              "default": 1,
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "max": {
+              "default": 1,
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "fortune": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "item"
+          ]
+        }
+      ]
+    },
+    "hasItem": {
+      "default": true,
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "kind",
+    "id",
+    "name",
+    "block"
+  ]
+}

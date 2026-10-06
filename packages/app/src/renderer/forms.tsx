@@ -121,3 +121,96 @@ export function Section({ title, children }: { title: string; children: ReactNod
     </fieldset>
   );
 }
+
+export function ColorField(p: FieldProps & { optional?: boolean; fallback?: string }) {
+  const value: string | undefined = getAt(p.draft, p.path);
+  return (
+    <Row label={p.label} hint={p.hint} error={p.errors.get(p.path.join("."))}>
+      <span className="color-field">
+        <input type="color" value={value ?? p.fallback ?? "#000000"} onChange={(e) => p.onChange(setAt(p.draft, p.path, e.target.value))} />
+        <input value={value ?? ""} placeholder={p.optional ? "(vanilla default)" : undefined} onChange={(e) => p.onChange(setAt(p.draft, p.path, e.target.value === "" && p.optional ? undefined : e.target.value))} />
+      </span>
+    </Row>
+  );
+}
+
+/** Adds or removes an optional object, like an item's food settings. Its fields show only while it is on. */
+export function OptionalGroup(p: { draft: Draft; path: string[]; onChange: (draft: Draft) => void; label: string; template: Draft; children: ReactNode }) {
+  const on = getAt(p.draft, p.path) !== undefined;
+  return (
+    <>
+      <label className="field field-check">
+        <input type="checkbox" checked={on} onChange={(e) => p.onChange(setAt(p.draft, p.path, e.target.checked ? p.template : undefined))} />
+        <span className="field-label">{p.label}</span>
+      </label>
+      {on && p.children}
+    </>
+  );
+}
+
+export interface Column {
+  key: string;
+  label: string;
+  type: "text" | "number";
+  step?: number;
+  min?: number;
+  max?: number;
+  placeholder?: string;
+}
+
+/** A list of small objects edited as table rows, like a biome's spawns or a mob's drops. */
+export function RowsField(p: { draft: Draft; path: string[]; errors: Errors; onChange: (draft: Draft) => void; label: string; hint?: string; columns: Column[]; template: Draft; addLabel?: string }) {
+  const rows: Draft[] = getAt(p.draft, p.path) ?? [];
+  const setRows = (next: Draft[]) => p.onChange(setAt(p.draft, p.path, next));
+  const listError = p.errors.get(p.path.join("."));
+  return (
+    <div className="field rows-field">
+      <span className="field-label">{p.label}</span>
+      {rows.length > 0 && (
+        <table className="rows">
+          <thead>
+            <tr>
+              {p.columns.map((c) => <th key={c.key}>{c.label}</th>)}
+              <th />
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row, i) => (
+              <tr key={i}>
+                {p.columns.map((c) => {
+                  const error = p.errors.get([...p.path, String(i), c.key].join("."));
+                  return (
+                    <td key={c.key} className={error ? "has-error" : ""} title={error}>
+                      <input
+                        type={c.type}
+                        step={c.step}
+                        min={c.min}
+                        max={c.max}
+                        placeholder={c.placeholder}
+                        value={row[c.key] ?? ""}
+                        onChange={(e) => {
+                          const v = c.type === "number" ? (e.target.value === "" ? undefined : Number(e.target.value)) : e.target.value;
+                          setRows(rows.map((r, n) => (n === i ? setAt(r, [c.key], v) : r)));
+                        }}
+                      />
+                    </td>
+                  );
+                })}
+                <td>
+                  <button className="icon" title="Remove" onClick={() => setRows(rows.filter((_, n) => n !== i))}>×</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+      <button className="link" onClick={() => setRows([...rows, p.template])}>{p.addLabel ?? "+ Add"}</button>
+      {listError ? <span className="field-error">{listError}</span> : p.hint ? <span className="field-hint">{p.hint}</span> : null}
+      {rows.some((_, i) => p.columns.some((c) => p.errors.has([...p.path, String(i), c.key].join(".")))) && (
+        <span className="field-error">
+          {rows.flatMap((_, i) => p.columns.map((c) => p.errors.get([...p.path, String(i), c.key].join(".")))).filter(Boolean)[0]}
+        </span>
+      )}
+    </div>
+  );
+}

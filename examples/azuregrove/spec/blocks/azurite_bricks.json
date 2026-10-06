@@ -1,0 +1,16 @@
+{
+  "$schema": "../../.modcreator/schema/block.json",
+  "kind": "block",
+  "id": "azurite_bricks",
+  "name": "Azurite Bricks",
+  "tags": ["minecraft:mineable/pickaxe"],
+  "creativeTab": "building_blocks",
+  "block": {
+    "hardness": 2.0,
+    "resistance": 6.0,
+    "sound": "deepslate",
+    "requiresTool": true,
+    "lightLevel": 4,
+    "model": { "type": "cube_all", "texture": "art/azurite_bricks.png" }
+  }
+}

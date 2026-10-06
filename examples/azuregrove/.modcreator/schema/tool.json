@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "kind": {
+      "type": "string",
+      "const": "tool"
+    },
+    "$schema": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "tags": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+      }
+    },
+    "creativeTab": {
+      "type": "string",
+      "enum": [
+        "building_blocks",
+        "colored_blocks",
+        "natural_blocks",
+        "functional_blocks",
+        "redstone_blocks",
+        "tools_and_utilities",
+        "combat",
+        "food_and_drinks",
+        "ingredients",
+        "spawn_eggs"
+      ]
+    },
+    "customClass": {
+      "default": null,
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "tool": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "sword",
+            "pickaxe",
+            "axe",
+            "shovel",
+            "hoe"
+          ]
+        },
+        "texture": {
+          "type": "string"
+        },
+        "tier": {
+          "default": "iron",
+          "type": "string",
+          "enum": [
+            "wood",
+            "stone",
+            "copper",
+            "iron",
+            "gold",
+            "diamond",
+            "netherite"
+          ]
+        },
+        "durability": {
+          "default": 250,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10000
+        },
+        "miningSpeed": {
+          "default": 6,
+          "type": "number",
+          "minimum": 0
+        },
+        "attackDamage": {
+          "default": 5,
+          "type": "number",
+          "minimum": 0
+        },
+        "attackSpeed": {
+          "default": -2.4,
+          "type": "number",
+          "minimum": -4,
+          "maximum": 4
+        },
+        "enchantability": {
+          "default": 14,
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 50
+        },
+        "repairItem": {
+          "type": "string",
+          "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+        },
+        "rarity": {
+          "default": "common",
+          "type": "string",
+          "enum": [
+            "common",
+            "uncommon",
+            "rare",
+            "epic"
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "texture"
+      ]
+    }
+  },
+  "required": [
+    "kind",
+    "id",
+    "name",
+    "tool"
+  ]
+}

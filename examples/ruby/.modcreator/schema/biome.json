@@ -1,0 +1,199 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "kind": {
+      "type": "string",
+      "const": "biome"
+    },
+    "$schema": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "tags": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+      }
+    },
+    "biome": {
+      "type": "object",
+      "properties": {
+        "temperature": {
+          "default": 0.7,
+          "type": "number",
+          "minimum": -2,
+          "maximum": 2
+        },
+        "downfall": {
+          "default": 0.8,
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "precipitation": {
+          "default": true,
+          "type": "boolean"
+        },
+        "colors": {
+          "type": "object",
+          "properties": {
+            "sky": {
+              "default": "#78a7ff",
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            },
+            "fog": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            },
+            "water": {
+              "default": "#3f76e4",
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            },
+            "waterFog": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            },
+            "grass": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            },
+            "foliage": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            }
+          }
+        },
+        "replaces": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "biome": {
+                "type": "string",
+                "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+              },
+              "share": {
+                "default": 0.25,
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 1
+              }
+            },
+            "required": [
+              "biome"
+            ]
+          }
+        },
+        "trees": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "tree": {
+                "type": "string",
+                "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+              },
+              "perChunk": {
+                "default": 4,
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 64
+              }
+            },
+            "required": [
+              "tree"
+            ]
+          }
+        },
+        "plants": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "plant": {
+                "type": "string",
+                "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+              },
+              "patchesPerChunk": {
+                "default": 4,
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 32
+              }
+            },
+            "required": [
+              "plant"
+            ]
+          }
+        },
+        "vanillaFeatures": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+          }
+        },
+        "spawns": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "mob": {
+                "type": "string",
+                "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+              },
+              "weight": {
+                "default": 10,
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              },
+              "min": {
+                "default": 2,
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              },
+              "max": {
+                "default": 4,
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "mob"
+            ]
+          }
+        }
+      },
+      "required": [
+        "colors",
+        "replaces"
+      ]
+    }
+  },
+  "required": [
+    "kind",
+    "id",
+    "name",
+    "biome"
+  ]
+}

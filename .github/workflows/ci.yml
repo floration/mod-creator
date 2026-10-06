@@ -22,3 +22,5 @@ jobs:
       - run: npm test
       - name: Ruby example generates cleanly
         run: node packages/cli/dist/index.js generate examples/ruby
+      - name: Azure Grove example generates cleanly
+        run: node packages/cli/dist/index.js generate examples/azuregrove

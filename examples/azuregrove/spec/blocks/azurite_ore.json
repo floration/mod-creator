@@ -1,0 +1,16 @@
+{
+  "$schema": "../../.modcreator/schema/block.json",
+  "kind": "block",
+  "id": "azurite_ore",
+  "name": "Azurite Ore",
+  "tags": ["minecraft:mineable/pickaxe", "minecraft:needs_iron_tool"],
+  "creativeTab": "natural_blocks",
+  "block": {
+    "hardness": 3.0,
+    "resistance": 3.0,
+    "sound": "stone",
+    "requiresTool": true,
+    "model": { "type": "cube_all", "texture": "art/azurite_ore.png" }
+  },
+  "drops": { "item": "azurite", "min": 1, "max": 2, "fortune": true }
+}

@@ -1,0 +1,11 @@
+{
+  "$schema": "../../.modcreator/schema/item.json",
+  "kind": "item",
+  "id": "azure_plum",
+  "name": "Azure Plum",
+  "creativeTab": "food_and_drinks",
+  "item": {
+    "texture": "art/azure_plum.png",
+    "food": { "nutrition": 4, "saturation": 0.6 }
+  }
+}

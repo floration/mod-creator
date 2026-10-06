@@ -8,7 +8,7 @@ export const VERSIONS = {
   loom: "1.18.2",
   fabricApi: "0.161.0+26.3",
   java: 25,
-  gradle: "9.6.0",
+  gradle: "9.7.0",
 } as const;
 
 export const entrypointClass = (project: Project) => `${project.package}.${pascal(project.modId)}Mod`;
@@ -147,7 +147,7 @@ export function fabricModJson(project: Project): string {
         authors: project.authors,
         license: "All-Rights-Reserved",
         environment: "*",
-        entrypoints: { main: [entrypointClass(project)] },
+        entrypoints: { main: [entrypointClass(project)], client: [`${project.package}.generated.ModContentClient`] },
         depends,
       },
       null,

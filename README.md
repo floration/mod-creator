@@ -2,7 +2,7 @@
 
 A desktop tool for building Minecraft 26.3+ Fabric mods with forms, previews and plain files instead of hand-written registration code.
 
-Every block, item, recipe and ore vein is one small JSON file in the mod's `spec/` folder. The app is an editor for those files. A generator turns them into Java and resource files in `src/generated/`, and the mod stays a normal Gradle project you can open in IntelliJ at any time.
+Every block, item, tool, armor set, recipe, ore vein, tree, plant, mob and biome is one small JSON file in the mod's `spec/` folder. The app is an editor for those files. A generator turns them into Java and resource files in `src/generated/`, and the mod stays a normal Gradle project you can open in IntelliJ at any time.
 
 Design doc: [Mod Creator Architecture](https://claude.ai/code/artifact/ab83630b-aecd-4450-b781-0d67d2fd176f)
 
@@ -15,7 +15,7 @@ Design doc: [Mod Creator Architecture](https://claude.ai/code/artifact/ab83630b-
 | IntelliJ IDEA with the Minecraft Development plugin | Optional, for editing Java by hand |
 | Blockbench | Optional, for textures and models |
 
-Gradle doesn't need installing: each mod project ships the Gradle 9.6.0 wrapper.
+Gradle doesn't need installing: each mod project ships the Gradle 9.7.0 wrapper.
 
 ## Quick start
 
@@ -56,10 +56,16 @@ gems/
   modcreator.json          mod id, name, Java package, version profile
   spec/
     blocks/<id>.json       one file per block
-    items/<id>.json
+    items/<id>.json        items, including food
+    tools/<id>.json        swords, pickaxes, axes, shovels, hoes
+    armor/<id>.json        an armor set (up to four pieces)
     recipes/<id>.json
     worldgen/<id>.json     ore veins
-  art/                     textures (16x16 PNG)
+    trees/<id>.json        a wood type: log, planks, leaves, sapling and the tree it grows
+    plants/<id>.json       grass-like plants
+    mobs/<id>.json         animals on the vanilla pig or cow body
+    biomes/<id>.json       Overworld biomes
+  art/                     textures (PNG)
   src/main/                yours: never touched by the generator
   src/generated/           the generator's: rewritten on every run, do not edit
   build.gradle, settings.gradle, gradle.properties, gradlew
@@ -73,7 +79,18 @@ Rules the generator follows:
 3. A hand-written file in `src/main/resources/` wins: the generator skips any resource whose path already exists there.
 4. If any spec has errors, nothing is written.
 
-See [`examples/ruby`](examples/ruby) for every supported field: an ore that drops gems with Fortune, a storage block, a lamp with a custom Java class, a gem item, shaped, shapeless and smelting recipes, and a ruby ore vein that generates between Y -16 and 48.
+Two example mods show every supported field:
+
+- [`examples/ruby`](examples/ruby): an ore that drops gems with Fortune, a storage block, a lamp with a custom Java class, a gem item, shaped, shapeless and smelting recipes, and a ruby ore vein that generates between Y -16 and 48.
+- [`examples/azuregrove`](examples/azuregrove): one of each of the other kinds. Azurite ore and bricks, the Azure Plum food, an Azurite Sword and armor set, the Azurewood tree (fancy oak shape, its leaves drop plums), Azure Grass, the Bluetusk (a blue pig that eats plums), and the Azure Grove biome, which takes over part of Plains and Forest and grows all of them.
+
+### Biomes
+
+Biomes are placed with the [Biolith](https://modrinth.com/mod/biolith) library, which turns a share of a vanilla Overworld biome into yours through a data file, so no code touches world generation. A project with a biome needs Biolith in `modcreator.json`'s `dependencies` (see Azure Grove); `check` warns when it is missing. A biome keeps vanilla's caves, ores, lakes and monsters and adds its own colors, trees, plants and creatures.
+
+### Mobs
+
+A mob borrows the vanilla pig or cow model and animations, with your own 64x64 texture in the same layout as the vanilla one. It wanders, panics when hurt, follows players holding its food, breeds with that food and has a spawn egg. Its renderer is registered by the generated `ModContentClient`, so `fabric.mod.json` lists that class as the `client` entrypoint (new projects already do).
 
 ### Recipes
 
@@ -85,15 +102,15 @@ The recipe editor is a crafting table: pick an item from the list under it and c
 | --- | --- |
 | `packages/core` | Zod schemas for specs, the project loader and checks, and the generator |
 | `packages/core/src/profiles/v26_3` | Templates for Minecraft 26.3: Java registration, resource JSON, Gradle files |
-| `packages/core/profiles/26.3/wrapper` | Gradle 9.6.0 wrapper copied into new projects |
+| `packages/core/profiles/26.3/wrapper` | Gradle 9.7.0 wrapper copied into new projects |
 | `packages/cli` | `modcreator new`, `generate` and `check` |
 | `packages/app` | Electron app: React forms, three.js preview, Gradle runner |
-| `examples/ruby` | Example mod, also used by the generator snapshot test |
+| `examples/ruby`, `examples/azuregrove` | Example mods, also used by the generator snapshot tests |
 
 ## Toolchain pinned by the 26.3 profile
 
-Minecraft 26.3, Fabric Loader 0.19.5, Fabric Loom 1.18.2 (`net.fabricmc.fabric-loom`), Fabric API 0.161.0+26.3, Java 25, Gradle 9.6.0. Minecraft 26.x is unobfuscated, so there is no mappings line and dependencies use `implementation`.
+Minecraft 26.3, Fabric Loader 0.19.5, Fabric Loom 1.18.2 (`net.fabricmc.fabric-loom`), Fabric API 0.161.0+26.3, Java 25, Gradle 9.7.0. Minecraft 26.x is unobfuscated, so there is no mappings line and dependencies use `implementation`.
 
 ## Status
 
-Milestones 2 and 3 of the design doc are in: the project skeleton, blocks, items and recipes. Ore veins from milestone 5 are in too. Next up: mobs from Blockbench models, then biomes.
+Milestones 2 and 3 of the design doc are in: the project skeleton, blocks, items and recipes. So are ore veins, food, tools, armor, trees, plants, mobs on vanilla bodies and biomes. Next up: mobs with their own Blockbench models.

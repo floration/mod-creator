@@ -1,0 +1,28 @@
+{
+  "$schema": "../../.modcreator/schema/biome.json",
+  "kind": "biome",
+  "id": "azure_grove",
+  "name": "Azure Grove",
+  "tags": ["minecraft:is_forest"],
+  "biome": {
+    "temperature": 0.6,
+    "downfall": 0.8,
+    "colors": {
+      "sky": "#7fb2ff",
+      "water": "#3c7ce6",
+      "grass": "#5fa3c9",
+      "foliage": "#4c8fc4"
+    },
+    "replaces": [
+      { "biome": "minecraft:plains", "share": 0.3 },
+      { "biome": "minecraft:forest", "share": 0.2 }
+    ],
+    "trees": [{ "tree": "azurewood", "perChunk": 5 }],
+    "plants": [{ "plant": "azure_grass", "patchesPerChunk": 6 }],
+    "vanillaFeatures": ["minecraft:flower_default"],
+    "spawns": [
+      { "mob": "bluetusk", "weight": 12, "min": 2, "max": 4 },
+      { "mob": "minecraft:sheep", "weight": 6, "min": 2, "max": 4 }
+    ]
+  }
+}
