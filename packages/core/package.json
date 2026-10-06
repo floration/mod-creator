@@ -17,6 +17,10 @@
     "./recipe-grid": {
       "types": "./dist/recipeGrid.d.ts",
       "default": "./dist/recipeGrid.js"
+    },
+    "./blockbench": {
+      "types": "./dist/blockbench.d.ts",
+      "default": "./dist/blockbench.js"
     }
   },
   "files": [

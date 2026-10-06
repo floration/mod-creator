@@ -1,0 +1,23 @@
+{
+  "$schema": "../../.modcreator/schema/mob.json",
+  "kind": "mob",
+  "id": "glowmoth",
+  "name": "Glowmoth",
+  "mob": {
+    "model": "blockbench",
+    "blockbench": "art/glowmoth.bbmodel",
+    "texture": "art/glowmoth.png",
+    "health": 6,
+    "speed": 0.3,
+    "width": 0.6,
+    "height": 0.4,
+    "food": "minecraft:glow_berries",
+    "sounds": {
+      "ambient": "minecraft:entity.bee.loop",
+      "hurt": "minecraft:entity.bee.hurt",
+      "death": "minecraft:entity.bee.death"
+    },
+    "drops": [{ "item": "minecraft:glowstone_dust", "min": 0, "max": 2 }],
+    "spawnEgg": "art/glowmoth_spawn_egg.png"
+  }
+}

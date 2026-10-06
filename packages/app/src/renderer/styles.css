@@ -175,6 +175,7 @@ table.rows td.has-error input { border-color: var(--error); }
 .preview { flex: 1; position: relative; min-width: 0; border-left: 1px solid var(--border); }
 .preview-canvas { position: absolute; inset: 0; }
 .preview-note { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); }
+.preview-toggle { position: absolute; left: 12px; bottom: 12px; display: flex; gap: 6px; align-items: center; color: var(--muted); font-size: 13px; }
 
 .panel { grid-area: panel; display: flex; flex-direction: column; min-height: 0; border-top: 1px solid var(--border); background: var(--surface); }
 .tabs { display: flex; gap: 4px; align-items: center; padding: 4px 8px; border-bottom: 1px solid var(--border); }

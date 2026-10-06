@@ -27,7 +27,7 @@ export function plan(loaded: LoadedProject): Map<string, string | { copy: string
   const files = new Map<string, string | { copy: string }>();
   const javaDir = `${GENERATED_DIR}/java/${project.package.replaceAll(".", "/")}/generated`;
   files.set(`${javaDir}/ModContent.java`, modContentJava(project, specs));
-  for (const [p, content] of extraJavaFiles(project, specs)) files.set(`${javaDir}/${p}`, content);
+  for (const [p, content] of extraJavaFiles(project, specs, loaded.models)) files.set(`${javaDir}/${p}`, content);
   for (const [p, content] of resourceFiles(project, specs)) files.set(`${GENERATED_DIR}/resources/${p}`, content);
   return files;
 }

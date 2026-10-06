@@ -4,7 +4,7 @@ import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { app, BrowserWindow, dialog, ipcMain, shell } from "electron";
-import { VanillaAssets, createProject, dependentsOf, findMinecraftJar, generate, loadProject, renameEdits, type CreateOptions, type ElementSpec } from "@modcreator/core";
+import { VanillaAssets, createProject, dependentsOf, parseBlockbench, findMinecraftJar, generate, loadProject, renameEdits, type CreateOptions, type ElementSpec } from "@modcreator/core";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 let window: BrowserWindow | null = null;
@@ -91,6 +91,17 @@ ipcMain.handle("spec:dependents", async (_e, root: string, rel: string) => depen
 ipcMain.handle("spec:renameEdits", async (_e, root: string, rel: string, renamed: ElementSpec) =>
   renameEdits(await loadProject(root), rel, renamed),
 );
+
+/** A Blockbench model read into Minecraft's model terms, for the preview and the texture editor. */
+ipcMain.handle("model:blockbench", async (_e, root: string, rel: string) => {
+  const file = inside(root, rel);
+  if (!existsSync(file)) return { model: null, error: `Missing file ${rel}` };
+  try {
+    return { model: parseBlockbench(JSON.parse(await readFile(file, "utf8"))), error: null };
+  } catch (e) {
+    return { model: null, error: (e as Error).message };
+  }
+});
 
 ipcMain.handle("file:dataUrl", async (_e, root: string, rel: string) => {
   const file = inside(root, rel);

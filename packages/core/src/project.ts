@@ -10,6 +10,7 @@ import {
   type ElementSpec,
   type Project,
 } from "./schema.js";
+import { parseBlockbench, type EntityModelDef } from "./blockbench.js";
 import { GRADLE_READS_PROJECT } from "./profiles/v26_3/skeleton.js";
 
 export interface Issue {
@@ -32,6 +33,8 @@ export interface LoadedProject {
   project: Project;
   elements: LoadedElement[];
   issues: Issue[];
+  /** Blockbench models used by mobs, by project-relative path. */
+  models: Record<string, EntityModelDef>;
 }
 
 export const PROJECT_FILE = "modcreator.json";
@@ -97,7 +100,28 @@ export async function loadProject(root: string): Promise<LoadedProject> {
 
   issues.push(...checkReferences(root, elements));
   issues.push(...(await checkSetup(root, parsed.data, elements)));
-  return { root, project: parsed.data, elements, issues };
+  const models = await loadModels(root, elements, issues);
+  return { root, project: parsed.data, elements, issues, models };
+}
+
+/** Read the Blockbench models mobs use; a model that can't be used is an error on the mob. */
+async function loadModels(root: string, elements: LoadedElement[], issues: Issue[]): Promise<Record<string, EntityModelDef>> {
+  const models: Record<string, EntityModelDef> = {};
+  for (const { spec, file } of elements) {
+    if (spec.kind !== "mob" || spec.mob.model !== "blockbench") continue;
+    const model = spec.mob.blockbench;
+    if (!model) {
+      issues.push({ severity: "error", file, field: "mob.blockbench", message: "Choose the .bbmodel file for this mob's body" });
+      continue;
+    }
+    if (model in models || !existsSync(path.join(root, model))) continue; // a missing file is reported with the art
+    try {
+      models[model] = parseBlockbench(await readJson(path.join(root, model)));
+    } catch (e) {
+      issues.push({ severity: "error", file, field: "mob.blockbench", message: `${model}: ${(e as Error).message}` });
+    }
+  }
+  return models;
 }
 
 /** Broken references, id clashes and missing art across a set of elements. */
@@ -178,6 +202,7 @@ export function checkReferences(root: string, elements: LoadedElement[]): Issue[
       checkArt(file, "mob.texture", m.texture);
       if (m.babyTexture) checkArt(file, "mob.babyTexture", m.babyTexture);
       checkArt(file, "mob.spawnEgg", m.spawnEgg);
+      if (m.model === "blockbench" && m.blockbench) checkArt(file, "mob.blockbench", m.blockbench);
       checkItem(file, "mob.food", m.food);
       m.drops.forEach((d, i) => {
         checkItem(file, `mob.drops.${i}.item`, d.item, false);
