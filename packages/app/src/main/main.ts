@@ -4,7 +4,7 @@ import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { app, BrowserWindow, dialog, ipcMain, shell } from "electron";
-import { VanillaAssets, createProject, modrinthVersions, searchModrinth, dependentsOf, parseBlockbench, parseStructure, oggChannels, findMinecraftJar, generate, loadProject, renameEdits, TintRecipe, tintRecipePath, type CreateOptions, type ElementSpec } from "@modcreator/core";
+import { VanillaAssets, createProject, modrinthVersions, searchModrinth, dependentsOf, parseBlockbench, parseStructure, oggChannels, findMinecraftJar, generate, loadProject, conventionTags, findConventionTagsJar, modTags, type TagCatalog, type TagSources, renameEdits, TintRecipe, tintRecipePath, type CreateOptions, type ElementSpec } from "@modcreator/core";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 let window: BrowserWindow | null = null;
@@ -214,6 +214,27 @@ ipcMain.handle("vanilla:pickJar", async (_e, version: string) => {
   await mkdir(path.dirname(settingsFile()), { recursive: true });
   await writeFile(settingsFile(), JSON.stringify({ ...(await settings()), minecraftJar: jar }, null, 2));
   return loaded;
+});
+
+/** Fabric's `c:` tags, read once from the convention tags jar Loom downloaded. */
+let fabricTags: { jar: string | null; tags: TagCatalog } | null = null;
+
+/** Every tag a tag field can offer: Minecraft's, Fabric's shared ones and the mod's own. */
+ipcMain.handle("tags:list", async (_e, root: string): Promise<TagSources> => {
+  const loaded = await loadProject(root);
+  const catalog = await openVanilla(loaded.project.profile);
+  const assets = catalog.jar && vanilla?.jar === catalog.jar ? vanilla.assets : null;
+  if (!fabricTags) {
+    const jar = findConventionTagsJar();
+    fabricTags = { jar, tags: jar ? await conventionTags(jar).catch(() => ({})) : {} };
+  }
+  return {
+    minecraft: assets?.tags() ?? {},
+    fabric: fabricTags.tags,
+    mod: await modTags(loaded.root, loaded.project, loaded.elements.map((e) => e.spec)),
+    biomes: assets?.ids("worldgen/biome") ?? [],
+    enchantments: assets?.ids("enchantment") ?? [],
+  };
 });
 
 ipcMain.handle("vanilla:icon", (_e, id: string) => vanilla?.assets.icon(id) ?? null);

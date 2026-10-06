@@ -1,6 +1,7 @@
 import { existsSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { zipIds, zipTags, type TagCatalog } from "./tags.js";
 import { ZipFile } from "./zip.js";
 
 /**
@@ -49,6 +50,8 @@ export class VanillaAssets {
   private lang: Record<string, string>;
   private icons = new Map<string, ItemIcon | null>();
   private catalogCache: { items: CatalogEntry[]; tags: CatalogEntry[] } | null = null;
+  private tagCache: TagCatalog | null = null;
+  private idCache = new Map<string, string[]>();
   private textureList: string[] | null = null;
 
   constructor(private readonly zip: ZipFile) {
@@ -83,6 +86,17 @@ export class VanillaAssets {
     const byName = (a: CatalogEntry, b: CatalogEntry) => a.name.localeCompare(b.name);
     this.catalogCache = { items: items.sort(byName), tags: tags.sort(byName) };
     return this.catalogCache;
+  }
+
+  /** Every tag file in the jar, by registry: block, item, entity_type, worldgen/biome and the rest. */
+  tags(): TagCatalog {
+    return (this.tagCache ??= zipTags(this.zip));
+  }
+
+  /** Ids in a data-driven registry: `worldgen/biome` gives `minecraft:plains` and the rest. */
+  ids(registry: string): string[] {
+    if (!this.idCache.has(registry)) this.idCache.set(registry, zipIds(this.zip, registry));
+    return this.idCache.get(registry)!;
   }
 
   /** Every texture in the jar as an id like `minecraft:block/iron_ore`, sorted, for picking one to tint. */

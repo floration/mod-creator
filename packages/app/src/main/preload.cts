@@ -22,6 +22,7 @@ const api = {
   saveTint: (root: string, rel: string, recipe: unknown) => ipcRenderer.invoke("art:saveTint", root, rel, recipe),
   loadVanilla: (version: string) => ipcRenderer.invoke("vanilla:load", version),
   pickMinecraftJar: (version: string) => ipcRenderer.invoke("vanilla:pickJar", version),
+  tags: (root: string) => ipcRenderer.invoke("tags:list", root),
   vanillaIcon: (id: string) => ipcRenderer.invoke("vanilla:icon", id),
   vanillaTextures: () => ipcRenderer.invoke("vanilla:textures"),
   vanillaTexture: (id: string) => ipcRenderer.invoke("vanilla:texture", id),

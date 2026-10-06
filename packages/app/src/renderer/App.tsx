@@ -5,7 +5,7 @@ import { StructureEditor, StructurePreview } from "./StructureEditor";
 import { SoundEditor } from "./SoundEditor";
 import { EffectEditor } from "./EffectEditor";
 import { EnchantmentEditor } from "./EnchantmentEditor";
-import { api, type ElementSpec, type Issue, type LoadedProject, type VanillaCatalog } from "./api";
+import { api, type ElementSpec, type Issue, type LoadedProject, type TagSources, type VanillaCatalog } from "./api";
 import { ArmorEditor, BiomeEditor, BlockEditor, ItemEditor, MobEditor, OreEditor, PlantEditor, RecipeEditor, ToolEditor, TreeEditor, newSpec, type Kind } from "./Editors";
 import { BiomePreview } from "./BiomePreview";
 import { getAt, type Draft, type Errors } from "./forms";
@@ -14,6 +14,7 @@ import { OrePreview } from "./OrePreview";
 import { Preview } from "./Preview";
 import { ProjectEditor } from "./ProjectEditor";
 import { TextureContext, type TextureWorld } from "./TextureField";
+import { TagContext, type TagWorld } from "./TagField";
 
 const KINDS: { kind: Kind; folder: string; title: string }[] = [
   { kind: "block", folder: "blocks", title: "Blocks" },
@@ -108,6 +109,18 @@ export function App() {
     if (!mcVersion) return;
     api().loadVanilla(mcVersion).then(setVanilla, () => setVanilla(null));
   }, [mcVersion]);
+
+  // Every tag the tag fields offer. The mod's own change on each reload; Minecraft's when another jar is picked.
+  const [tagSources, setTagSources] = useState<TagSources | null>(null);
+  useEffect(() => {
+    if (!root) return;
+    let live = true;
+    api().tags(root).then((t) => live && setTagSources(t), () => live && setTagSources(null));
+    return () => {
+      live = false;
+    };
+  }, [root, loaded, vanilla]);
+  const tagWorld = useMemo<TagWorld | null>(() => loaded && { modId: loaded.project.modId, sources: tagSources }, [loaded, tagSources]);
 
   const world = useMemo<ItemWorld | null>(
     () =>
@@ -423,6 +436,7 @@ export function App() {
       <main className="editor">
         {draft && selected ? (
           <TextureContext.Provider value={textures}>
+          <TagContext.Provider value={tagWorld}>
             <div className="editor-head">
               <span className="muted">{selected}</span>
               <span className="spacer" />
@@ -488,6 +502,7 @@ export function App() {
                 </ItemContext.Provider>
               )}
             </div>
+          </TagContext.Provider>
           </TextureContext.Provider>
         ) : (
           <div className="empty">Pick something on the left, or add one with +.</div>
