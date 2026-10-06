@@ -1,0 +1,19 @@
+{
+  "$schema": "../../.modcreator/schema/ore.json",
+  "kind": "ore",
+  "id": "azurite_geode",
+  "name": "Azurite geode",
+  "ore": {
+    "shape": "geode",
+    "block": "azurite_ore",
+    "replaces": "stone_and_deepslate",
+    "chunksPerVein": 32,
+    "minY": -40,
+    "maxY": 30,
+    "geode": {
+      "outerBlock": "minecraft:smooth_basalt",
+      "middleBlock": "minecraft:calcite",
+      "crackChance": 0.95
+    }
+  }
+}

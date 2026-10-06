@@ -67,7 +67,7 @@ gems/
     tools/<id>.json        swords, pickaxes, axes, shovels, hoes
     armor/<id>.json        an armor set (up to four pieces)
     recipes/<id>.json
-    worldgen/<id>.json     ore veins
+    worldgen/<id>.json     ore veins, scattered ores, disks and geodes
     trees/<id>.json        a wood type: log, planks, leaves, sapling and the tree it grows
     plants/<id>.json       grass-like plants
     mobs/<id>.json         animals on the vanilla pig or cow body, or a Blockbench model
@@ -94,13 +94,15 @@ Rules the generator follows:
 Two example mods show every supported field:
 
 - [`examples/ruby`](examples/ruby): an ore that drops gems with Fortune, a storage block, a lamp with a custom Java class, a gem item, shaped, shapeless and smelting recipes, a ruby ore vein that generates between Y -16 and 48, the Glowmoth, a tameable flying mob with its own Blockbench model whose wings flap, and a two-step quest tab (find a ruby, then tame a Glowmoth).
-- [`examples/azuregrove`](examples/azuregrove): one of each of the other kinds. Azurite ore and bricks (with brick stairs, slab and wall), the Azure Plum food, an Azurite Sword and armor set, the Azurewood tree (fancy oak shape, its leaves drop plums) and its full wood set, Azure Grass, the Bluetusk (a blue pig that eats plums, fights back and grunts with its own sound), the Grove Lurker (a hostile one that comes out at night), the Azure Grove biome, which takes over part of Plains and Forest and grows all of them, an Azure Grove quest tab with seven quests that use every kind of criterion and reward, and the Azure Shrine, a small azurite brick structure that spawns in the biome.
+- [`examples/azuregrove`](examples/azuregrove): one of each of the other kinds. Azurite ore and bricks (with brick stairs, slab and wall), the Azure Plum food, a full set of Azurite tools (sword, pickaxe, axe, shovel and hoe) and armor, an azurite geode, the Azurewood tree (fancy oak shape, its leaves drop plums) and its full wood set, Azure Grass, the Bluetusk (a blue pig that eats plums, fights back and grunts with its own sound), the Grove Lurker (a hostile one that comes out at night), the Azure Grove biome, which takes over part of Plains and Forest and grows all of them, an Azure Grove quest tab with seven quests that use every kind of criterion and reward, and the Azure Shrine, a small azurite brick structure that spawns in the biome.
 
 ### Shapes and wood sets
 
 A block with a `cube_all` or `cube_column` model can tick **Stairs**, **Slab**, **Wall**, **Fence**, **Fence gate**, **Button** and **Pressure plate** under **Shapes**, and a tree has the same list under **Wood set** for its planks. Each shape copies the base block's hardness, sound and tool, and comes with its vanilla recipe, loot, tags and block models (stone-like shapes also get stonecutter recipes). A door needs top and bottom half textures and an icon, and a trapdoor its own texture; transparent pixels make windows. Ids follow vanilla: `azurite_bricks` makes `azurite_brick_stairs` and `ruby_block` makes `ruby_stairs`. Wooden shapes open by hand and sound like oak; the rest act like stone.
 
 ### Biomes
+
+An ore has a **Shape**, each one a vanilla feature: **blob** is an ordinary vein like iron, **scattered** spreads the same number of blocks out one by one like ancient debris, **disk** is a flat patch on river, lake and ocean floors like clay or sand, and **geode** is a hollow ball in layers like an amethyst geode, with the ore block as its inner layer, a shell and middle layer you pick, and an optional budding block that grows crystals. A vein whose **Skip chance next to air** is 1 is buried and never shows in caves, like buried diamonds. **Or one in this many chunks** makes rare ones (vanilla geodes are 1 in 24). The giant copper and iron veins are built into the game's terrain noise rather than data, so they can't be added this way.
 
 Biomes are placed with the [Biolith](https://modrinth.com/mod/biolith) library, which turns a share of a vanilla Overworld biome into yours through a data file, so no code touches world generation. A project with a biome needs Biolith in `modcreator.json`'s `dependencies` (see Azure Grove); `check` warns when it is missing. A biome keeps vanilla's caves, ores, lakes and monsters and adds its own colors, trees, plants and creatures.
 

@@ -1,0 +1,18 @@
+{
+  "$schema": "../../.modcreator/schema/tool.json",
+  "kind": "tool",
+  "id": "azurite_axe",
+  "name": "Azurite Axe",
+  "creativeTab": "tools_and_utilities",
+  "tool": {
+    "type": "axe",
+    "texture": "art/azurite_axe.png",
+    "tier": "iron",
+    "durability": 600,
+    "miningSpeed": 7,
+    "attackDamage": 8.5,
+    "attackSpeed": -3.1,
+    "enchantability": 18,
+    "repairItem": "azurite"
+  }
+}

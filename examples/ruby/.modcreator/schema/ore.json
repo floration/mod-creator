@@ -20,6 +20,16 @@
     "ore": {
       "type": "object",
       "properties": {
+        "shape": {
+          "default": "blob",
+          "type": "string",
+          "enum": [
+            "blob",
+            "scattered",
+            "disk",
+            "geode"
+          ]
+        },
         "block": {
           "type": "string",
           "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
@@ -51,6 +61,11 @@
           "minimum": 1,
           "maximum": 128
         },
+        "chunksPerVein": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000
+        },
         "minY": {
           "default": -64,
           "type": "integer",
@@ -76,6 +91,99 @@
           "type": "number",
           "minimum": 0,
           "maximum": 1
+        },
+        "disk": {
+          "default": {
+            "radiusMin": 2,
+            "radiusMax": 3,
+            "halfHeight": 1,
+            "replaces": [
+              "minecraft:dirt",
+              "minecraft:sand",
+              "minecraft:gravel",
+              "minecraft:clay"
+            ]
+          },
+          "type": "object",
+          "properties": {
+            "radiusMin": {
+              "default": 2,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 8
+            },
+            "radiusMax": {
+              "default": 3,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 8
+            },
+            "halfHeight": {
+              "default": 1,
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4
+            },
+            "replaces": {
+              "default": [
+                "minecraft:dirt",
+                "minecraft:sand",
+                "minecraft:gravel",
+                "minecraft:clay"
+              ],
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+              }
+            }
+          }
+        },
+        "geode": {
+          "default": {
+            "outerBlock": "minecraft:smooth_basalt",
+            "middleBlock": "minecraft:calcite",
+            "buddingChance": 0.083,
+            "crystals": [],
+            "crackChance": 0.95
+          },
+          "type": "object",
+          "properties": {
+            "outerBlock": {
+              "default": "minecraft:smooth_basalt",
+              "type": "string",
+              "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+            },
+            "middleBlock": {
+              "default": "minecraft:calcite",
+              "type": "string",
+              "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+            },
+            "buddingBlock": {
+              "type": "string",
+              "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+            },
+            "buddingChance": {
+              "default": 0.083,
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "crystals": {
+              "default": [],
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+              }
+            },
+            "crackChance": {
+              "default": 0.95,
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
         }
       },
       "required": [
