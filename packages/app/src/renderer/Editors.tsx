@@ -732,7 +732,7 @@ export function OreEditor(p: EditorProps) {
   );
 }
 
-export type Kind = "block" | "item" | "recipe" | "ore" | "tool" | "armor" | "tree" | "plant" | "mob" | "biome" | "advancement" | "structure" | "sound" | "effect";
+export type Kind = "block" | "item" | "recipe" | "ore" | "tool" | "armor" | "tree" | "plant" | "mob" | "biome" | "advancement" | "structure" | "sound" | "effect" | "enchantment";
 
 /** Starting point for a new spec of each kind. */
 export function newSpec(kind: Kind, id: string): Draft {
@@ -772,6 +772,8 @@ export function newSpec(kind: Kind, id: string): Draft {
       return { $schema: base.$schema, kind, id, recipe: RECIPE_TEMPLATES.shaped({ item: "", count: 1 }) };
     case "sound":
       return { ...base, sound: { files: [] } };
+    case "enchantment":
+      return { $schema: base.$schema, kind, id, name, enchantment: { items: "#minecraft:enchantable/sharp_weapon", slots: ["mainhand"], maxLevel: 1, effects: [{ type: "damage", amount: 1, perLevel: 0.5 }] } };
     case "effect":
       return { ...base, effect: { category: "beneficial", color: "#6ab0ff", icon: `art/${id}.png`, modifiers: [] } };
     case "structure":

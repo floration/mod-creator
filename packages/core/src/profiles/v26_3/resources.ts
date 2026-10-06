@@ -4,6 +4,7 @@ import {
   type StructureSpec,
   type SoundSpec,
   type EffectSpec,
+  type EnchantmentSpec,
   type Criterion,
   TREE_PARTS,
   registeredItems,
@@ -34,7 +35,7 @@ export type ResourceFiles = Map<string, string | { copy: string }>;
 
 const json = (value: unknown) => JSON.stringify(value, null, 2) + "\n";
 
-type TagType = "block" | "item" | "worldgen/biome";
+type TagType = "block" | "item" | "worldgen/biome" | "enchantment";
 
 /** `minecraft:mineable/pickaxe` -> `data/minecraft/tags/<type>/mineable/pickaxe.json` */
 function tagPath(modId: string, tag: string, type: TagType): string {
@@ -892,6 +893,105 @@ function effectFiles(out: Output, e: EffectSpec) {
   }
 }
 
+// ---- Enchantments ----
+
+const linear = (amount: number, perLevel: number) => ({ type: "minecraft:linear", base: amount, per_level_above_first: perLevel });
+const DIRECT_HIT = { type: "minecraft:damage_source_properties", predicate: { is_direct: true } };
+const ATTRIBUTE_OPERATIONS = { add: "add_value", multiply_base: "add_multiplied_base", multiply_total: "add_multiplied_total" } as const;
+
+/** `data/<mod>/enchantment/<id>.json`, in the same shape as vanilla's, with each effect under its effect component. */
+export function enchantmentJson(modId: string, e: EnchantmentSpec): unknown {
+  const x = e.enchantment;
+  const effects: Record<string, unknown[]> = {};
+  const add = (component: string, value: unknown) => (effects[`minecraft:${component}`] ??= []).push(value);
+  for (const fx of x.effects) {
+    const value = linear(fx.amount, fx.perLevel);
+    switch (fx.type) {
+      case "damage": {
+        const against = fx.against && {
+          type: "minecraft:entity_properties",
+          entity: "this",
+          predicate: { "minecraft:entity_type": resolveRef(modId, fx.against) },
+        };
+        add("damage", { effect: { type: "minecraft:add", value }, ...(against ? { requirements: against } : {}) });
+        break;
+      }
+      case "protection":
+        add("damage_protection", {
+          effect: { type: "minecraft:add", value },
+          requirements: { type: "minecraft:damage_source_properties", predicate: { tags: [{ expected: false, id: "#minecraft:bypasses_invulnerability" }] } },
+        });
+        break;
+      case "knockback":
+        add("knockback", { effect: { type: "minecraft:add", value } });
+        break;
+      case "ignite":
+        add("post_attack", { affected: "victim", effect: { type: "minecraft:ignite", duration: value }, enchanted: "attacker", requirements: DIRECT_HIT });
+        break;
+      case "effect_on_hit":
+        add("post_attack", {
+          affected: "victim",
+          effect: {
+            type: "minecraft:apply_mob_effect",
+            to_apply: resolveRef(modId, fx.effect),
+            min_duration: fx.amount,
+            max_duration: value,
+            min_amplifier: fx.amplifier,
+            max_amplifier: fx.amplifier,
+          },
+          enchanted: "attacker",
+          requirements: DIRECT_HIT,
+        });
+        break;
+      case "attribute":
+        add("attributes", {
+          amount: value,
+          attribute: `minecraft:${fx.attribute}`,
+          id: `${modId}:enchantment.${e.id}.${fx.attribute}`,
+          operation: ATTRIBUTE_OPERATIONS[fx.operation],
+        });
+        break;
+    }
+  }
+  const exclusive = x.exclusiveWith.length === 1 && x.exclusiveWith[0].startsWith("#")
+    ? resolveRef(modId, x.exclusiveWith[0])
+    : x.exclusiveWith.length ? `#${modId}:exclusive_set/${e.id}` : undefined;
+  return {
+    anvil_cost: x.anvilCost,
+    description: { translate: `enchantment.${modId}.${e.id}` },
+    effects,
+    ...(exclusive ? { exclusive_set: exclusive } : {}),
+    max_cost: { base: x.maxCost.base, per_level_above_first: x.maxCost.perLevel },
+    max_level: x.maxLevel,
+    min_cost: { base: x.minCost.base, per_level_above_first: x.minCost.perLevel },
+    ...(x.tableItems ? { primary_items: resolveRef(modId, x.tableItems) } : {}),
+    slots: x.slots,
+    supported_items: resolveRef(modId, x.items),
+    weight: x.weight,
+  };
+}
+
+/**
+ * The enchantment file, its name, and the vanilla tags that decide where it shows up: non-treasure ones go to the
+ * enchanting table, loot and trades, treasure ones only to loot and trades.
+ */
+function enchantmentFiles(out: Output, e: EnchantmentSpec) {
+  const modId = out.modId;
+  const x = e.enchantment;
+  const ref = `${modId}:${e.id}`;
+  out.lang[`enchantment.${modId}.${e.id}`] = e.name;
+  out.set(`data/${modId}/enchantment/${e.id}.json`, enchantmentJson(modId, e));
+  if (x.exclusiveWith.length && !(x.exclusiveWith.length === 1 && x.exclusiveWith[0].startsWith("#"))) {
+    for (const other of x.exclusiveWith) out.tag("enchantment", `${modId}:exclusive_set/${e.id}`, resolveRef(modId, other));
+  }
+  if (x.treasure) {
+    for (const t of ["minecraft:treasure", "minecraft:on_random_loot", "minecraft:tradeable"]) out.tag("enchantment", t, ref);
+  } else {
+    out.tag("enchantment", "minecraft:non_treasure", ref);
+  }
+  if (x.curse) out.tag("enchantment", "minecraft:curse", ref);
+}
+
 /** Every generated resource file for the project. */
 export function resourceFiles(project: Project, elements: ElementSpec[]): ResourceFiles {
   const out = new Output(project.modId);
@@ -910,6 +1010,7 @@ export function resourceFiles(project: Project, elements: ElementSpec[]): Resour
       case "advancement": advancementFiles(out, e); break;
       case "structure": structureFiles(out, e); break;
       case "effect": effectFiles(out, e); break;
+      case "enchantment": enchantmentFiles(out, e); break;
       case "recipe": out.set(`data/${project.modId}/recipe/${e.id}.json`, recipeJson(project.modId, e)); break;
     }
   }

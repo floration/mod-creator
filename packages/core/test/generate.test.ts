@@ -72,7 +72,7 @@ describe("Azure Grove example", () => {
     const loaded = await loadProject(AZUREGROVE);
     expect(loaded.issues).toEqual([]);
     expect(new Set(loaded.elements.map((e) => e.spec.kind))).toEqual(
-      new Set(["block", "item", "recipe", "ore", "tool", "armor", "tree", "plant", "mob", "biome", "advancement", "structure", "sound", "effect"]),
+      new Set(["block", "item", "recipe", "ore", "tool", "armor", "tree", "plant", "mob", "biome", "advancement", "structure", "sound", "effect", "enchantment"]),
     );
   });
 
@@ -375,6 +375,57 @@ describe("effects", () => {
         "warning spec/effects/grove_stride.json effect.icon",
       ]),
     );
+  });
+});
+
+describe("enchantments", () => {
+  const RES = "src/generated/resources";
+  it("writes the enchantment like vanilla's, with its name and table tag", async () => {
+    const files = plan(await loadProject(AZUREGROVE));
+    const e = JSON.parse(files.get(`${RES}/data/azuregrove/enchantment/lurkers_bane.json`) as string);
+    expect(e.description).toEqual({ translate: "enchantment.azuregrove.lurkers_bane" });
+    expect(e.effects["minecraft:damage"][0].requirements.predicate).toEqual({ "minecraft:entity_type": "azuregrove:grove_lurker" });
+    expect(e.effects["minecraft:post_attack"][0].effect).toMatchObject({ type: "minecraft:apply_mob_effect", to_apply: "minecraft:slowness", min_amplifier: 1 });
+    expect(e).toMatchObject({ max_level: 3, weight: 5, slots: ["mainhand"], supported_items: "#minecraft:enchantable/weapon", exclusive_set: "#minecraft:exclusive_set/damage" });
+    expect(JSON.parse(files.get(`${RES}/data/minecraft/tags/enchantment/non_treasure.json`) as string).values).toEqual(["azuregrove:lurkers_bane"]);
+    expect(JSON.parse(files.get(`${RES}/assets/azuregrove/lang/en_us.json`) as string)["enchantment.azuregrove.lurkers_bane"]).toBe("Lurker's Bane");
+  });
+
+  it("keeps treasure off the enchanting table and makes its own exclusive set for a list", async () => {
+    const dir = await copyOf(AZUREGROVE);
+    await editSpec(dir, "spec/enchantments/lurkers_bane.json", (json) => {
+      json.enchantment.treasure = true;
+      json.enchantment.exclusiveWith = ["minecraft:sharpness", "minecraft:smite"];
+      json.enchantment.effects.push({ type: "attribute", attribute: "movement_speed", operation: "multiply_total", amount: 0.1, perLevel: 0.05 });
+    });
+    const files = plan(await loadProject(dir));
+    expect(files.has(`${RES}/data/minecraft/tags/enchantment/non_treasure.json`)).toBe(false);
+    for (const t of ["treasure", "on_random_loot", "tradeable"]) {
+      expect(JSON.parse(files.get(`${RES}/data/minecraft/tags/enchantment/${t}.json`) as string).values).toEqual(["azuregrove:lurkers_bane"]);
+    }
+    const e = JSON.parse(files.get(`${RES}/data/azuregrove/enchantment/lurkers_bane.json`) as string);
+    expect(e.exclusive_set).toBe("#azuregrove:exclusive_set/lurkers_bane");
+    expect(JSON.parse(files.get(`${RES}/data/azuregrove/tags/enchantment/exclusive_set/lurkers_bane.json`) as string).values).toEqual(["minecraft:sharpness", "minecraft:smite"]);
+    expect(e.effects["minecraft:attributes"][0]).toEqual({
+      amount: { type: "minecraft:linear", base: 0.1, per_level_above_first: 0.05 },
+      attribute: "minecraft:movement_speed",
+      id: "azuregrove:enchantment.lurkers_bane.movement_speed",
+      operation: "add_multiplied_total",
+    });
+  });
+
+  it("reports missing mobs, effects and enchantments it names", async () => {
+    const dir = await copyOf(AZUREGROVE);
+    await editSpec(dir, "spec/enchantments/lurkers_bane.json", (json) => {
+      json.enchantment.exclusiveWith = ["frost_bite"];
+      json.enchantment.effects = [{ type: "damage", against: "grove_stalker" }, { type: "effect_on_hit", effect: "rooted" }];
+    });
+    const issues = (await loadProject(dir)).issues.map((i) => `${i.severity} ${i.field}`);
+    expect(issues).toEqual(expect.arrayContaining([
+      "error enchantment.exclusiveWith.0",
+      "error enchantment.effects.0.against",
+      "error enchantment.effects.1.effect",
+    ]));
   });
 });
 

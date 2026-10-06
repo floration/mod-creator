@@ -1860,6 +1860,7 @@ public class GroveLurker extends Monster {
   "item.minecraft.splash_potion.effect.azuregrove.grove_stride": "Splash Potion of Grove Stride",
   "item.minecraft.lingering_potion.effect.azuregrove.grove_stride": "Lingering Potion of Grove Stride",
   "item.minecraft.tipped_arrow.effect.azuregrove.grove_stride": "Arrow of Grove Stride",
+  "enchantment.azuregrove.lurkers_bane": "Lurker's Bane",
   "subtitles.azuregrove.bluetusk_grunt": "Bluetusk grunts"
 }
 ",
@@ -2644,6 +2645,74 @@ public class GroveLurker extends Monster {
       "proportion": 0.2
     }
   ]
+}
+",
+  "src/generated/resources/data/azuregrove/enchantment/lurkers_bane.json": "{
+  "anvil_cost": 2,
+  "description": {
+    "translate": "enchantment.azuregrove.lurkers_bane"
+  },
+  "effects": {
+    "minecraft:damage": [
+      {
+        "effect": {
+          "type": "minecraft:add",
+          "value": {
+            "type": "minecraft:linear",
+            "base": 2.5,
+            "per_level_above_first": 2.5
+          }
+        },
+        "requirements": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "azuregrove:grove_lurker"
+          }
+        }
+      }
+    ],
+    "minecraft:post_attack": [
+      {
+        "affected": "victim",
+        "effect": {
+          "type": "minecraft:apply_mob_effect",
+          "to_apply": "minecraft:slowness",
+          "min_duration": 1.5,
+          "max_duration": {
+            "type": "minecraft:linear",
+            "base": 1.5,
+            "per_level_above_first": 0.5
+          },
+          "min_amplifier": 1,
+          "max_amplifier": 1
+        },
+        "enchanted": "attacker",
+        "requirements": {
+          "type": "minecraft:damage_source_properties",
+          "predicate": {
+            "is_direct": true
+          }
+        }
+      }
+    ]
+  },
+  "exclusive_set": "#minecraft:exclusive_set/damage",
+  "max_cost": {
+    "base": 25,
+    "per_level_above_first": 8
+  },
+  "max_level": 3,
+  "min_cost": {
+    "base": 5,
+    "per_level_above_first": 8
+  },
+  "primary_items": "#minecraft:enchantable/melee_weapon",
+  "slots": [
+    "mainhand"
+  ],
+  "supported_items": "#minecraft:enchantable/weapon",
+  "weight": 5
 }
 ",
   "src/generated/resources/data/azuregrove/loot_table/advancement_reward/lurker_hunter.json": "{
@@ -4559,6 +4628,13 @@ public class GroveLurker extends Monster {
   "replace": false,
   "values": [
     "azuregrove:azurewood_trapdoor"
+  ]
+}
+",
+  "src/generated/resources/data/minecraft/tags/enchantment/non_treasure.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:lurkers_bane"
   ]
 }
 ",

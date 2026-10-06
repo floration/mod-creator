@@ -1,0 +1,21 @@
+{
+  "$schema": "../../.modcreator/schema/enchantment.json",
+  "kind": "enchantment",
+  "id": "lurkers_bane",
+  "name": "Lurker's Bane",
+  "enchantment": {
+    "items": "#minecraft:enchantable/weapon",
+    "tableItems": "#minecraft:enchantable/melee_weapon",
+    "slots": ["mainhand"],
+    "maxLevel": 3,
+    "weight": 5,
+    "anvilCost": 2,
+    "minCost": { "base": 5, "perLevel": 8 },
+    "maxCost": { "base": 25, "perLevel": 8 },
+    "exclusiveWith": ["#minecraft:exclusive_set/damage"],
+    "effects": [
+      { "type": "damage", "amount": 2.5, "perLevel": 2.5, "against": "grove_lurker" },
+      { "type": "effect_on_hit", "effect": "minecraft:slowness", "amount": 1.5, "perLevel": 0.5, "amplifier": 1 }
+    ]
+  }
+}

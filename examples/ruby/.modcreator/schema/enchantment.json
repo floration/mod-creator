@@ -1,0 +1,320 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "kind": {
+      "type": "string",
+      "const": "enchantment"
+    },
+    "$schema": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "enchantment": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "default": "#minecraft:enchantable/sharp_weapon",
+          "type": "string",
+          "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+        },
+        "tableItems": {
+          "type": "string",
+          "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+        },
+        "slots": {
+          "default": [
+            "mainhand"
+          ],
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "mainhand",
+              "offhand",
+              "hand",
+              "head",
+              "chest",
+              "legs",
+              "feet",
+              "armor",
+              "body",
+              "any"
+            ]
+          }
+        },
+        "maxLevel": {
+          "default": 1,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 255
+        },
+        "weight": {
+          "default": 5,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1024
+        },
+        "anvilCost": {
+          "default": 2,
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "minCost": {
+          "default": {
+            "base": 1,
+            "perLevel": 11
+          },
+          "type": "object",
+          "properties": {
+            "base": {
+              "default": 1,
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "perLevel": {
+              "default": 11,
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            }
+          }
+        },
+        "maxCost": {
+          "default": {
+            "base": 21,
+            "perLevel": 11
+          },
+          "type": "object",
+          "properties": {
+            "base": {
+              "default": 21,
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "perLevel": {
+              "default": 11,
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            }
+          }
+        },
+        "treasure": {
+          "default": false,
+          "type": "boolean"
+        },
+        "curse": {
+          "default": false,
+          "type": "boolean"
+        },
+        "exclusiveWith": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+          }
+        },
+        "effects": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "damage"
+                  },
+                  "amount": {
+                    "default": 1,
+                    "type": "number"
+                  },
+                  "perLevel": {
+                    "default": 1,
+                    "type": "number"
+                  },
+                  "against": {
+                    "type": "string",
+                    "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+                  }
+                },
+                "required": [
+                  "type"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "protection"
+                  },
+                  "amount": {
+                    "default": 1,
+                    "type": "number"
+                  },
+                  "perLevel": {
+                    "default": 1,
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "type"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "knockback"
+                  },
+                  "amount": {
+                    "default": 1,
+                    "type": "number"
+                  },
+                  "perLevel": {
+                    "default": 1,
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "type"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "ignite"
+                  },
+                  "amount": {
+                    "default": 1,
+                    "type": "number"
+                  },
+                  "perLevel": {
+                    "default": 1,
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "type"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "effect_on_hit"
+                  },
+                  "amount": {
+                    "default": 1,
+                    "type": "number"
+                  },
+                  "perLevel": {
+                    "default": 1,
+                    "type": "number"
+                  },
+                  "effect": {
+                    "type": "string",
+                    "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+                  },
+                  "amplifier": {
+                    "default": 0,
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 255
+                  }
+                },
+                "required": [
+                  "type",
+                  "effect"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "attribute"
+                  },
+                  "amount": {
+                    "default": 1,
+                    "type": "number"
+                  },
+                  "perLevel": {
+                    "default": 1,
+                    "type": "number"
+                  },
+                  "attribute": {
+                    "type": "string",
+                    "enum": [
+                      "movement_speed",
+                      "attack_damage",
+                      "attack_speed",
+                      "armor",
+                      "armor_toughness",
+                      "max_health",
+                      "knockback_resistance",
+                      "jump_strength",
+                      "safe_fall_distance",
+                      "gravity",
+                      "scale",
+                      "step_height",
+                      "luck",
+                      "block_break_speed",
+                      "mining_efficiency",
+                      "oxygen_bonus",
+                      "water_movement_efficiency",
+                      "block_interaction_range",
+                      "entity_interaction_range",
+                      "burning_time",
+                      "fall_damage_multiplier",
+                      "max_absorption",
+                      "sneaking_speed"
+                    ]
+                  },
+                  "operation": {
+                    "default": "add",
+                    "type": "string",
+                    "enum": [
+                      "add",
+                      "multiply_base",
+                      "multiply_total"
+                    ]
+                  }
+                },
+                "required": [
+                  "type",
+                  "attribute"
+                ]
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "kind",
+    "id",
+    "name",
+    "enchantment"
+  ]
+}
