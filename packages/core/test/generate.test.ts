@@ -12,7 +12,15 @@ const temps: string[] = [];
 async function copyOfRuby(): Promise<string> {
   const dir = await mkdtemp(path.join(os.tmpdir(), "modcreator-"));
   temps.push(dir);
-  await cp(RUBY, dir, { recursive: true, filter: (src) => !src.includes(`${path.sep}src${path.sep}generated`) });
+  // Skip generator and Gradle output: a running build or runClient keeps files in .gradle/ locked.
+  const skip = ["build", ".gradle", "run", path.join("src", "generated")];
+  await cp(RUBY, dir, {
+    recursive: true,
+    filter: (src) => {
+      const rel = path.relative(RUBY, src);
+      return !skip.some((s) => rel === s || rel.startsWith(s + path.sep));
+    },
+  });
   return dir;
 }
 
