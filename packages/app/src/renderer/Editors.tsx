@@ -1,6 +1,6 @@
 import { useContext, useEffect, useMemo, useState } from "react";
 import { EMPTY_SLOTS, listFromSlots, patternFromSlots, sameShape, slotsFromList, slotsFromPattern, type Slots } from "@modcreator/core/recipe-grid";
-import { ARMOR_PIECES, CreativeTab, EquipSound, MobBehavior, MobModel, OreHost, Rarity, SoundType, ToolTier, TreeShape } from "@modcreator/core/schema";
+import { ARMOR_PIECES, CreativeTab, EquipSound, MobBehavior, MobModel, OreHost, Rarity, SoundType, ToolTier, TreeShape, shapeBlocks, type ElementSpec } from "@modcreator/core/schema";
 import {
   CheckField,
   ColorField,
@@ -56,6 +56,36 @@ const MODEL_TEMPLATES: Record<string, Draft> = {
   custom: { type: "custom", model: "art/" },
 };
 
+/** Checkboxes for stairs, slabs and the rest, with door and trapdoor art when those are on. */
+function ShapesSection(p: EditorProps & { title: string; from: string }) {
+  const f = { draft: p.draft, errors: p.errors, onChange: p.onChange };
+  let added: string[] = [];
+  try {
+    added = shapeBlocks(p.draft as ElementSpec).map((b) => b.id);
+  } catch {
+    // A half-typed draft: no list yet.
+  }
+  return (
+    <Section title={p.title}>
+      <span className="field-hint">Each one copies {p.from}: its hardness, sound and tool. Recipes and tags come with them.</span>
+      <CheckField {...f} path={["shapes", "stairs"]} label="Stairs" />
+      <CheckField {...f} path={["shapes", "slab"]} label="Slab" />
+      <CheckField {...f} path={["shapes", "wall"]} label="Wall" />
+      <CheckField {...f} path={["shapes", "fence"]} label="Fence" />
+      <CheckField {...f} path={["shapes", "fenceGate"]} label="Fence gate" />
+      <CheckField {...f} path={["shapes", "button"]} label="Button" />
+      <CheckField {...f} path={["shapes", "pressurePlate"]} label="Pressure plate" />
+      <OptionalGroup {...f} path={["shapes", "door"]} label="Door" template={{ top: "", bottom: "", icon: "" }}>
+        <TextureField {...f} path={["shapes", "door", "top"]} label="Door top half" hint="16x16. Transparent pixels make windows" />
+        <TextureField {...f} path={["shapes", "door", "bottom"]} label="Door bottom half" />
+        <TextureField {...f} path={["shapes", "door", "icon"]} label="Door icon" hint="16x16 inventory icon" />
+      </OptionalGroup>
+      <TextureField {...f} path={["shapes", "trapdoor"]} label="Trapdoor" optional hint="Optional. A 16x16 texture adds a trapdoor" />
+      {added.length > 0 && <span className="field-hint">Adds {added.join(", ")}</span>}
+    </Section>
+  );
+}
+
 export function BlockEditor(p: EditorProps) {
   const f = { draft: p.draft, errors: p.errors, onChange: p.onChange };
   const modelType = getAt(p.draft, ["block", "model", "type"]) ?? "cube_all";
@@ -90,6 +120,7 @@ export function BlockEditor(p: EditorProps) {
         )}
         {modelType === "custom" && <TextField {...f} path={["block", "model", "model"]} label="Model file" hint="Block model JSON, for example exported from Blockbench" />}
       </Section>
+      {modelType !== "custom" && <ShapesSection {...p} title="Shapes" from="this block" />}
       <Section title="Drops">
         <label className="field">
           <span className="field-label">When broken</span>
@@ -231,6 +262,7 @@ export function TreeEditor(p: EditorProps) {
           <NumberField {...f} path={["tree", "fruit", "chance"]} label="Chance" step={0.005} min={0} max={1} hint="Oak apples are 0.005" />
         </OptionalGroup>
       </Section>
+      <ShapesSection {...p} title="Wood set" from="the planks" />
     </>
   );
 }

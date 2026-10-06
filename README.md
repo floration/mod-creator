@@ -89,7 +89,11 @@ Rules the generator follows:
 Two example mods show every supported field:
 
 - [`examples/ruby`](examples/ruby): an ore that drops gems with Fortune, a storage block, a lamp with a custom Java class, a gem item, shaped, shapeless and smelting recipes, a ruby ore vein that generates between Y -16 and 48, and the Glowmoth, a tameable flying mob with its own Blockbench model whose wings flap.
-- [`examples/azuregrove`](examples/azuregrove): one of each of the other kinds. Azurite ore and bricks, the Azure Plum food, an Azurite Sword and armor set, the Azurewood tree (fancy oak shape, its leaves drop plums), Azure Grass, the Bluetusk (a blue pig that eats plums and fights back), the Grove Lurker (a hostile one that comes out at night), and the Azure Grove biome, which takes over part of Plains and Forest and grows all of them.
+- [`examples/azuregrove`](examples/azuregrove): one of each of the other kinds. Azurite ore and bricks (with brick stairs, slab and wall), the Azure Plum food, an Azurite Sword and armor set, the Azurewood tree (fancy oak shape, its leaves drop plums) and its full wood set, Azure Grass, the Bluetusk (a blue pig that eats plums and fights back), the Grove Lurker (a hostile one that comes out at night), and the Azure Grove biome, which takes over part of Plains and Forest and grows all of them.
+
+### Shapes and wood sets
+
+A block with a `cube_all` or `cube_column` model can tick **Stairs**, **Slab**, **Wall**, **Fence**, **Fence gate**, **Button** and **Pressure plate** under **Shapes**, and a tree has the same list under **Wood set** for its planks. Each shape copies the base block's hardness, sound and tool, and comes with its vanilla recipe, loot, tags and block models (stone-like shapes also get stonecutter recipes). A door needs top and bottom half textures and an icon, and a trapdoor its own texture; transparent pixels make windows. Ids follow vanilla: `azurite_bricks` makes `azurite_brick_stairs` and `ruby_block` makes `ruby_stairs`. Wooden shapes open by hand and sound like oak; the rest act like stone.
 
 ### Biomes
 
@@ -129,4 +133,4 @@ Minecraft 26.3, Fabric Loader 0.19.5, Fabric Loom 1.18.2 (`net.fabricmc.fabric-l
 
 ## Status
 
-Milestones 2 and 3 of the design doc are in: the project skeleton, blocks, items and recipes. So are ore veins, food, tools, armor, trees, plants, mobs (on vanilla bodies or Blockbench models) and biomes. Mobs can be animals, neutral, tameable or hostile, and fly. Next up: stairs, slabs, walls, doors and wood sets.
+Milestones 2 and 3 of the design doc are in: the project skeleton, blocks, items and recipes. So are ore veins, food, tools, armor, trees, plants, mobs (on vanilla bodies or Blockbench models) and biomes. Mobs can be animals, neutral, tameable or hostile, and fly. Blocks can have stairs, slabs, walls, fences, doors and other shapes, and trees a full wood set. Next up: a project settings page and Modrinth search.

@@ -85,6 +85,27 @@ export const Drops = z.union([
   }),
 ]);
 
+/**
+ * Shape variants generated from a block's textures, like vanilla's stone stairs or oak doors. Doors and trapdoors
+ * need their own art; the rest reuse the block's textures.
+ */
+export const BlockShapes = z
+  .object({
+    stairs: z.boolean().default(false),
+    slab: z.boolean().default(false),
+    wall: z.boolean().default(false),
+    fence: z.boolean().default(false),
+    fenceGate: z.boolean().default(false),
+    button: z.boolean().default(false),
+    pressurePlate: z.boolean().default(false),
+    /** Door textures: the 16x16 top and bottom halves and a 16x16 inventory icon. */
+    door: z.object({ top: z.string(), bottom: z.string(), icon: z.string() }).optional(),
+    /** Trapdoor texture, 16x16. */
+    trapdoor: z.string().optional(),
+  })
+  .default({ stairs: false, slab: false, wall: false, fence: false, fenceGate: false, button: false, pressurePlate: false });
+export type BlockShapes = z.infer<typeof BlockShapes>;
+
 export const BlockSpecSchema = z.object({
   kind: z.literal("block"),
   ...Envelope,
@@ -100,6 +121,8 @@ export const BlockSpecSchema = z.object({
   drops: Drops.default("self"),
   /** Register a matching block item (almost always wanted). */
   hasItem: z.boolean().default(true),
+  /** Stairs, slabs, walls and other shapes of this block. Only for `cube_all` and `cube_column` blocks. */
+  shapes: BlockShapes,
 });
 export type BlockSpec = z.infer<typeof BlockSpecSchema>;
 
@@ -225,6 +248,8 @@ export const TreeSpecSchema = z.object({
     /** An item leaves sometimes drop, like oak's apples. */
     fruit: z.object({ item: Ref, chance: z.number().min(0).max(1).default(0.02) }).optional(),
   }),
+  /** The wood set: stairs, slabs, fences, doors and so on, made from the planks. */
+  shapes: BlockShapes,
 });
 export type TreeSpec = z.infer<typeof TreeSpecSchema>;
 
@@ -458,6 +483,46 @@ export const TREE_PARTS = [
   ["sapling", "Sapling"],
 ] as const;
 
+/** Each shape a spec can have: its key in `shapes`, its id suffix and its name suffix. */
+export const SHAPES = [
+  ["stairs", "stairs", "Stairs"],
+  ["slab", "slab", "Slab"],
+  ["wall", "wall", "Wall"],
+  ["fence", "fence", "Fence"],
+  ["fenceGate", "fence_gate", "Fence Gate"],
+  ["door", "door", "Door"],
+  ["trapdoor", "trapdoor", "Trapdoor"],
+  ["button", "button", "Button"],
+  ["pressurePlate", "pressure_plate", "Pressure Plate"],
+] as const;
+export type ShapeKind = (typeof SHAPES)[number][0];
+
+export interface ShapeBlock {
+  shape: ShapeKind;
+  id: string;
+  name: string;
+}
+
+/** The id and name shapes start from: `azurite_bricks` makes `azurite_brick_stairs`, `ruby_block` makes `ruby_stairs`. */
+function shapeBase(spec: BlockSpec | TreeSpec): { id: string; name: string } {
+  if (spec.kind === "tree") return { id: spec.id, name: spec.name };
+  return {
+    id: spec.id.replace(/_block$/, "").replace(/(brick|tile)s$/, "$1"),
+    name: spec.name.replace(/ Block$/, "").replace(/(Brick|Tile)s$/, "$1"),
+  };
+}
+
+/** The shape blocks a block or tree spec adds, in a fixed order. */
+export function shapeBlocks(spec: ElementSpec): ShapeBlock[] {
+  if (spec.kind !== "block" && spec.kind !== "tree") return [];
+  const base = shapeBase(spec);
+  return SHAPES.filter(([key]) => !!spec.shapes[key]).map(([shape, suffix, label]) => ({
+    shape,
+    id: `${base.id}_${suffix}`,
+    name: `${base.name} ${label}`,
+  }));
+}
+
 const titleCase = (s: string) => s[0].toUpperCase() + s.slice(1);
 
 /**
@@ -467,7 +532,7 @@ const titleCase = (s: string) => s[0].toUpperCase() + s.slice(1);
 export function registeredItems(spec: ElementSpec): [string, string][] {
   switch (spec.kind) {
     case "block":
-      return spec.hasItem ? [[spec.id, spec.name]] : [];
+      return [...(spec.hasItem ? [[spec.id, spec.name] as [string, string]] : []), ...shapeBlocks(spec).map((b): [string, string] => [b.id, b.name])];
     case "item":
     case "tool":
     case "plant":
@@ -475,7 +540,10 @@ export function registeredItems(spec: ElementSpec): [string, string][] {
     case "armor":
       return ARMOR_PIECES.filter((p) => spec.armor.pieces[p]).map((p) => [`${spec.id}_${p}`, `${spec.name} ${titleCase(p)}`]);
     case "tree":
-      return TREE_PARTS.map(([suffix, label]) => [`${spec.id}_${suffix}`, `${spec.name} ${label}`]);
+      return [
+        ...TREE_PARTS.map(([suffix, label]): [string, string] => [`${spec.id}_${suffix}`, `${spec.name} ${label}`]),
+        ...shapeBlocks(spec).map((b): [string, string] => [b.id, b.name]),
+      ];
     case "mob":
       return [[`${spec.id}_spawn_egg`, `${spec.name} Spawn Egg`]];
     default:
@@ -489,6 +557,12 @@ export type ItemIconArt = { kind: "flat"; texture: string } | { kind: "cube"; to
 /** The inventory icon art for an item `id` registered by `spec`, or null when it has none the tool can draw. */
 export function itemIconArt(spec: ElementSpec, id: string): ItemIconArt | null {
   const flat = (texture: string): ItemIconArt => ({ kind: "flat", texture });
+  const shape = shapeBlocks(spec).find((b) => b.id === id);
+  if (shape && (spec.kind === "block" || spec.kind === "tree")) {
+    if (shape.shape === "door") return flat(spec.shapes.door!.icon);
+    if (shape.shape === "trapdoor") return flat(spec.shapes.trapdoor!);
+    if (spec.kind === "tree") return { kind: "cube", top: spec.tree.planks, side: spec.tree.planks };
+  }
   switch (spec.kind) {
     case "item":
       return flat(spec.item.texture);
@@ -524,7 +598,8 @@ export function itemIconArt(spec: ElementSpec, id: string): ItemIconArt | null {
 
 /** Every block a spec registers. */
 export function registeredBlocks(spec: ElementSpec): string[] {
-  if (spec.kind === "block" || spec.kind === "plant") return [spec.id];
-  if (spec.kind === "tree") return TREE_PARTS.map(([suffix]) => `${spec.id}_${suffix}`);
+  if (spec.kind === "block") return [spec.id, ...shapeBlocks(spec).map((b) => b.id)];
+  if (spec.kind === "plant") return [spec.id];
+  if (spec.kind === "tree") return [...TREE_PARTS.map(([suffix]) => `${spec.id}_${suffix}`), ...shapeBlocks(spec).map((b) => b.id)];
   return [];
 }

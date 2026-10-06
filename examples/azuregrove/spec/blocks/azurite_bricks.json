@@ -12,5 +12,6 @@
     "requiresTool": true,
     "lightLevel": 4,
     "model": { "type": "cube_all", "texture": "art/azurite_bricks.png" }
-  }
+  },
+  "shapes": { "stairs": true, "slab": true, "wall": true }
 }

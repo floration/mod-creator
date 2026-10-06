@@ -46,14 +46,26 @@ import net.minecraft.world.item.equipment.EquipmentAssets;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BushBlock;
+import net.minecraft.world.level.block.ButtonBlock;
+import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.FenceBlock;
+import net.minecraft.world.level.block.FenceGateBlock;
+import net.minecraft.world.level.block.PressurePlateBlock;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.SaplingBlock;
+import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.TintedParticleLeavesBlock;
+import net.minecraft.world.level.block.TrapDoorBlock;
+import net.minecraft.world.level.block.WallBlock;
 import net.minecraft.world.level.block.grower.TreeGrower;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.properties.BlockSetType;
+import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.material.PushReaction;
 
 public final class ModContent {
 	public static final String MOD_ID = "azuregrove";
@@ -74,6 +86,14 @@ public final class ModContent {
 			.requiresCorrectToolForDrops()
 			.lightLevel(state -> 4), true);
 
+	// Azurite Bricks shapes
+	public static final Block AZURITE_BRICK_STAIRS = registerBlock("azurite_brick_stairs", properties -> new StairBlock(AZURITE_BRICKS.defaultBlockState(), properties) {},
+			BlockBehaviour.Properties.ofFullCopy(AZURITE_BRICKS), true);
+	public static final Block AZURITE_BRICK_SLAB = registerBlock("azurite_brick_slab", SlabBlock::new,
+			BlockBehaviour.Properties.ofFullCopy(AZURITE_BRICKS), true);
+	public static final Block AZURITE_BRICK_WALL = registerBlock("azurite_brick_wall", WallBlock::new,
+			BlockBehaviour.Properties.ofFullCopy(AZURITE_BRICKS).forceSolidOn(), true);
+
 	/** Azurite Ore (spec/blocks/azurite_ore.json) */
 	public static final Block AZURITE_ORE = registerBlock("azurite_ore", Block::new,
 			BlockBehaviour.Properties.of()
@@ -92,6 +112,24 @@ public final class ModContent {
 			BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LEAVES), true);
 	public static final Block AZUREWOOD_SAPLING = registerBlock("azurewood_sapling", properties -> new SaplingBlock(AZUREWOOD_GROWER, properties),
 			BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_SAPLING), true);
+
+	// Azurewood wood set
+	public static final Block AZUREWOOD_STAIRS = registerBlock("azurewood_stairs", properties -> new StairBlock(AZUREWOOD_PLANKS.defaultBlockState(), properties) {},
+			BlockBehaviour.Properties.ofFullCopy(AZUREWOOD_PLANKS), true);
+	public static final Block AZUREWOOD_SLAB = registerBlock("azurewood_slab", SlabBlock::new,
+			BlockBehaviour.Properties.ofFullCopy(AZUREWOOD_PLANKS), true);
+	public static final Block AZUREWOOD_FENCE = registerBlock("azurewood_fence", FenceBlock::new,
+			BlockBehaviour.Properties.ofFullCopy(AZUREWOOD_PLANKS).forceSolidOn(), true);
+	public static final Block AZUREWOOD_FENCE_GATE = registerBlock("azurewood_fence_gate", properties -> new FenceGateBlock(WoodType.OAK, properties),
+			BlockBehaviour.Properties.ofFullCopy(AZUREWOOD_PLANKS).forceSolidOn(), true);
+	public static final Block AZUREWOOD_DOOR = registerBlock("azurewood_door", properties -> new DoorBlock(BlockSetType.OAK, properties) {},
+			BlockBehaviour.Properties.ofFullCopy(AZUREWOOD_PLANKS).noOcclusion().pushReaction(PushReaction.POPPED), true);
+	public static final Block AZUREWOOD_TRAPDOOR = registerBlock("azurewood_trapdoor", properties -> new TrapDoorBlock(BlockSetType.OAK, properties) {},
+			BlockBehaviour.Properties.ofFullCopy(AZUREWOOD_PLANKS).noOcclusion(), true);
+	public static final Block AZUREWOOD_BUTTON = registerBlock("azurewood_button", properties -> new ButtonBlock(BlockSetType.OAK, 30, properties) {},
+			BlockBehaviour.Properties.ofFullCopy(AZUREWOOD_PLANKS).noCollision().strength(0.5f).pushReaction(PushReaction.POPPED), true);
+	public static final Block AZUREWOOD_PRESSURE_PLATE = registerBlock("azurewood_pressure_plate", properties -> new PressurePlateBlock(BlockSetType.OAK, properties) {},
+			BlockBehaviour.Properties.ofFullCopy(AZUREWOOD_PLANKS).forceSolidOn().noCollision().strength(0.5f).pushReaction(PushReaction.POPPED), true);
 
 	/** Azure Grass (spec/plants/azure_grass.json) */
 	public static final Block AZURE_GRASS = registerBlock("azure_grass", BushBlock::new,
@@ -141,6 +179,17 @@ public final class ModContent {
 	public static void register() {
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.BUILDING_BLOCKS).register(output -> {
 			output.accept(AZURITE_BRICKS.asItem());
+			output.accept(AZURITE_BRICK_STAIRS.asItem());
+			output.accept(AZURITE_BRICK_SLAB.asItem());
+			output.accept(AZURITE_BRICK_WALL.asItem());
+			output.accept(AZUREWOOD_STAIRS.asItem());
+			output.accept(AZUREWOOD_SLAB.asItem());
+			output.accept(AZUREWOOD_FENCE.asItem());
+			output.accept(AZUREWOOD_FENCE_GATE.asItem());
+			output.accept(AZUREWOOD_DOOR.asItem());
+			output.accept(AZUREWOOD_TRAPDOOR.asItem());
+			output.accept(AZUREWOOD_BUTTON.asItem());
+			output.accept(AZUREWOOD_PRESSURE_PLATE.asItem());
 		});
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.NATURAL_BLOCKS).register(output -> {
 			output.accept(AZURITE_ORE.asItem());
@@ -171,6 +220,10 @@ public final class ModContent {
 		FlammableBlockRegistry.getDefaultInstance().add(AZUREWOOD_LOG, 5, 5);
 		FlammableBlockRegistry.getDefaultInstance().add(AZUREWOOD_PLANKS, 5, 20);
 		FlammableBlockRegistry.getDefaultInstance().add(AZUREWOOD_LEAVES, 30, 60);
+		FlammableBlockRegistry.getDefaultInstance().add(AZUREWOOD_STAIRS, 5, 20);
+		FlammableBlockRegistry.getDefaultInstance().add(AZUREWOOD_SLAB, 5, 20);
+		FlammableBlockRegistry.getDefaultInstance().add(AZUREWOOD_FENCE, 5, 20);
+		FlammableBlockRegistry.getDefaultInstance().add(AZUREWOOD_FENCE_GATE, 5, 20);
 		// Bluetusk (spec/mobs/bluetusk.json)
 		FabricDefaultAttributeRegistry.register(BLUETUSK, Animal.createAnimalAttributes()
 				.add(Attributes.MAX_HEALTH, 12.0)
@@ -476,6 +529,380 @@ public class GroveLurker extends Monster {
   }
 }
 ",
+  "src/generated/resources/assets/azuregrove/blockstates/azurewood_button.json": "{
+  "variants": {
+    "face=ceiling,facing=east,powered=false": {
+      "model": "azuregrove:block/azurewood_button",
+      "x": 180,
+      "y": 270
+    },
+    "face=ceiling,facing=east,powered=true": {
+      "model": "azuregrove:block/azurewood_button_pressed",
+      "x": 180,
+      "y": 270
+    },
+    "face=ceiling,facing=north,powered=false": {
+      "model": "azuregrove:block/azurewood_button",
+      "x": 180,
+      "y": 180
+    },
+    "face=ceiling,facing=north,powered=true": {
+      "model": "azuregrove:block/azurewood_button_pressed",
+      "x": 180,
+      "y": 180
+    },
+    "face=ceiling,facing=south,powered=false": {
+      "model": "azuregrove:block/azurewood_button",
+      "x": 180
+    },
+    "face=ceiling,facing=south,powered=true": {
+      "model": "azuregrove:block/azurewood_button_pressed",
+      "x": 180
+    },
+    "face=ceiling,facing=west,powered=false": {
+      "model": "azuregrove:block/azurewood_button",
+      "x": 180,
+      "y": 90
+    },
+    "face=ceiling,facing=west,powered=true": {
+      "model": "azuregrove:block/azurewood_button_pressed",
+      "x": 180,
+      "y": 90
+    },
+    "face=floor,facing=east,powered=false": {
+      "model": "azuregrove:block/azurewood_button",
+      "y": 90
+    },
+    "face=floor,facing=east,powered=true": {
+      "model": "azuregrove:block/azurewood_button_pressed",
+      "y": 90
+    },
+    "face=floor,facing=north,powered=false": {
+      "model": "azuregrove:block/azurewood_button"
+    },
+    "face=floor,facing=north,powered=true": {
+      "model": "azuregrove:block/azurewood_button_pressed"
+    },
+    "face=floor,facing=south,powered=false": {
+      "model": "azuregrove:block/azurewood_button",
+      "y": 180
+    },
+    "face=floor,facing=south,powered=true": {
+      "model": "azuregrove:block/azurewood_button_pressed",
+      "y": 180
+    },
+    "face=floor,facing=west,powered=false": {
+      "model": "azuregrove:block/azurewood_button",
+      "y": 270
+    },
+    "face=floor,facing=west,powered=true": {
+      "model": "azuregrove:block/azurewood_button_pressed",
+      "y": 270
+    },
+    "face=wall,facing=east,powered=false": {
+      "model": "azuregrove:block/azurewood_button",
+      "uvlock": true,
+      "x": 90,
+      "y": 90
+    },
+    "face=wall,facing=east,powered=true": {
+      "model": "azuregrove:block/azurewood_button_pressed",
+      "uvlock": true,
+      "x": 90,
+      "y": 90
+    },
+    "face=wall,facing=north,powered=false": {
+      "model": "azuregrove:block/azurewood_button",
+      "uvlock": true,
+      "x": 90
+    },
+    "face=wall,facing=north,powered=true": {
+      "model": "azuregrove:block/azurewood_button_pressed",
+      "uvlock": true,
+      "x": 90
+    },
+    "face=wall,facing=south,powered=false": {
+      "model": "azuregrove:block/azurewood_button",
+      "uvlock": true,
+      "x": 90,
+      "y": 180
+    },
+    "face=wall,facing=south,powered=true": {
+      "model": "azuregrove:block/azurewood_button_pressed",
+      "uvlock": true,
+      "x": 90,
+      "y": 180
+    },
+    "face=wall,facing=west,powered=false": {
+      "model": "azuregrove:block/azurewood_button",
+      "uvlock": true,
+      "x": 90,
+      "y": 270
+    },
+    "face=wall,facing=west,powered=true": {
+      "model": "azuregrove:block/azurewood_button_pressed",
+      "uvlock": true,
+      "x": 90,
+      "y": 270
+    }
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/blockstates/azurewood_door.json": "{
+  "variants": {
+    "facing=east,half=lower,hinge=left,open=false": {
+      "model": "azuregrove:block/azurewood_door_bottom_left"
+    },
+    "facing=east,half=lower,hinge=left,open=true": {
+      "model": "azuregrove:block/azurewood_door_bottom_left_open",
+      "y": 90
+    },
+    "facing=east,half=lower,hinge=right,open=false": {
+      "model": "azuregrove:block/azurewood_door_bottom_right"
+    },
+    "facing=east,half=lower,hinge=right,open=true": {
+      "model": "azuregrove:block/azurewood_door_bottom_right_open",
+      "y": 270
+    },
+    "facing=east,half=upper,hinge=left,open=false": {
+      "model": "azuregrove:block/azurewood_door_top_left"
+    },
+    "facing=east,half=upper,hinge=left,open=true": {
+      "model": "azuregrove:block/azurewood_door_top_left_open",
+      "y": 90
+    },
+    "facing=east,half=upper,hinge=right,open=false": {
+      "model": "azuregrove:block/azurewood_door_top_right"
+    },
+    "facing=east,half=upper,hinge=right,open=true": {
+      "model": "azuregrove:block/azurewood_door_top_right_open",
+      "y": 270
+    },
+    "facing=north,half=lower,hinge=left,open=false": {
+      "model": "azuregrove:block/azurewood_door_bottom_left",
+      "y": 270
+    },
+    "facing=north,half=lower,hinge=left,open=true": {
+      "model": "azuregrove:block/azurewood_door_bottom_left_open"
+    },
+    "facing=north,half=lower,hinge=right,open=false": {
+      "model": "azuregrove:block/azurewood_door_bottom_right",
+      "y": 270
+    },
+    "facing=north,half=lower,hinge=right,open=true": {
+      "model": "azuregrove:block/azurewood_door_bottom_right_open",
+      "y": 180
+    },
+    "facing=north,half=upper,hinge=left,open=false": {
+      "model": "azuregrove:block/azurewood_door_top_left",
+      "y": 270
+    },
+    "facing=north,half=upper,hinge=left,open=true": {
+      "model": "azuregrove:block/azurewood_door_top_left_open"
+    },
+    "facing=north,half=upper,hinge=right,open=false": {
+      "model": "azuregrove:block/azurewood_door_top_right",
+      "y": 270
+    },
+    "facing=north,half=upper,hinge=right,open=true": {
+      "model": "azuregrove:block/azurewood_door_top_right_open",
+      "y": 180
+    },
+    "facing=south,half=lower,hinge=left,open=false": {
+      "model": "azuregrove:block/azurewood_door_bottom_left",
+      "y": 90
+    },
+    "facing=south,half=lower,hinge=left,open=true": {
+      "model": "azuregrove:block/azurewood_door_bottom_left_open",
+      "y": 180
+    },
+    "facing=south,half=lower,hinge=right,open=false": {
+      "model": "azuregrove:block/azurewood_door_bottom_right",
+      "y": 90
+    },
+    "facing=south,half=lower,hinge=right,open=true": {
+      "model": "azuregrove:block/azurewood_door_bottom_right_open"
+    },
+    "facing=south,half=upper,hinge=left,open=false": {
+      "model": "azuregrove:block/azurewood_door_top_left",
+      "y": 90
+    },
+    "facing=south,half=upper,hinge=left,open=true": {
+      "model": "azuregrove:block/azurewood_door_top_left_open",
+      "y": 180
+    },
+    "facing=south,half=upper,hinge=right,open=false": {
+      "model": "azuregrove:block/azurewood_door_top_right",
+      "y": 90
+    },
+    "facing=south,half=upper,hinge=right,open=true": {
+      "model": "azuregrove:block/azurewood_door_top_right_open"
+    },
+    "facing=west,half=lower,hinge=left,open=false": {
+      "model": "azuregrove:block/azurewood_door_bottom_left",
+      "y": 180
+    },
+    "facing=west,half=lower,hinge=left,open=true": {
+      "model": "azuregrove:block/azurewood_door_bottom_left_open",
+      "y": 270
+    },
+    "facing=west,half=lower,hinge=right,open=false": {
+      "model": "azuregrove:block/azurewood_door_bottom_right",
+      "y": 180
+    },
+    "facing=west,half=lower,hinge=right,open=true": {
+      "model": "azuregrove:block/azurewood_door_bottom_right_open",
+      "y": 90
+    },
+    "facing=west,half=upper,hinge=left,open=false": {
+      "model": "azuregrove:block/azurewood_door_top_left",
+      "y": 180
+    },
+    "facing=west,half=upper,hinge=left,open=true": {
+      "model": "azuregrove:block/azurewood_door_top_left_open",
+      "y": 270
+    },
+    "facing=west,half=upper,hinge=right,open=false": {
+      "model": "azuregrove:block/azurewood_door_top_right",
+      "y": 180
+    },
+    "facing=west,half=upper,hinge=right,open=true": {
+      "model": "azuregrove:block/azurewood_door_top_right_open",
+      "y": 90
+    }
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/blockstates/azurewood_fence.json": "{
+  "multipart": [
+    {
+      "apply": {
+        "model": "azuregrove:block/azurewood_fence_post"
+      }
+    },
+    {
+      "apply": {
+        "model": "azuregrove:block/azurewood_fence_side",
+        "uvlock": true
+      },
+      "when": {
+        "north": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "azuregrove:block/azurewood_fence_side",
+        "uvlock": true,
+        "y": 90
+      },
+      "when": {
+        "east": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "azuregrove:block/azurewood_fence_side",
+        "uvlock": true,
+        "y": 180
+      },
+      "when": {
+        "south": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "azuregrove:block/azurewood_fence_side",
+        "uvlock": true,
+        "y": 270
+      },
+      "when": {
+        "west": "true"
+      }
+    }
+  ]
+}
+",
+  "src/generated/resources/assets/azuregrove/blockstates/azurewood_fence_gate.json": "{
+  "variants": {
+    "facing=east,in_wall=false,open=false": {
+      "model": "azuregrove:block/azurewood_fence_gate",
+      "uvlock": true,
+      "y": 270
+    },
+    "facing=east,in_wall=false,open=true": {
+      "model": "azuregrove:block/azurewood_fence_gate_open",
+      "uvlock": true,
+      "y": 270
+    },
+    "facing=east,in_wall=true,open=false": {
+      "model": "azuregrove:block/azurewood_fence_gate_wall",
+      "uvlock": true,
+      "y": 270
+    },
+    "facing=east,in_wall=true,open=true": {
+      "model": "azuregrove:block/azurewood_fence_gate_wall_open",
+      "uvlock": true,
+      "y": 270
+    },
+    "facing=north,in_wall=false,open=false": {
+      "model": "azuregrove:block/azurewood_fence_gate",
+      "uvlock": true,
+      "y": 180
+    },
+    "facing=north,in_wall=false,open=true": {
+      "model": "azuregrove:block/azurewood_fence_gate_open",
+      "uvlock": true,
+      "y": 180
+    },
+    "facing=north,in_wall=true,open=false": {
+      "model": "azuregrove:block/azurewood_fence_gate_wall",
+      "uvlock": true,
+      "y": 180
+    },
+    "facing=north,in_wall=true,open=true": {
+      "model": "azuregrove:block/azurewood_fence_gate_wall_open",
+      "uvlock": true,
+      "y": 180
+    },
+    "facing=south,in_wall=false,open=false": {
+      "model": "azuregrove:block/azurewood_fence_gate",
+      "uvlock": true
+    },
+    "facing=south,in_wall=false,open=true": {
+      "model": "azuregrove:block/azurewood_fence_gate_open",
+      "uvlock": true
+    },
+    "facing=south,in_wall=true,open=false": {
+      "model": "azuregrove:block/azurewood_fence_gate_wall",
+      "uvlock": true
+    },
+    "facing=south,in_wall=true,open=true": {
+      "model": "azuregrove:block/azurewood_fence_gate_wall_open",
+      "uvlock": true
+    },
+    "facing=west,in_wall=false,open=false": {
+      "model": "azuregrove:block/azurewood_fence_gate",
+      "uvlock": true,
+      "y": 90
+    },
+    "facing=west,in_wall=false,open=true": {
+      "model": "azuregrove:block/azurewood_fence_gate_open",
+      "uvlock": true,
+      "y": 90
+    },
+    "facing=west,in_wall=true,open=false": {
+      "model": "azuregrove:block/azurewood_fence_gate_wall",
+      "uvlock": true,
+      "y": 90
+    },
+    "facing=west,in_wall=true,open=true": {
+      "model": "azuregrove:block/azurewood_fence_gate_wall_open",
+      "uvlock": true,
+      "y": 90
+    }
+  }
+}
+",
   "src/generated/resources/assets/azuregrove/blockstates/azurewood_leaves.json": "{
   "variants": {
     "": {
@@ -509,12 +936,621 @@ public class GroveLurker extends Monster {
   }
 }
 ",
+  "src/generated/resources/assets/azuregrove/blockstates/azurewood_pressure_plate.json": "{
+  "variants": {
+    "powered=false": {
+      "model": "azuregrove:block/azurewood_pressure_plate"
+    },
+    "powered=true": {
+      "model": "azuregrove:block/azurewood_pressure_plate_down"
+    }
+  }
+}
+",
   "src/generated/resources/assets/azuregrove/blockstates/azurewood_sapling.json": "{
   "variants": {
     "": {
       "model": "azuregrove:block/azurewood_sapling"
     }
   }
+}
+",
+  "src/generated/resources/assets/azuregrove/blockstates/azurewood_slab.json": "{
+  "variants": {
+    "type=bottom": {
+      "model": "azuregrove:block/azurewood_slab"
+    },
+    "type=double": {
+      "model": "azuregrove:block/azurewood_planks"
+    },
+    "type=top": {
+      "model": "azuregrove:block/azurewood_slab_top"
+    }
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/blockstates/azurewood_stairs.json": "{
+  "variants": {
+    "facing=east,half=bottom,shape=inner_left": {
+      "model": "azuregrove:block/azurewood_stairs_inner",
+      "uvlock": true,
+      "y": 270
+    },
+    "facing=east,half=bottom,shape=inner_right": {
+      "model": "azuregrove:block/azurewood_stairs_inner"
+    },
+    "facing=east,half=bottom,shape=outer_left": {
+      "model": "azuregrove:block/azurewood_stairs_outer",
+      "uvlock": true,
+      "y": 270
+    },
+    "facing=east,half=bottom,shape=outer_right": {
+      "model": "azuregrove:block/azurewood_stairs_outer"
+    },
+    "facing=east,half=bottom,shape=straight": {
+      "model": "azuregrove:block/azurewood_stairs"
+    },
+    "facing=east,half=top,shape=inner_left": {
+      "model": "azuregrove:block/azurewood_stairs_inner",
+      "uvlock": true,
+      "x": 180
+    },
+    "facing=east,half=top,shape=inner_right": {
+      "model": "azuregrove:block/azurewood_stairs_inner",
+      "uvlock": true,
+      "x": 180,
+      "y": 90
+    },
+    "facing=east,half=top,shape=outer_left": {
+      "model": "azuregrove:block/azurewood_stairs_outer",
+      "uvlock": true,
+      "x": 180
+    },
+    "facing=east,half=top,shape=outer_right": {
+      "model": "azuregrove:block/azurewood_stairs_outer",
+      "uvlock": true,
+      "x": 180,
+      "y": 90
+    },
+    "facing=east,half=top,shape=straight": {
+      "model": "azuregrove:block/azurewood_stairs",
+      "uvlock": true,
+      "x": 180
+    },
+    "facing=north,half=bottom,shape=inner_left": {
+      "model": "azuregrove:block/azurewood_stairs_inner",
+      "uvlock": true,
+      "y": 180
+    },
+    "facing=north,half=bottom,shape=inner_right": {
+      "model": "azuregrove:block/azurewood_stairs_inner",
+      "uvlock": true,
+      "y": 270
+    },
+    "facing=north,half=bottom,shape=outer_left": {
+      "model": "azuregrove:block/azurewood_stairs_outer",
+      "uvlock": true,
+      "y": 180
+    },
+    "facing=north,half=bottom,shape=outer_right": {
+      "model": "azuregrove:block/azurewood_stairs_outer",
+      "uvlock": true,
+      "y": 270
+    },
+    "facing=north,half=bottom,shape=straight": {
+      "model": "azuregrove:block/azurewood_stairs",
+      "uvlock": true,
+      "y": 270
+    },
+    "facing=north,half=top,shape=inner_left": {
+      "model": "azuregrove:block/azurewood_stairs_inner",
+      "uvlock": true,
+      "x": 180,
+      "y": 270
+    },
+    "facing=north,half=top,shape=inner_right": {
+      "model": "azuregrove:block/azurewood_stairs_inner",
+      "uvlock": true,
+      "x": 180
+    },
+    "facing=north,half=top,shape=outer_left": {
+      "model": "azuregrove:block/azurewood_stairs_outer",
+      "uvlock": true,
+      "x": 180,
+      "y": 270
+    },
+    "facing=north,half=top,shape=outer_right": {
+      "model": "azuregrove:block/azurewood_stairs_outer",
+      "uvlock": true,
+      "x": 180
+    },
+    "facing=north,half=top,shape=straight": {
+      "model": "azuregrove:block/azurewood_stairs",
+      "uvlock": true,
+      "x": 180,
+      "y": 270
+    },
+    "facing=south,half=bottom,shape=inner_left": {
+      "model": "azuregrove:block/azurewood_stairs_inner"
+    },
+    "facing=south,half=bottom,shape=inner_right": {
+      "model": "azuregrove:block/azurewood_stairs_inner",
+      "uvlock": true,
+      "y": 90
+    },
+    "facing=south,half=bottom,shape=outer_left": {
+      "model": "azuregrove:block/azurewood_stairs_outer"
+    },
+    "facing=south,half=bottom,shape=outer_right": {
+      "model": "azuregrove:block/azurewood_stairs_outer",
+      "uvlock": true,
+      "y": 90
+    },
+    "facing=south,half=bottom,shape=straight": {
+      "model": "azuregrove:block/azurewood_stairs",
+      "uvlock": true,
+      "y": 90
+    },
+    "facing=south,half=top,shape=inner_left": {
+      "model": "azuregrove:block/azurewood_stairs_inner",
+      "uvlock": true,
+      "x": 180,
+      "y": 90
+    },
+    "facing=south,half=top,shape=inner_right": {
+      "model": "azuregrove:block/azurewood_stairs_inner",
+      "uvlock": true,
+      "x": 180,
+      "y": 180
+    },
+    "facing=south,half=top,shape=outer_left": {
+      "model": "azuregrove:block/azurewood_stairs_outer",
+      "uvlock": true,
+      "x": 180,
+      "y": 90
+    },
+    "facing=south,half=top,shape=outer_right": {
+      "model": "azuregrove:block/azurewood_stairs_outer",
+      "uvlock": true,
+      "x": 180,
+      "y": 180
+    },
+    "facing=south,half=top,shape=straight": {
+      "model": "azuregrove:block/azurewood_stairs",
+      "uvlock": true,
+      "x": 180,
+      "y": 90
+    },
+    "facing=west,half=bottom,shape=inner_left": {
+      "model": "azuregrove:block/azurewood_stairs_inner",
+      "uvlock": true,
+      "y": 90
+    },
+    "facing=west,half=bottom,shape=inner_right": {
+      "model": "azuregrove:block/azurewood_stairs_inner",
+      "uvlock": true,
+      "y": 180
+    },
+    "facing=west,half=bottom,shape=outer_left": {
+      "model": "azuregrove:block/azurewood_stairs_outer",
+      "uvlock": true,
+      "y": 90
+    },
+    "facing=west,half=bottom,shape=outer_right": {
+      "model": "azuregrove:block/azurewood_stairs_outer",
+      "uvlock": true,
+      "y": 180
+    },
+    "facing=west,half=bottom,shape=straight": {
+      "model": "azuregrove:block/azurewood_stairs",
+      "uvlock": true,
+      "y": 180
+    },
+    "facing=west,half=top,shape=inner_left": {
+      "model": "azuregrove:block/azurewood_stairs_inner",
+      "uvlock": true,
+      "x": 180,
+      "y": 180
+    },
+    "facing=west,half=top,shape=inner_right": {
+      "model": "azuregrove:block/azurewood_stairs_inner",
+      "uvlock": true,
+      "x": 180,
+      "y": 270
+    },
+    "facing=west,half=top,shape=outer_left": {
+      "model": "azuregrove:block/azurewood_stairs_outer",
+      "uvlock": true,
+      "x": 180,
+      "y": 180
+    },
+    "facing=west,half=top,shape=outer_right": {
+      "model": "azuregrove:block/azurewood_stairs_outer",
+      "uvlock": true,
+      "x": 180,
+      "y": 270
+    },
+    "facing=west,half=top,shape=straight": {
+      "model": "azuregrove:block/azurewood_stairs",
+      "uvlock": true,
+      "x": 180,
+      "y": 180
+    }
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/blockstates/azurewood_trapdoor.json": "{
+  "variants": {
+    "facing=east,half=bottom,open=false": {
+      "model": "azuregrove:block/azurewood_trapdoor_bottom"
+    },
+    "facing=east,half=bottom,open=true": {
+      "model": "azuregrove:block/azurewood_trapdoor_open",
+      "y": 90
+    },
+    "facing=east,half=top,open=false": {
+      "model": "azuregrove:block/azurewood_trapdoor_top"
+    },
+    "facing=east,half=top,open=true": {
+      "model": "azuregrove:block/azurewood_trapdoor_open",
+      "y": 90
+    },
+    "facing=north,half=bottom,open=false": {
+      "model": "azuregrove:block/azurewood_trapdoor_bottom"
+    },
+    "facing=north,half=bottom,open=true": {
+      "model": "azuregrove:block/azurewood_trapdoor_open"
+    },
+    "facing=north,half=top,open=false": {
+      "model": "azuregrove:block/azurewood_trapdoor_top"
+    },
+    "facing=north,half=top,open=true": {
+      "model": "azuregrove:block/azurewood_trapdoor_open"
+    },
+    "facing=south,half=bottom,open=false": {
+      "model": "azuregrove:block/azurewood_trapdoor_bottom"
+    },
+    "facing=south,half=bottom,open=true": {
+      "model": "azuregrove:block/azurewood_trapdoor_open",
+      "y": 180
+    },
+    "facing=south,half=top,open=false": {
+      "model": "azuregrove:block/azurewood_trapdoor_top"
+    },
+    "facing=south,half=top,open=true": {
+      "model": "azuregrove:block/azurewood_trapdoor_open",
+      "y": 180
+    },
+    "facing=west,half=bottom,open=false": {
+      "model": "azuregrove:block/azurewood_trapdoor_bottom"
+    },
+    "facing=west,half=bottom,open=true": {
+      "model": "azuregrove:block/azurewood_trapdoor_open",
+      "y": 270
+    },
+    "facing=west,half=top,open=false": {
+      "model": "azuregrove:block/azurewood_trapdoor_top"
+    },
+    "facing=west,half=top,open=true": {
+      "model": "azuregrove:block/azurewood_trapdoor_open",
+      "y": 270
+    }
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/blockstates/azurite_brick_slab.json": "{
+  "variants": {
+    "type=bottom": {
+      "model": "azuregrove:block/azurite_brick_slab"
+    },
+    "type=double": {
+      "model": "azuregrove:block/azurite_bricks"
+    },
+    "type=top": {
+      "model": "azuregrove:block/azurite_brick_slab_top"
+    }
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/blockstates/azurite_brick_stairs.json": "{
+  "variants": {
+    "facing=east,half=bottom,shape=inner_left": {
+      "model": "azuregrove:block/azurite_brick_stairs_inner",
+      "uvlock": true,
+      "y": 270
+    },
+    "facing=east,half=bottom,shape=inner_right": {
+      "model": "azuregrove:block/azurite_brick_stairs_inner"
+    },
+    "facing=east,half=bottom,shape=outer_left": {
+      "model": "azuregrove:block/azurite_brick_stairs_outer",
+      "uvlock": true,
+      "y": 270
+    },
+    "facing=east,half=bottom,shape=outer_right": {
+      "model": "azuregrove:block/azurite_brick_stairs_outer"
+    },
+    "facing=east,half=bottom,shape=straight": {
+      "model": "azuregrove:block/azurite_brick_stairs"
+    },
+    "facing=east,half=top,shape=inner_left": {
+      "model": "azuregrove:block/azurite_brick_stairs_inner",
+      "uvlock": true,
+      "x": 180
+    },
+    "facing=east,half=top,shape=inner_right": {
+      "model": "azuregrove:block/azurite_brick_stairs_inner",
+      "uvlock": true,
+      "x": 180,
+      "y": 90
+    },
+    "facing=east,half=top,shape=outer_left": {
+      "model": "azuregrove:block/azurite_brick_stairs_outer",
+      "uvlock": true,
+      "x": 180
+    },
+    "facing=east,half=top,shape=outer_right": {
+      "model": "azuregrove:block/azurite_brick_stairs_outer",
+      "uvlock": true,
+      "x": 180,
+      "y": 90
+    },
+    "facing=east,half=top,shape=straight": {
+      "model": "azuregrove:block/azurite_brick_stairs",
+      "uvlock": true,
+      "x": 180
+    },
+    "facing=north,half=bottom,shape=inner_left": {
+      "model": "azuregrove:block/azurite_brick_stairs_inner",
+      "uvlock": true,
+      "y": 180
+    },
+    "facing=north,half=bottom,shape=inner_right": {
+      "model": "azuregrove:block/azurite_brick_stairs_inner",
+      "uvlock": true,
+      "y": 270
+    },
+    "facing=north,half=bottom,shape=outer_left": {
+      "model": "azuregrove:block/azurite_brick_stairs_outer",
+      "uvlock": true,
+      "y": 180
+    },
+    "facing=north,half=bottom,shape=outer_right": {
+      "model": "azuregrove:block/azurite_brick_stairs_outer",
+      "uvlock": true,
+      "y": 270
+    },
+    "facing=north,half=bottom,shape=straight": {
+      "model": "azuregrove:block/azurite_brick_stairs",
+      "uvlock": true,
+      "y": 270
+    },
+    "facing=north,half=top,shape=inner_left": {
+      "model": "azuregrove:block/azurite_brick_stairs_inner",
+      "uvlock": true,
+      "x": 180,
+      "y": 270
+    },
+    "facing=north,half=top,shape=inner_right": {
+      "model": "azuregrove:block/azurite_brick_stairs_inner",
+      "uvlock": true,
+      "x": 180
+    },
+    "facing=north,half=top,shape=outer_left": {
+      "model": "azuregrove:block/azurite_brick_stairs_outer",
+      "uvlock": true,
+      "x": 180,
+      "y": 270
+    },
+    "facing=north,half=top,shape=outer_right": {
+      "model": "azuregrove:block/azurite_brick_stairs_outer",
+      "uvlock": true,
+      "x": 180
+    },
+    "facing=north,half=top,shape=straight": {
+      "model": "azuregrove:block/azurite_brick_stairs",
+      "uvlock": true,
+      "x": 180,
+      "y": 270
+    },
+    "facing=south,half=bottom,shape=inner_left": {
+      "model": "azuregrove:block/azurite_brick_stairs_inner"
+    },
+    "facing=south,half=bottom,shape=inner_right": {
+      "model": "azuregrove:block/azurite_brick_stairs_inner",
+      "uvlock": true,
+      "y": 90
+    },
+    "facing=south,half=bottom,shape=outer_left": {
+      "model": "azuregrove:block/azurite_brick_stairs_outer"
+    },
+    "facing=south,half=bottom,shape=outer_right": {
+      "model": "azuregrove:block/azurite_brick_stairs_outer",
+      "uvlock": true,
+      "y": 90
+    },
+    "facing=south,half=bottom,shape=straight": {
+      "model": "azuregrove:block/azurite_brick_stairs",
+      "uvlock": true,
+      "y": 90
+    },
+    "facing=south,half=top,shape=inner_left": {
+      "model": "azuregrove:block/azurite_brick_stairs_inner",
+      "uvlock": true,
+      "x": 180,
+      "y": 90
+    },
+    "facing=south,half=top,shape=inner_right": {
+      "model": "azuregrove:block/azurite_brick_stairs_inner",
+      "uvlock": true,
+      "x": 180,
+      "y": 180
+    },
+    "facing=south,half=top,shape=outer_left": {
+      "model": "azuregrove:block/azurite_brick_stairs_outer",
+      "uvlock": true,
+      "x": 180,
+      "y": 90
+    },
+    "facing=south,half=top,shape=outer_right": {
+      "model": "azuregrove:block/azurite_brick_stairs_outer",
+      "uvlock": true,
+      "x": 180,
+      "y": 180
+    },
+    "facing=south,half=top,shape=straight": {
+      "model": "azuregrove:block/azurite_brick_stairs",
+      "uvlock": true,
+      "x": 180,
+      "y": 90
+    },
+    "facing=west,half=bottom,shape=inner_left": {
+      "model": "azuregrove:block/azurite_brick_stairs_inner",
+      "uvlock": true,
+      "y": 90
+    },
+    "facing=west,half=bottom,shape=inner_right": {
+      "model": "azuregrove:block/azurite_brick_stairs_inner",
+      "uvlock": true,
+      "y": 180
+    },
+    "facing=west,half=bottom,shape=outer_left": {
+      "model": "azuregrove:block/azurite_brick_stairs_outer",
+      "uvlock": true,
+      "y": 90
+    },
+    "facing=west,half=bottom,shape=outer_right": {
+      "model": "azuregrove:block/azurite_brick_stairs_outer",
+      "uvlock": true,
+      "y": 180
+    },
+    "facing=west,half=bottom,shape=straight": {
+      "model": "azuregrove:block/azurite_brick_stairs",
+      "uvlock": true,
+      "y": 180
+    },
+    "facing=west,half=top,shape=inner_left": {
+      "model": "azuregrove:block/azurite_brick_stairs_inner",
+      "uvlock": true,
+      "x": 180,
+      "y": 180
+    },
+    "facing=west,half=top,shape=inner_right": {
+      "model": "azuregrove:block/azurite_brick_stairs_inner",
+      "uvlock": true,
+      "x": 180,
+      "y": 270
+    },
+    "facing=west,half=top,shape=outer_left": {
+      "model": "azuregrove:block/azurite_brick_stairs_outer",
+      "uvlock": true,
+      "x": 180,
+      "y": 180
+    },
+    "facing=west,half=top,shape=outer_right": {
+      "model": "azuregrove:block/azurite_brick_stairs_outer",
+      "uvlock": true,
+      "x": 180,
+      "y": 270
+    },
+    "facing=west,half=top,shape=straight": {
+      "model": "azuregrove:block/azurite_brick_stairs",
+      "uvlock": true,
+      "x": 180,
+      "y": 180
+    }
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/blockstates/azurite_brick_wall.json": "{
+  "multipart": [
+    {
+      "apply": {
+        "model": "azuregrove:block/azurite_brick_wall_post"
+      },
+      "when": {
+        "up": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "azuregrove:block/azurite_brick_wall_side",
+        "uvlock": true
+      },
+      "when": {
+        "north": "low"
+      }
+    },
+    {
+      "apply": {
+        "model": "azuregrove:block/azurite_brick_wall_side",
+        "uvlock": true,
+        "y": 90
+      },
+      "when": {
+        "east": "low"
+      }
+    },
+    {
+      "apply": {
+        "model": "azuregrove:block/azurite_brick_wall_side",
+        "uvlock": true,
+        "y": 180
+      },
+      "when": {
+        "south": "low"
+      }
+    },
+    {
+      "apply": {
+        "model": "azuregrove:block/azurite_brick_wall_side",
+        "uvlock": true,
+        "y": 270
+      },
+      "when": {
+        "west": "low"
+      }
+    },
+    {
+      "apply": {
+        "model": "azuregrove:block/azurite_brick_wall_side_tall",
+        "uvlock": true
+      },
+      "when": {
+        "north": "tall"
+      }
+    },
+    {
+      "apply": {
+        "model": "azuregrove:block/azurite_brick_wall_side_tall",
+        "uvlock": true,
+        "y": 90
+      },
+      "when": {
+        "east": "tall"
+      }
+    },
+    {
+      "apply": {
+        "model": "azuregrove:block/azurite_brick_wall_side_tall",
+        "uvlock": true,
+        "y": 180
+      },
+      "when": {
+        "south": "tall"
+      }
+    },
+    {
+      "apply": {
+        "model": "azuregrove:block/azurite_brick_wall_side_tall",
+        "uvlock": true,
+        "y": 270
+      },
+      "when": {
+        "west": "tall"
+      }
+    }
+  ]
 }
 ",
   "src/generated/resources/assets/azuregrove/blockstates/azurite_bricks.json": "{
@@ -562,6 +1598,34 @@ public class GroveLurker extends Monster {
   }
 }
 ",
+  "src/generated/resources/assets/azuregrove/items/azurewood_button.json": "{
+  "model": {
+    "type": "minecraft:model",
+    "model": "azuregrove:block/azurewood_button_inventory"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/items/azurewood_door.json": "{
+  "model": {
+    "type": "minecraft:model",
+    "model": "azuregrove:item/azurewood_door"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/items/azurewood_fence.json": "{
+  "model": {
+    "type": "minecraft:model",
+    "model": "azuregrove:block/azurewood_fence_inventory"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/items/azurewood_fence_gate.json": "{
+  "model": {
+    "type": "minecraft:model",
+    "model": "azuregrove:block/azurewood_fence_gate"
+  }
+}
+",
   "src/generated/resources/assets/azuregrove/items/azurewood_leaves.json": "{
   "model": {
     "type": "minecraft:model",
@@ -583,10 +1647,38 @@ public class GroveLurker extends Monster {
   }
 }
 ",
+  "src/generated/resources/assets/azuregrove/items/azurewood_pressure_plate.json": "{
+  "model": {
+    "type": "minecraft:model",
+    "model": "azuregrove:block/azurewood_pressure_plate"
+  }
+}
+",
   "src/generated/resources/assets/azuregrove/items/azurewood_sapling.json": "{
   "model": {
     "type": "minecraft:model",
     "model": "azuregrove:item/azurewood_sapling"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/items/azurewood_slab.json": "{
+  "model": {
+    "type": "minecraft:model",
+    "model": "azuregrove:block/azurewood_slab"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/items/azurewood_stairs.json": "{
+  "model": {
+    "type": "minecraft:model",
+    "model": "azuregrove:block/azurewood_stairs"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/items/azurewood_trapdoor.json": "{
+  "model": {
+    "type": "minecraft:model",
+    "model": "azuregrove:block/azurewood_trapdoor_bottom"
   }
 }
 ",
@@ -601,6 +1693,27 @@ public class GroveLurker extends Monster {
   "model": {
     "type": "minecraft:model",
     "model": "azuregrove:item/azurite_boots"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/items/azurite_brick_slab.json": "{
+  "model": {
+    "type": "minecraft:model",
+    "model": "azuregrove:block/azurite_brick_slab"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/items/azurite_brick_stairs.json": "{
+  "model": {
+    "type": "minecraft:model",
+    "model": "azuregrove:block/azurite_brick_stairs"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/items/azurite_brick_wall.json": "{
+  "model": {
+    "type": "minecraft:model",
+    "model": "azuregrove:block/azurite_brick_wall_inventory"
   }
 }
 ",
@@ -661,6 +1774,9 @@ public class GroveLurker extends Monster {
 }
 ",
   "src/generated/resources/assets/azuregrove/lang/en_us.json": "{
+  "block.azuregrove.azurite_brick_stairs": "Azurite Brick Stairs",
+  "block.azuregrove.azurite_brick_slab": "Azurite Brick Slab",
+  "block.azuregrove.azurite_brick_wall": "Azurite Brick Wall",
   "block.azuregrove.azurite_bricks": "Azurite Bricks",
   "block.azuregrove.azurite_ore": "Azurite Ore",
   "item.azuregrove.azure_plum": "Azure Plum",
@@ -674,6 +1790,14 @@ public class GroveLurker extends Monster {
   "block.azuregrove.azurewood_planks": "Azurewood Planks",
   "block.azuregrove.azurewood_leaves": "Azurewood Leaves",
   "block.azuregrove.azurewood_sapling": "Azurewood Sapling",
+  "block.azuregrove.azurewood_stairs": "Azurewood Stairs",
+  "block.azuregrove.azurewood_slab": "Azurewood Slab",
+  "block.azuregrove.azurewood_fence": "Azurewood Fence",
+  "block.azuregrove.azurewood_fence_gate": "Azurewood Fence Gate",
+  "block.azuregrove.azurewood_door": "Azurewood Door",
+  "block.azuregrove.azurewood_trapdoor": "Azurewood Trapdoor",
+  "block.azuregrove.azurewood_button": "Azurewood Button",
+  "block.azuregrove.azurewood_pressure_plate": "Azurewood Pressure Plate",
   "block.azuregrove.azure_grass": "Azure Grass",
   "entity.azuregrove.bluetusk": "Bluetusk",
   "item.azuregrove.bluetusk_spawn_egg": "Bluetusk Spawn Egg",
@@ -686,6 +1810,140 @@ public class GroveLurker extends Monster {
   "parent": "minecraft:block/cross",
   "textures": {
     "cross": "azuregrove:block/azure_grass"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/models/block/azurewood_button.json": "{
+  "parent": "minecraft:block/button",
+  "textures": {
+    "texture": "azuregrove:block/azurewood_planks"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/models/block/azurewood_button_inventory.json": "{
+  "parent": "minecraft:block/button_inventory",
+  "textures": {
+    "texture": "azuregrove:block/azurewood_planks"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/models/block/azurewood_button_pressed.json": "{
+  "parent": "minecraft:block/button_pressed",
+  "textures": {
+    "texture": "azuregrove:block/azurewood_planks"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/models/block/azurewood_door_bottom_left.json": "{
+  "parent": "minecraft:block/door_bottom_left",
+  "textures": {
+    "bottom": "azuregrove:block/azurewood_door_bottom",
+    "top": "azuregrove:block/azurewood_door_top"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/models/block/azurewood_door_bottom_left_open.json": "{
+  "parent": "minecraft:block/door_bottom_left_open",
+  "textures": {
+    "bottom": "azuregrove:block/azurewood_door_bottom",
+    "top": "azuregrove:block/azurewood_door_top"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/models/block/azurewood_door_bottom_right.json": "{
+  "parent": "minecraft:block/door_bottom_right",
+  "textures": {
+    "bottom": "azuregrove:block/azurewood_door_bottom",
+    "top": "azuregrove:block/azurewood_door_top"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/models/block/azurewood_door_bottom_right_open.json": "{
+  "parent": "minecraft:block/door_bottom_right_open",
+  "textures": {
+    "bottom": "azuregrove:block/azurewood_door_bottom",
+    "top": "azuregrove:block/azurewood_door_top"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/models/block/azurewood_door_top_left.json": "{
+  "parent": "minecraft:block/door_top_left",
+  "textures": {
+    "bottom": "azuregrove:block/azurewood_door_bottom",
+    "top": "azuregrove:block/azurewood_door_top"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/models/block/azurewood_door_top_left_open.json": "{
+  "parent": "minecraft:block/door_top_left_open",
+  "textures": {
+    "bottom": "azuregrove:block/azurewood_door_bottom",
+    "top": "azuregrove:block/azurewood_door_top"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/models/block/azurewood_door_top_right.json": "{
+  "parent": "minecraft:block/door_top_right",
+  "textures": {
+    "bottom": "azuregrove:block/azurewood_door_bottom",
+    "top": "azuregrove:block/azurewood_door_top"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/models/block/azurewood_door_top_right_open.json": "{
+  "parent": "minecraft:block/door_top_right_open",
+  "textures": {
+    "bottom": "azuregrove:block/azurewood_door_bottom",
+    "top": "azuregrove:block/azurewood_door_top"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/models/block/azurewood_fence_gate.json": "{
+  "parent": "minecraft:block/template_fence_gate",
+  "textures": {
+    "texture": "azuregrove:block/azurewood_planks"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/models/block/azurewood_fence_gate_open.json": "{
+  "parent": "minecraft:block/template_fence_gate_open",
+  "textures": {
+    "texture": "azuregrove:block/azurewood_planks"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/models/block/azurewood_fence_gate_wall.json": "{
+  "parent": "minecraft:block/template_fence_gate_wall",
+  "textures": {
+    "texture": "azuregrove:block/azurewood_planks"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/models/block/azurewood_fence_gate_wall_open.json": "{
+  "parent": "minecraft:block/template_fence_gate_wall_open",
+  "textures": {
+    "texture": "azuregrove:block/azurewood_planks"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/models/block/azurewood_fence_inventory.json": "{
+  "parent": "minecraft:block/fence_inventory",
+  "textures": {
+    "texture": "azuregrove:block/azurewood_planks"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/models/block/azurewood_fence_post.json": "{
+  "parent": "minecraft:block/fence_post",
+  "textures": {
+    "texture": "azuregrove:block/azurewood_planks"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/models/block/azurewood_fence_side.json": "{
+  "parent": "minecraft:block/fence_side",
+  "textures": {
+    "texture": "azuregrove:block/azurewood_planks"
   }
 }
 ",
@@ -719,10 +1977,163 @@ public class GroveLurker extends Monster {
   }
 }
 ",
+  "src/generated/resources/assets/azuregrove/models/block/azurewood_pressure_plate.json": "{
+  "parent": "minecraft:block/pressure_plate_up",
+  "textures": {
+    "texture": "azuregrove:block/azurewood_planks"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/models/block/azurewood_pressure_plate_down.json": "{
+  "parent": "minecraft:block/pressure_plate_down",
+  "textures": {
+    "texture": "azuregrove:block/azurewood_planks"
+  }
+}
+",
   "src/generated/resources/assets/azuregrove/models/block/azurewood_sapling.json": "{
   "parent": "minecraft:block/cross",
   "textures": {
     "cross": "azuregrove:block/azurewood_sapling"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/models/block/azurewood_slab.json": "{
+  "parent": "minecraft:block/slab",
+  "textures": {
+    "bottom": "azuregrove:block/azurewood_planks",
+    "top": "azuregrove:block/azurewood_planks",
+    "side": "azuregrove:block/azurewood_planks"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/models/block/azurewood_slab_top.json": "{
+  "parent": "minecraft:block/slab_top",
+  "textures": {
+    "bottom": "azuregrove:block/azurewood_planks",
+    "top": "azuregrove:block/azurewood_planks",
+    "side": "azuregrove:block/azurewood_planks"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/models/block/azurewood_stairs.json": "{
+  "parent": "minecraft:block/stairs",
+  "textures": {
+    "bottom": "azuregrove:block/azurewood_planks",
+    "top": "azuregrove:block/azurewood_planks",
+    "side": "azuregrove:block/azurewood_planks"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/models/block/azurewood_stairs_inner.json": "{
+  "parent": "minecraft:block/inner_stairs",
+  "textures": {
+    "bottom": "azuregrove:block/azurewood_planks",
+    "top": "azuregrove:block/azurewood_planks",
+    "side": "azuregrove:block/azurewood_planks"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/models/block/azurewood_stairs_outer.json": "{
+  "parent": "minecraft:block/outer_stairs",
+  "textures": {
+    "bottom": "azuregrove:block/azurewood_planks",
+    "top": "azuregrove:block/azurewood_planks",
+    "side": "azuregrove:block/azurewood_planks"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/models/block/azurewood_trapdoor_bottom.json": "{
+  "parent": "minecraft:block/template_trapdoor_bottom",
+  "textures": {
+    "texture": "azuregrove:block/azurewood_trapdoor"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/models/block/azurewood_trapdoor_open.json": "{
+  "parent": "minecraft:block/template_trapdoor_open",
+  "textures": {
+    "texture": "azuregrove:block/azurewood_trapdoor"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/models/block/azurewood_trapdoor_top.json": "{
+  "parent": "minecraft:block/template_trapdoor_top",
+  "textures": {
+    "texture": "azuregrove:block/azurewood_trapdoor"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/models/block/azurite_brick_slab.json": "{
+  "parent": "minecraft:block/slab",
+  "textures": {
+    "bottom": "azuregrove:block/azurite_bricks",
+    "top": "azuregrove:block/azurite_bricks",
+    "side": "azuregrove:block/azurite_bricks"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/models/block/azurite_brick_slab_top.json": "{
+  "parent": "minecraft:block/slab_top",
+  "textures": {
+    "bottom": "azuregrove:block/azurite_bricks",
+    "top": "azuregrove:block/azurite_bricks",
+    "side": "azuregrove:block/azurite_bricks"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/models/block/azurite_brick_stairs.json": "{
+  "parent": "minecraft:block/stairs",
+  "textures": {
+    "bottom": "azuregrove:block/azurite_bricks",
+    "top": "azuregrove:block/azurite_bricks",
+    "side": "azuregrove:block/azurite_bricks"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/models/block/azurite_brick_stairs_inner.json": "{
+  "parent": "minecraft:block/inner_stairs",
+  "textures": {
+    "bottom": "azuregrove:block/azurite_bricks",
+    "top": "azuregrove:block/azurite_bricks",
+    "side": "azuregrove:block/azurite_bricks"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/models/block/azurite_brick_stairs_outer.json": "{
+  "parent": "minecraft:block/outer_stairs",
+  "textures": {
+    "bottom": "azuregrove:block/azurite_bricks",
+    "top": "azuregrove:block/azurite_bricks",
+    "side": "azuregrove:block/azurite_bricks"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/models/block/azurite_brick_wall_inventory.json": "{
+  "parent": "minecraft:block/wall_inventory",
+  "textures": {
+    "wall": "azuregrove:block/azurite_bricks"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/models/block/azurite_brick_wall_post.json": "{
+  "parent": "minecraft:block/template_wall_post",
+  "textures": {
+    "wall": "azuregrove:block/azurite_bricks"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/models/block/azurite_brick_wall_side.json": "{
+  "parent": "minecraft:block/template_wall_side",
+  "textures": {
+    "wall": "azuregrove:block/azurite_bricks"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/models/block/azurite_brick_wall_side_tall.json": "{
+  "parent": "minecraft:block/template_wall_side_tall",
+  "textures": {
+    "wall": "azuregrove:block/azurite_bricks"
   }
 }
 ",
@@ -751,6 +2162,13 @@ public class GroveLurker extends Monster {
   "parent": "minecraft:item/generated",
   "textures": {
     "layer0": "azuregrove:item/azure_plum"
+  }
+}
+",
+  "src/generated/resources/assets/azuregrove/models/item/azurewood_door.json": "{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "azuregrove:item/azurewood_door"
   }
 }
 ",
@@ -818,11 +2236,14 @@ public class GroveLurker extends Monster {
 }
 ",
   "src/generated/resources/assets/azuregrove/textures/block/azure_grass.png": "<copy of art/azure_grass.png>",
+  "src/generated/resources/assets/azuregrove/textures/block/azurewood_door_bottom.png": "<copy of art/azurewood_door_bottom.png>",
+  "src/generated/resources/assets/azuregrove/textures/block/azurewood_door_top.png": "<copy of art/azurewood_door_top.png>",
   "src/generated/resources/assets/azuregrove/textures/block/azurewood_leaves.png": "<copy of art/azurewood_leaves.png>",
   "src/generated/resources/assets/azuregrove/textures/block/azurewood_log.png": "<copy of art/azurewood_log.png>",
   "src/generated/resources/assets/azuregrove/textures/block/azurewood_log_top.png": "<copy of art/azurewood_log_top.png>",
   "src/generated/resources/assets/azuregrove/textures/block/azurewood_planks.png": "<copy of art/azurewood_planks.png>",
   "src/generated/resources/assets/azuregrove/textures/block/azurewood_sapling.png": "<copy of art/azurewood_sapling.png>",
+  "src/generated/resources/assets/azuregrove/textures/block/azurewood_trapdoor.png": "<copy of art/azurewood_trapdoor.png>",
   "src/generated/resources/assets/azuregrove/textures/block/azurite_bricks.png": "<copy of art/azurite_bricks.png>",
   "src/generated/resources/assets/azuregrove/textures/block/azurite_ore.png": "<copy of art/azurite_ore.png>",
   "src/generated/resources/assets/azuregrove/textures/entity/bluetusk.png": "<copy of art/bluetusk.png>",
@@ -832,6 +2253,7 @@ public class GroveLurker extends Monster {
   "src/generated/resources/assets/azuregrove/textures/entity/grove_lurker.png": "<copy of art/grove_lurker.png>",
   "src/generated/resources/assets/azuregrove/textures/entity/grove_lurker_baby.png": "<copy of art/grove_lurker.png>",
   "src/generated/resources/assets/azuregrove/textures/item/azure_plum.png": "<copy of art/azure_plum.png>",
+  "src/generated/resources/assets/azuregrove/textures/item/azurewood_door.png": "<copy of art/azurewood_door_icon.png>",
   "src/generated/resources/assets/azuregrove/textures/item/azurite.png": "<copy of art/azurite.png>",
   "src/generated/resources/assets/azuregrove/textures/item/azurite_boots.png": "<copy of art/azurite_boots.png>",
   "src/generated/resources/assets/azuregrove/textures/item/azurite_chestplate.png": "<copy of art/azurite_chestplate.png>",
@@ -890,6 +2312,89 @@ public class GroveLurker extends Monster {
     }
   ],
   "random_sequence": "azuregrove:blocks/azure_grass"
+}
+",
+  "src/generated/resources/data/azuregrove/loot_table/blocks/azurewood_button.json": "{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1,
+      "condition": {
+        "type": "minecraft:survives_explosion"
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "azuregrove:azurewood_button"
+        }
+      ]
+    }
+  ],
+  "random_sequence": "azuregrove:blocks/azurewood_button"
+}
+",
+  "src/generated/resources/data/azuregrove/loot_table/blocks/azurewood_door.json": "{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1,
+      "condition": {
+        "type": "minecraft:survives_explosion"
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "condition": {
+            "type": "minecraft:match_block",
+            "blocks": "azuregrove:azurewood_door",
+            "state": {
+              "half": "lower"
+            }
+          },
+          "name": "azuregrove:azurewood_door"
+        }
+      ]
+    }
+  ],
+  "random_sequence": "azuregrove:blocks/azurewood_door"
+}
+",
+  "src/generated/resources/data/azuregrove/loot_table/blocks/azurewood_fence.json": "{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1,
+      "condition": {
+        "type": "minecraft:survives_explosion"
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "azuregrove:azurewood_fence"
+        }
+      ]
+    }
+  ],
+  "random_sequence": "azuregrove:blocks/azurewood_fence"
+}
+",
+  "src/generated/resources/data/azuregrove/loot_table/blocks/azurewood_fence_gate.json": "{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1,
+      "condition": {
+        "type": "minecraft:survives_explosion"
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "azuregrove:azurewood_fence_gate"
+        }
+      ]
+    }
+  ],
+  "random_sequence": "azuregrove:blocks/azurewood_fence_gate"
 }
 ",
   "src/generated/resources/data/azuregrove/loot_table/blocks/azurewood_leaves.json": "{
@@ -1061,6 +2566,25 @@ public class GroveLurker extends Monster {
   "random_sequence": "azuregrove:blocks/azurewood_planks"
 }
 ",
+  "src/generated/resources/data/azuregrove/loot_table/blocks/azurewood_pressure_plate.json": "{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1,
+      "condition": {
+        "type": "minecraft:survives_explosion"
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "azuregrove:azurewood_pressure_plate"
+        }
+      ]
+    }
+  ],
+  "random_sequence": "azuregrove:blocks/azurewood_pressure_plate"
+}
+",
   "src/generated/resources/data/azuregrove/loot_table/blocks/azurewood_sapling.json": "{
   "type": "minecraft:block",
   "pools": [
@@ -1078,6 +2602,146 @@ public class GroveLurker extends Monster {
     }
   ],
   "random_sequence": "azuregrove:blocks/azurewood_sapling"
+}
+",
+  "src/generated/resources/data/azuregrove/loot_table/blocks/azurewood_slab.json": "{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "azuregrove:azurewood_slab",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "condition": {
+                "type": "minecraft:match_block",
+                "blocks": "azuregrove:azurewood_slab",
+                "state": {
+                  "type": "double"
+                }
+              },
+              "count": 2
+            },
+            {
+              "type": "minecraft:explosion_decay"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "random_sequence": "azuregrove:blocks/azurewood_slab"
+}
+",
+  "src/generated/resources/data/azuregrove/loot_table/blocks/azurewood_stairs.json": "{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1,
+      "condition": {
+        "type": "minecraft:survives_explosion"
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "azuregrove:azurewood_stairs"
+        }
+      ]
+    }
+  ],
+  "random_sequence": "azuregrove:blocks/azurewood_stairs"
+}
+",
+  "src/generated/resources/data/azuregrove/loot_table/blocks/azurewood_trapdoor.json": "{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1,
+      "condition": {
+        "type": "minecraft:survives_explosion"
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "azuregrove:azurewood_trapdoor"
+        }
+      ]
+    }
+  ],
+  "random_sequence": "azuregrove:blocks/azurewood_trapdoor"
+}
+",
+  "src/generated/resources/data/azuregrove/loot_table/blocks/azurite_brick_slab.json": "{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "azuregrove:azurite_brick_slab",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "condition": {
+                "type": "minecraft:match_block",
+                "blocks": "azuregrove:azurite_brick_slab",
+                "state": {
+                  "type": "double"
+                }
+              },
+              "count": 2
+            },
+            {
+              "type": "minecraft:explosion_decay"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "random_sequence": "azuregrove:blocks/azurite_brick_slab"
+}
+",
+  "src/generated/resources/data/azuregrove/loot_table/blocks/azurite_brick_stairs.json": "{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1,
+      "condition": {
+        "type": "minecraft:survives_explosion"
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "azuregrove:azurite_brick_stairs"
+        }
+      ]
+    }
+  ],
+  "random_sequence": "azuregrove:blocks/azurite_brick_stairs"
+}
+",
+  "src/generated/resources/data/azuregrove/loot_table/blocks/azurite_brick_wall.json": "{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1,
+      "condition": {
+        "type": "minecraft:survives_explosion"
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "azuregrove:azurite_brick_wall"
+        }
+      ]
+    }
+  ],
+  "random_sequence": "azuregrove:blocks/azurite_brick_wall"
 }
 ",
   "src/generated/resources/data/azuregrove/loot_table/blocks/azurite_bricks.json": "{
@@ -1213,6 +2877,69 @@ public class GroveLurker extends Monster {
   "random_sequence": "azuregrove:entities/grove_lurker"
 }
 ",
+  "src/generated/resources/data/azuregrove/recipe/azurewood_button.json": "{
+  "type": "minecraft:crafting_shapeless",
+  "category": "redstone",
+  "ingredients": [
+    "azuregrove:azurewood_planks"
+  ],
+  "result": {
+    "id": "azuregrove:azurewood_button",
+    "count": 1
+  }
+}
+",
+  "src/generated/resources/data/azuregrove/recipe/azurewood_door.json": "{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "#": "azuregrove:azurewood_planks"
+  },
+  "pattern": [
+    "##",
+    "##",
+    "##"
+  ],
+  "result": {
+    "id": "azuregrove:azurewood_door",
+    "count": 3
+  }
+}
+",
+  "src/generated/resources/data/azuregrove/recipe/azurewood_fence.json": "{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": "azuregrove:azurewood_planks",
+    "S": "minecraft:stick"
+  },
+  "pattern": [
+    "#S#",
+    "#S#"
+  ],
+  "result": {
+    "id": "azuregrove:azurewood_fence",
+    "count": 3
+  }
+}
+",
+  "src/generated/resources/data/azuregrove/recipe/azurewood_fence_gate.json": "{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "#": "azuregrove:azurewood_planks",
+    "S": "minecraft:stick"
+  },
+  "pattern": [
+    "S#S",
+    "S#S"
+  ],
+  "result": {
+    "id": "azuregrove:azurewood_fence_gate",
+    "count": 1
+  }
+}
+",
   "src/generated/resources/data/azuregrove/recipe/azurewood_planks.json": "{
   "type": "minecraft:crafting_shapeless",
   "category": "building",
@@ -1223,6 +2950,69 @@ public class GroveLurker extends Monster {
   "result": {
     "id": "azuregrove:azurewood_planks",
     "count": 4
+  }
+}
+",
+  "src/generated/resources/data/azuregrove/recipe/azurewood_pressure_plate.json": "{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "#": "azuregrove:azurewood_planks"
+  },
+  "pattern": [
+    "##"
+  ],
+  "result": {
+    "id": "azuregrove:azurewood_pressure_plate",
+    "count": 1
+  }
+}
+",
+  "src/generated/resources/data/azuregrove/recipe/azurewood_slab.json": "{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "#": "azuregrove:azurewood_planks"
+  },
+  "pattern": [
+    "###"
+  ],
+  "result": {
+    "id": "azuregrove:azurewood_slab",
+    "count": 6
+  }
+}
+",
+  "src/generated/resources/data/azuregrove/recipe/azurewood_stairs.json": "{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "#": "azuregrove:azurewood_planks"
+  },
+  "pattern": [
+    "#  ",
+    "## ",
+    "###"
+  ],
+  "result": {
+    "id": "azuregrove:azurewood_stairs",
+    "count": 4
+  }
+}
+",
+  "src/generated/resources/data/azuregrove/recipe/azurewood_trapdoor.json": "{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "#": "azuregrove:azurewood_planks"
+  },
+  "pattern": [
+    "###",
+    "###"
+  ],
+  "result": {
+    "id": "azuregrove:azurewood_trapdoor",
+    "count": 2
   }
 }
 ",
@@ -1238,6 +3028,81 @@ public class GroveLurker extends Monster {
   },
   "result": {
     "id": "azuregrove:azurite_boots",
+    "count": 1
+  }
+}
+",
+  "src/generated/resources/data/azuregrove/recipe/azurite_brick_slab.json": "{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "#": "azuregrove:azurite_bricks"
+  },
+  "pattern": [
+    "###"
+  ],
+  "result": {
+    "id": "azuregrove:azurite_brick_slab",
+    "count": 6
+  }
+}
+",
+  "src/generated/resources/data/azuregrove/recipe/azurite_brick_slab_from_azurite_bricks_stonecutting.json": "{
+  "type": "minecraft:stonecutting",
+  "ingredient": "azuregrove:azurite_bricks",
+  "result": {
+    "id": "azuregrove:azurite_brick_slab",
+    "count": 2
+  }
+}
+",
+  "src/generated/resources/data/azuregrove/recipe/azurite_brick_stairs.json": "{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "#": "azuregrove:azurite_bricks"
+  },
+  "pattern": [
+    "#  ",
+    "## ",
+    "###"
+  ],
+  "result": {
+    "id": "azuregrove:azurite_brick_stairs",
+    "count": 4
+  }
+}
+",
+  "src/generated/resources/data/azuregrove/recipe/azurite_brick_stairs_from_azurite_bricks_stonecutting.json": "{
+  "type": "minecraft:stonecutting",
+  "ingredient": "azuregrove:azurite_bricks",
+  "result": {
+    "id": "azuregrove:azurite_brick_stairs",
+    "count": 1
+  }
+}
+",
+  "src/generated/resources/data/azuregrove/recipe/azurite_brick_wall.json": "{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": "azuregrove:azurite_bricks"
+  },
+  "pattern": [
+    "###",
+    "###"
+  ],
+  "result": {
+    "id": "azuregrove:azurite_brick_wall",
+    "count": 6
+  }
+}
+",
+  "src/generated/resources/data/azuregrove/recipe/azurite_brick_wall_from_azurite_bricks_stonecutting.json": "{
+  "type": "minecraft:stonecutting",
+  "ingredient": "azuregrove:azurite_bricks",
+  "result": {
+    "id": "azuregrove:azurite_brick_wall",
     "count": 1
   }
 }
@@ -1725,6 +3590,34 @@ public class GroveLurker extends Monster {
   ]
 }
 ",
+  "src/generated/resources/data/minecraft/tags/block/buttons.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azurewood_button"
+  ]
+}
+",
+  "src/generated/resources/data/minecraft/tags/block/doors.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azurewood_door"
+  ]
+}
+",
+  "src/generated/resources/data/minecraft/tags/block/fence_gates.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azurewood_fence_gate"
+  ]
+}
+",
+  "src/generated/resources/data/minecraft/tags/block/fences.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azurewood_fence"
+  ]
+}
+",
   "src/generated/resources/data/minecraft/tags/block/leaves.json": "{
   "replace": false,
   "values": [
@@ -1743,7 +3636,15 @@ public class GroveLurker extends Monster {
   "replace": false,
   "values": [
     "azuregrove:azurewood_log",
-    "azuregrove:azurewood_planks"
+    "azuregrove:azurewood_planks",
+    "azuregrove:azurewood_stairs",
+    "azuregrove:azurewood_slab",
+    "azuregrove:azurewood_fence",
+    "azuregrove:azurewood_fence_gate",
+    "azuregrove:azurewood_door",
+    "azuregrove:azurewood_trapdoor",
+    "azuregrove:azurewood_button",
+    "azuregrove:azurewood_pressure_plate"
   ]
 }
 ",
@@ -1757,6 +3658,9 @@ public class GroveLurker extends Monster {
   "src/generated/resources/data/minecraft/tags/block/mineable/pickaxe.json": "{
   "replace": false,
   "values": [
+    "azuregrove:azurite_brick_stairs",
+    "azuregrove:azurite_brick_slab",
+    "azuregrove:azurite_brick_wall",
     "azuregrove:azurite_bricks",
     "azuregrove:azurite_ore"
   ]
@@ -1776,6 +3680,13 @@ public class GroveLurker extends Monster {
   ]
 }
 ",
+  "src/generated/resources/data/minecraft/tags/block/pressure_plates.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azurewood_pressure_plate"
+  ]
+}
+",
   "src/generated/resources/data/minecraft/tags/block/replaceable_by_trees.json": "{
   "replace": false,
   "values": [
@@ -1790,6 +3701,22 @@ public class GroveLurker extends Monster {
   ]
 }
 ",
+  "src/generated/resources/data/minecraft/tags/block/slabs.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azurite_brick_slab",
+    "azuregrove:azurewood_slab"
+  ]
+}
+",
+  "src/generated/resources/data/minecraft/tags/block/stairs.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azurite_brick_stairs",
+    "azuregrove:azurewood_stairs"
+  ]
+}
+",
   "src/generated/resources/data/minecraft/tags/block/sword_efficient.json": "{
   "replace": false,
   "values": [
@@ -1797,10 +3724,101 @@ public class GroveLurker extends Monster {
   ]
 }
 ",
+  "src/generated/resources/data/minecraft/tags/block/trapdoors.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azurewood_trapdoor"
+  ]
+}
+",
+  "src/generated/resources/data/minecraft/tags/block/walls.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azurite_brick_wall"
+  ]
+}
+",
+  "src/generated/resources/data/minecraft/tags/block/wooden_buttons.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azurewood_button"
+  ]
+}
+",
+  "src/generated/resources/data/minecraft/tags/block/wooden_doors.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azurewood_door"
+  ]
+}
+",
+  "src/generated/resources/data/minecraft/tags/block/wooden_fences.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azurewood_fence"
+  ]
+}
+",
+  "src/generated/resources/data/minecraft/tags/block/wooden_pressure_plates.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azurewood_pressure_plate"
+  ]
+}
+",
+  "src/generated/resources/data/minecraft/tags/block/wooden_slabs.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azurewood_slab"
+  ]
+}
+",
+  "src/generated/resources/data/minecraft/tags/block/wooden_stairs.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azurewood_stairs"
+  ]
+}
+",
+  "src/generated/resources/data/minecraft/tags/block/wooden_trapdoors.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azurewood_trapdoor"
+  ]
+}
+",
+  "src/generated/resources/data/minecraft/tags/item/buttons.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azurewood_button"
+  ]
+}
+",
   "src/generated/resources/data/minecraft/tags/item/chest_armor.json": "{
   "replace": false,
   "values": [
     "azuregrove:azurite_chestplate"
+  ]
+}
+",
+  "src/generated/resources/data/minecraft/tags/item/doors.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azurewood_door"
+  ]
+}
+",
+  "src/generated/resources/data/minecraft/tags/item/fence_gates.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azurewood_fence_gate"
+  ]
+}
+",
+  "src/generated/resources/data/minecraft/tags/item/fences.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azurewood_fence"
   ]
 }
 ",
@@ -1846,6 +3864,13 @@ public class GroveLurker extends Monster {
   ]
 }
 ",
+  "src/generated/resources/data/minecraft/tags/item/pressure_plates.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azurewood_pressure_plate"
+  ]
+}
+",
   "src/generated/resources/data/minecraft/tags/item/saplings.json": "{
   "replace": false,
   "values": [
@@ -1853,10 +3878,89 @@ public class GroveLurker extends Monster {
   ]
 }
 ",
+  "src/generated/resources/data/minecraft/tags/item/slabs.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azurite_brick_slab",
+    "azuregrove:azurewood_slab"
+  ]
+}
+",
+  "src/generated/resources/data/minecraft/tags/item/stairs.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azurite_brick_stairs",
+    "azuregrove:azurewood_stairs"
+  ]
+}
+",
   "src/generated/resources/data/minecraft/tags/item/swords.json": "{
   "replace": false,
   "values": [
     "azuregrove:azurite_sword"
+  ]
+}
+",
+  "src/generated/resources/data/minecraft/tags/item/trapdoors.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azurewood_trapdoor"
+  ]
+}
+",
+  "src/generated/resources/data/minecraft/tags/item/walls.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azurite_brick_wall"
+  ]
+}
+",
+  "src/generated/resources/data/minecraft/tags/item/wooden_buttons.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azurewood_button"
+  ]
+}
+",
+  "src/generated/resources/data/minecraft/tags/item/wooden_doors.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azurewood_door"
+  ]
+}
+",
+  "src/generated/resources/data/minecraft/tags/item/wooden_fences.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azurewood_fence"
+  ]
+}
+",
+  "src/generated/resources/data/minecraft/tags/item/wooden_pressure_plates.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azurewood_pressure_plate"
+  ]
+}
+",
+  "src/generated/resources/data/minecraft/tags/item/wooden_slabs.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azurewood_slab"
+  ]
+}
+",
+  "src/generated/resources/data/minecraft/tags/item/wooden_stairs.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azurewood_stairs"
+  ]
+}
+",
+  "src/generated/resources/data/minecraft/tags/item/wooden_trapdoors.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azurewood_trapdoor"
   ]
 }
 ",

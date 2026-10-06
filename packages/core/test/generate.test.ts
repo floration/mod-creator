@@ -106,6 +106,34 @@ describe("Azure Grove example", () => {
     expect(placement.replacements.map((r: any) => r.target)).toEqual(["minecraft:plains", "minecraft:forest"]);
   });
 
+  it("makes shape blocks with their models, recipes, loot and tags", async () => {
+    const files = plan(await loadProject(AZUREGROVE));
+    const java = files.get("src/generated/java/com/example/azuregrove/generated/ModContent.java") as string;
+    for (const name of ["AZURITE_BRICK_STAIRS", "AZURITE_BRICK_WALL", "AZUREWOOD_FENCE_GATE", "AZUREWOOD_DOOR", "AZUREWOOD_PRESSURE_PLATE"]) {
+      expect(java).toContain(` ${name} =`);
+    }
+    const res = (p: string) => JSON.parse(files.get(`src/generated/resources/${p}`) as string);
+    // Every model a blockstate names is generated.
+    for (const id of ["azurite_brick_stairs", "azurite_brick_wall", "azurewood_fence", "azurewood_fence_gate", "azurewood_door", "azurewood_trapdoor", "azurewood_button"]) {
+      const models = JSON.stringify(res(`assets/azuregrove/blockstates/${id}.json`)).match(/azuregrove:block\/[a-z_]+/g)!;
+      for (const m of new Set(models)) expect(files.has(`src/generated/resources/assets/azuregrove/models/block/${m.split("/")[1]}.json`), m).toBe(true);
+    }
+    expect(res("assets/azuregrove/blockstates/azurite_brick_slab.json").variants["type=double"].model).toBe("azuregrove:block/azurite_bricks");
+    expect(res("data/azuregrove/recipe/azurite_brick_stairs.json").result).toEqual({ id: "azuregrove:azurite_brick_stairs", count: 4 });
+    expect(files.has("src/generated/resources/data/azuregrove/recipe/azurite_brick_slab_from_azurite_bricks_stonecutting.json")).toBe(true);
+    expect(files.has("src/generated/resources/data/azuregrove/recipe/azurewood_slab_from_azurewood_planks_stonecutting.json")).toBe(false);
+    expect(JSON.stringify(res("data/azuregrove/loot_table/blocks/azurewood_door.json"))).toContain('"half":"lower"');
+    expect(res("data/minecraft/tags/block/mineable/pickaxe.json").values).toContain("azuregrove:azurite_brick_wall");
+    expect(res("data/minecraft/tags/item/wooden_doors.json").values).toContain("azuregrove:azurewood_door");
+  });
+
+  it("rejects shapes on a block with a custom model", async () => {
+    const dir = await copyOf(AZUREGROVE);
+    await editSpec(dir, "spec/blocks/azurite_bricks.json", (json) => { json.block.model = { type: "custom", model: "art/azurite_bricks.png" }; });
+    const fields = (await loadProject(dir)).issues.filter((i) => i.severity === "error").map((i) => i.field);
+    expect(fields).toContain("shapes");
+  });
+
   it("reports content that references things that don't exist", async () => {
     const dir = await copyOf(AZUREGROVE);
     await editSpec(dir, "spec/biomes/azure_grove.json", (json) => {

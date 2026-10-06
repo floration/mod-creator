@@ -1,4 +1,4 @@
-import { ARMOR_PIECES, type BlockSpec, type ElementSpec, type ItemSpec, type MobSpec, type OreSpec, type Project, type ToolSpec } from "../../schema.js";
+import { ARMOR_PIECES, shapeBlocks, type BlockSpec, type ElementSpec, type ItemSpec, type MobSpec, type OreSpec, type Project, type ToolSpec, type TreeSpec } from "../../schema.js";
 import { resolveRef } from "./refs.js";
 import { allParts, pickAnimations, type EntityModelDef, type ModelAnimation, type ModelPartDef } from "../../blockbench.js";
 
@@ -37,6 +37,71 @@ function blockProperties(spec: BlockSpec): string {
   if (b.requiresTool) props += "\n\t\t\t.requiresCorrectToolForDrops()";
   if (b.lightLevel > 0) props += `\n\t\t\t.lightLevel(state -> ${b.lightLevel})`;
   return props;
+}
+
+/**
+ * Fields for a block's or tree's shape blocks, which copy the base block's properties. Wooden ones use oak's
+ * sounds and timings (doors open by hand, buttons stay pressed longer); the rest use stone's.
+ */
+function shapeFields(spec: BlockSpec | TreeSpec, base: string, wood: boolean, use: (...names: string[]) => void): { fields: string[]; tabItems: string[] } {
+  const set = wood ? "BlockSetType.OAK" : "BlockSetType.STONE";
+  const copy = `BlockBehaviour.Properties.ofFullCopy(${base})`;
+  const fields: string[] = [];
+  const tabItems: string[] = [];
+  for (const b of shapeBlocks(spec)) {
+    let factory: string;
+    let props = copy;
+    switch (b.shape) {
+      case "stairs":
+        use("net.minecraft.world.level.block.StairBlock");
+        // StairBlock's constructor is protected, hence the empty subclass.
+        factory = `properties -> new StairBlock(${base}.defaultBlockState(), properties) {}`;
+        break;
+      case "slab":
+        use("net.minecraft.world.level.block.SlabBlock");
+        factory = "SlabBlock::new";
+        break;
+      case "wall":
+        use("net.minecraft.world.level.block.WallBlock");
+        factory = "WallBlock::new";
+        props += ".forceSolidOn()";
+        break;
+      case "fence":
+        use("net.minecraft.world.level.block.FenceBlock");
+        factory = "FenceBlock::new";
+        props += ".forceSolidOn()";
+        break;
+      case "fenceGate":
+        use("net.minecraft.world.level.block.FenceGateBlock", "net.minecraft.world.level.block.state.properties.WoodType");
+        factory = "properties -> new FenceGateBlock(WoodType.OAK, properties)";
+        props += ".forceSolidOn()";
+        break;
+      case "door":
+        use("net.minecraft.world.level.block.DoorBlock", "net.minecraft.world.level.block.state.properties.BlockSetType", "net.minecraft.world.level.material.PushReaction");
+        factory = `properties -> new DoorBlock(${set}, properties) {}`;
+        props += ".noOcclusion().pushReaction(PushReaction.POPPED)";
+        break;
+      case "trapdoor":
+        use("net.minecraft.world.level.block.TrapDoorBlock", "net.minecraft.world.level.block.state.properties.BlockSetType");
+        factory = `properties -> new TrapDoorBlock(${set}, properties) {}`;
+        props += ".noOcclusion()";
+        break;
+      case "button":
+        use("net.minecraft.world.level.block.ButtonBlock", "net.minecraft.world.level.block.state.properties.BlockSetType", "net.minecraft.world.level.material.PushReaction");
+        factory = `properties -> new ButtonBlock(${set}, ${wood ? 30 : 20}, properties) {}`;
+        props += ".noCollision().strength(0.5f).pushReaction(PushReaction.POPPED)";
+        break;
+      case "pressurePlate":
+        use("net.minecraft.world.level.block.PressurePlateBlock", "net.minecraft.world.level.block.state.properties.BlockSetType", "net.minecraft.world.level.material.PushReaction");
+        factory = `properties -> new PressurePlateBlock(${set}, properties) {}`;
+        props += ".forceSolidOn().noCollision().strength(0.5f).pushReaction(PushReaction.POPPED)";
+        break;
+    }
+    fields.push(`	public static final Block ${constName(b.id)} = registerBlock("${b.id}", ${factory},
+			${props}, true);`);
+    tabItems.push(`${constName(b.id)}.asItem()`);
+  }
+  return { fields, tabItems };
 }
 
 function rarity(r: string): string {
@@ -127,6 +192,9 @@ export function modContentJava(project: Project, elements: ElementSpec[]): strin
         `\tpublic static final Block ${constName(b.id)} = registerBlock("${b.id}", ${factory},\n\t\t\t${blockProperties(b)}, ${b.hasItem});`,
     );
     if (b.hasItem) addToTab(b.creativeTab, `${constName(b.id)}.asItem()`);
+    const shapes = shapeFields(b, constName(b.id), b.block.sound === "wood", use);
+    if (shapes.fields.length) fields.push(`\t// ${b.name} shapes\n${shapes.fields.join("\n")}`);
+    for (const ref of shapes.tabItems) addToTab(b.creativeTab ?? "building_blocks", ref);
   }
 
   for (const t of trees) {
@@ -151,11 +219,18 @@ export function modContentJava(project: Project, elements: ElementSpec[]): strin
         `\tpublic static final Block ${C}_SAPLING = registerBlock("${t.id}_sapling", properties -> new SaplingBlock(${C}_GROWER, properties),\n\t\t\tBlockBehaviour.Properties.ofFullCopy(Blocks.OAK_SAPLING), true);`,
     );
     for (const part of ["LOG", "PLANKS", "LEAVES", "SAPLING"]) addToTab(t.creativeTab, `${C}_${part}.asItem()`);
+    const shapes = shapeFields(t, `${C}_PLANKS`, true, use);
+    if (shapes.fields.length) fields.push(`\t// ${t.name} wood set\n${shapes.fields.join("\n")}`);
+    for (const ref of shapes.tabItems) addToTab("building_blocks", ref);
     body.push(
       `\t\t// ${t.name} wood burns like oak.\n` +
         `\t\tFlammableBlockRegistry.getDefaultInstance().add(${C}_LOG, 5, 5);\n` +
         `\t\tFlammableBlockRegistry.getDefaultInstance().add(${C}_PLANKS, 5, 20);\n` +
-        `\t\tFlammableBlockRegistry.getDefaultInstance().add(${C}_LEAVES, 30, 60);`,
+        `\t\tFlammableBlockRegistry.getDefaultInstance().add(${C}_LEAVES, 30, 60);` +
+        shapeBlocks(t)
+          .filter((s) => ["stairs", "slab", "fence", "fenceGate"].includes(s.shape))
+          .map((s) => `\n\t\tFlammableBlockRegistry.getDefaultInstance().add(${constName(s.id)}, 5, 20);`)
+          .join(""),
     );
   }
 
