@@ -30,6 +30,10 @@
       "types": "./dist/nbt.d.ts",
       "default": "./dist/nbt.js"
     },
+    "./trees": {
+      "types": "./dist/trees.d.ts",
+      "default": "./dist/trees.js"
+    },
     "./tint": {
       "types": "./dist/tint.d.ts",
       "default": "./dist/tint.js"

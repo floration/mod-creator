@@ -22,11 +22,13 @@ import {
   type RecipeSpec,
   type ToolSpec,
   type TreeSpec,
+  type CustomTreeLayout,
 } from "../../schema.js";
 import { potionVariants, repairTag } from "./java.js";
 import { resolveRef } from "./refs.js";
 import { SHAPE_BLOCKSTATES } from "./shapeStates.js";
-import { STANDARD_CARVERS, STANDARD_FEATURES, STANDARD_SPAWNS, TREE_SHAPES, VEGETATION_STEP } from "./vanillaData.js";
+import { STANDARD_CARVERS, STANDARD_FEATURES, STANDARD_SPAWNS, VEGETATION_STEP } from "./vanillaData.js";
+import { layoutBlocks, leafDistances, vanillaTreeConfig } from "../../trees.js";
 
 export { resolveRef };
 
@@ -451,16 +453,44 @@ function treeFiles(out: Output, t: TreeSpec) {
   out.set(`data/${modId}/loot_table/blocks/${leaves}.json`, blockLoot(modId, leaves, pools));
 
   // The tree the sapling grows, also placed by biomes.
-  const shape = structuredClone(TREE_SHAPES[x.shape]) as Record<string, any>;
-  if (x.trunkHeight !== undefined) shape.trunk_placer.base_height = x.trunkHeight;
-  if (x.trunkHeightRandom !== undefined) shape.trunk_placer.height_rand_a = x.trunkHeightRandom;
-  if (x.leafRadius !== undefined && typeof shape.foliage_placer.radius === "number") shape.foliage_placer.radius = x.leafRadius;
-  out.set(`data/${modId}/worldgen/feature/${t.id}.json`, {
-    type: "minecraft:tree",
-    trunk_provider: { id: `${modId}:${log}`, properties: { axis: "y" } },
-    foliage_provider: { id: `${modId}:${leaves}`, properties: { distance: "7", persistent: "false", waterlogged: "false" } },
-    ...shape,
-  });
+  const logState = { id: `${modId}:${log}`, properties: { axis: "y" } };
+  const leavesState = { id: `${modId}:${leaves}`, properties: { distance: "7", persistent: "false", waterlogged: "false" } };
+  if (x.shape === "custom" && x.custom) {
+    out.set(`data/${modId}/worldgen/feature/${t.id}.json`, customTreeFeature(modId, log, leaves, x.custom));
+  } else {
+    out.set(`data/${modId}/worldgen/feature/${t.id}.json`, {
+      type: "minecraft:tree",
+      trunk_provider: logState,
+      foliage_provider: leavesState,
+      below_trunk_provider: "minecraft:soil_beneath_tree",
+      decorators: [],
+      ignore_vines: true,
+      ...vanillaTreeConfig(x),
+    });
+  }
+}
+
+/**
+ * A hand-built tree, placed by the generated CustomTreeFeature: logs by axis, and leaves grouped by their
+ * distance to a log (first list is 1 block away), so they get the distance the game would give them.
+ */
+function customTreeFeature(modId: string, log: string, leaves: string, layout: CustomTreeLayout) {
+  const blocks = layoutBlocks(layout);
+  const at = (axis: string) => blocks.filter((b) => b.kind === "log" && b.axis === axis).map((b) => [b.x, b.y, b.z]);
+  const distances = leafDistances(blocks);
+  const byDistance: number[][][] = Array.from({ length: 7 }, () => []);
+  for (const b of blocks) if (b.kind === "leaves") byDistance[distances.get(`${b.x},${b.y},${b.z}`)! - 1].push([b.x, b.y, b.z]);
+  while (byDistance.length && !byDistance[byDistance.length - 1].length) byDistance.pop();
+  return {
+    type: `${modId}:custom_tree`,
+    log: `${modId}:${log}`,
+    leaves: `${modId}:${leaves}`,
+    logs_y: at("y"),
+    logs_x: at("x"),
+    logs_z: at("z"),
+    leaves_by_distance: byDistance,
+    random_rotation: layout.randomRotation,
+  };
 }
 
 // ---- Plants ----

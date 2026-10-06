@@ -58,9 +58,21 @@
             "oak",
             "fancy_oak",
             "birch",
+            "super_birch",
+            "jungle",
+            "swamp_oak",
+            "jungle_bush",
             "spruce",
+            "pine",
             "acacia",
-            "cherry"
+            "cherry",
+            "azalea",
+            "poplar",
+            "dark_oak",
+            "mega_spruce",
+            "mega_pine",
+            "mega_jungle",
+            "custom"
           ]
         },
         "trunkHeight": {
@@ -77,6 +89,47 @@
           "type": "integer",
           "minimum": 0,
           "maximum": 8
+        },
+        "custom": {
+          "type": "object",
+          "properties": {
+            "layers": {
+              "minItems": 1,
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[.LXZ# ]*$"
+                }
+              }
+            },
+            "origin": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                }
+              ],
+              "items": false,
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "randomRotation": {
+              "default": true,
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "layers"
+          ]
         },
         "saplingChance": {
           "default": 0.05,
