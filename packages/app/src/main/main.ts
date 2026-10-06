@@ -91,6 +91,16 @@ ipcMain.handle("file:dataUrl", async (_e, root: string, rel: string) => {
   return `data:${mime};base64,${(await readFile(file)).toString("base64")}`;
 });
 
+/** The texture editor saves PNGs here. Only .png files inside the project, and only real PNG data. */
+ipcMain.handle("art:save", async (_e, root: string, rel: string, dataUrl: string) => {
+  if (!/\.png$/i.test(rel)) throw new Error(`${rel} is not a .png file`);
+  const match = /^data:image\/png;base64,(.+)$/.exec(dataUrl);
+  if (!match) throw new Error("The texture editor sent something that isn't a PNG");
+  const file = inside(root, rel);
+  await mkdir(path.dirname(file), { recursive: true });
+  await writeFile(file, Buffer.from(match[1], "base64"));
+});
+
 /** App settings that belong to this computer rather than to a mod project. */
 const settingsFile = () => path.join(app.getPath("userData"), "settings.json");
 async function settings(): Promise<{ minecraftJar?: string }> {

@@ -10,6 +10,7 @@ const api = {
   saveSpec: (root: string, rel: string, value: unknown) => ipcRenderer.invoke("spec:save", root, rel, value),
   deleteSpec: (root: string, rel: string) => ipcRenderer.invoke("spec:delete", root, rel),
   dataUrl: (root: string, rel: string) => ipcRenderer.invoke("file:dataUrl", root, rel),
+  saveArt: (root: string, rel: string, dataUrl: string) => ipcRenderer.invoke("art:save", root, rel, dataUrl),
   loadVanilla: (version: string) => ipcRenderer.invoke("vanilla:load", version),
   pickMinecraftJar: (version: string) => ipcRenderer.invoke("vanilla:pickJar", version),
   vanillaIcon: (id: string) => ipcRenderer.invoke("vanilla:icon", id),

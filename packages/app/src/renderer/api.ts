@@ -55,6 +55,8 @@ export interface ModCreatorApi {
   saveSpec(root: string, rel: string, value: unknown): Promise<void>;
   deleteSpec(root: string, rel: string): Promise<void>;
   dataUrl(root: string, rel: string): Promise<string | null>;
+  /** Write a PNG, given as a data: URL, to a project-relative path. */
+  saveArt(root: string, rel: string, dataUrl: string): Promise<void>;
   loadVanilla(version: string): Promise<VanillaCatalog>;
   pickMinecraftJar(version: string): Promise<VanillaCatalog | null>;
   vanillaIcon(id: string): Promise<ItemIcon | null>;

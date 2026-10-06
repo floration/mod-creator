@@ -29,7 +29,7 @@ interface FieldProps {
   hint?: string;
 }
 
-function Row({ label, hint, error, children }: { label: string; hint?: string; error?: string; children: ReactNode }) {
+export function Row({ label, hint, error, children }: { label: string; hint?: string; error?: string; children: ReactNode }) {
   return (
     <label className={`field${error ? " has-error" : ""}`}>
       <span className="field-label">{label}</span>

@@ -16,6 +16,8 @@ import {
   type Draft,
   type Errors,
 } from "./forms";
+import { mobSheetLayout } from "./Preview";
+import { TextureField } from "./TextureField";
 import { ItemContext, ItemIconView, ItemPicker, acceptsItem, dragItem, droppedItem, itemInfo } from "./items";
 
 interface EditorProps {
@@ -77,11 +79,11 @@ export function BlockEditor(p: EditorProps) {
             <option value="custom">Custom model JSON</option>
           </select>
         </label>
-        {modelType === "cube_all" && <TextField {...f} path={["block", "model", "texture"]} label="Texture" hint="A 16x16 PNG in art/" />}
+        {modelType === "cube_all" && <TextureField {...f} path={["block", "model", "texture"]} label="Texture" hint="A 16x16 PNG in art/" />}
         {modelType === "cube_column" && (
           <>
-            <TextField {...f} path={["block", "model", "side"]} label="Side texture" />
-            <TextField {...f} path={["block", "model", "end"]} label="End texture" />
+            <TextureField {...f} path={["block", "model", "side"]} label="Side texture" />
+            <TextureField {...f} path={["block", "model", "end"]} label="End texture" />
           </>
         )}
         {modelType === "custom" && <TextField {...f} path={["block", "model", "model"]} label="Model file" hint="Block model JSON, for example exported from Blockbench" />}
@@ -120,7 +122,7 @@ export function ItemEditor(p: EditorProps) {
     <>
       <Common {...p} />
       <Section title="Item">
-        <TextField {...f} path={["item", "texture"]} label="Texture" hint="A 16x16 PNG in art/" />
+        <TextureField {...f} path={["item", "texture"]} label="Texture" hint="A 16x16 PNG in art/" />
         <NumberField {...f} path={["item", "maxStackSize"]} label="Max stack size" min={1} max={99} />
         <SelectField {...f} path={["item", "rarity"]} label="Rarity" options={Rarity.options} />
       </Section>
@@ -142,7 +144,7 @@ export function ToolEditor(p: EditorProps) {
       <Common {...p} customClass={false} tags="minecraft:enchantable/fire_aspect" />
       <Section title="Tool">
         <SelectField {...f} path={["tool", "type"]} label="Type" options={["sword", "pickaxe", "axe", "shovel", "hoe"]} />
-        <TextField {...f} path={["tool", "texture"]} label="Texture" hint="A 16x16 PNG in art/, drawn pointing up and to the right" />
+        <TextureField {...f} path={["tool", "texture"]} label="Texture" hint="A 16x16 PNG in art/, drawn pointing up and to the right" />
         <SelectField {...f} path={["tool", "tier"]} label="Can mine what this tier mines" options={ToolTier.options} />
         <TextField {...f} path={["tool", "repairItem"]} label="Repaired with" optional hint="Optional. An item from this mod or minecraft:..., used in an anvil" />
         <SelectField {...f} path={["tool", "rarity"]} label="Rarity" options={Rarity.options} />
@@ -175,14 +177,14 @@ export function ArmorEditor(p: EditorProps) {
                 <input type="checkbox" checked={on} onChange={(e) => p.onChange(setAt(p.draft, ["armor", "pieces", piece], e.target.checked ? `art/${id}_${piece}.png` : undefined))} />
                 <span className="field-label">{PIECE_NAMES[piece]} <span className="muted">({id}_{piece})</span></span>
               </label>
-              {on && <TextField {...f} path={["armor", "pieces", piece]} label="Icon" />}
+              {on && <TextureField {...f} path={["armor", "pieces", piece]} label="Icon" />}
             </div>
           );
         })}
       </Section>
       <Section title="Worn look">
-        <TextField {...f} path={["armor", "layer1"]} label="Layer 1 texture" hint="64x32 PNG in the vanilla armor layout, for the helmet, chestplate and boots" />
-        <TextField {...f} path={["armor", "layer2"]} label="Layer 2 texture" hint="64x32 PNG for the leggings" />
+        <TextureField {...f} size={[64, 32]} path={["armor", "layer1"]} label="Layer 1 texture" hint="64x32 PNG in the vanilla armor layout, for the helmet, chestplate and boots" />
+        <TextureField {...f} size={[64, 32]} path={["armor", "layer2"]} label="Layer 2 texture" hint="64x32 PNG for the leggings" />
         <SelectField {...f} path={["armor", "equipSound"]} label="Equip sound" options={EquipSound.options} />
       </Section>
       <Section title="Stats">
@@ -208,11 +210,11 @@ export function TreeEditor(p: EditorProps) {
     <>
       <Common {...p} customClass={false} tags="" nameHint="Wood name; blocks are called Name Log, Name Planks, Name Leaves and Name Sapling" idHint={`Blocks are ${id}_log, ${id}_planks, ${id}_leaves and ${id}_sapling`} />
       <Section title="Textures">
-        <TextField {...f} path={["tree", "logSide"]} label="Log bark" />
-        <TextField {...f} path={["tree", "logEnd"]} label="Log rings" />
-        <TextField {...f} path={["tree", "planks"]} label="Planks" />
-        <TextField {...f} path={["tree", "leaves"]} label="Leaves" hint="Use transparent pixels for gaps" />
-        <TextField {...f} path={["tree", "sapling"]} label="Sapling" />
+        <TextureField {...f} path={["tree", "logSide"]} label="Log bark" />
+        <TextureField {...f} path={["tree", "logEnd"]} label="Log rings" />
+        <TextureField {...f} path={["tree", "planks"]} label="Planks" />
+        <TextureField {...f} path={["tree", "leaves"]} label="Leaves" hint="Use transparent pixels for gaps" />
+        <TextureField {...f} path={["tree", "sapling"]} label="Sapling" />
       </Section>
       <Section title="Shape">
         <SelectField {...f} path={["tree", "shape"]} label="Grows like" options={TreeShape.options} />
@@ -239,7 +241,7 @@ export function PlantEditor(p: EditorProps) {
     <>
       <Common {...p} tags="minecraft:replaceable_by_trees, minecraft:sword_efficient" />
       <Section title="Plant">
-        <TextField {...f} path={["plant", "texture"]} label="Texture" hint="A 16x16 PNG drawn as two crossed planes, like short grass" />
+        <TextureField {...f} path={["plant", "texture"]} label="Texture" hint="A 16x16 PNG drawn as two crossed planes, like short grass" />
         <CheckField {...f} path={["plant", "offset"]} label="Nudge each plant randomly, like grass" />
       </Section>
       <Section title="Drops">
@@ -277,9 +279,9 @@ export function MobEditor(p: EditorProps) {
       <Common {...p} tab={false} tags="" customClass={false} idHint="Lowercase. The spawn egg is <id>_spawn_egg" />
       <Section title="Look">
         <SelectField {...f} path={["mob", "model"]} label="Body" options={MobModel.options} hint="Borrows this animal's model and animations" />
-        <TextField {...f} path={["mob", "texture"]} label="Texture" hint={`64x64 PNG in the vanilla ${model} layout`} />
-        <TextField {...f} path={["mob", "babyTexture"]} label="Baby texture" optional hint={`Optional. In the vanilla baby ${model} layout`} />
-        <TextField {...f} path={["mob", "spawnEgg"]} label="Spawn egg icon" />
+        <TextureField {...f} size={[64, 64]} guide={mobSheetLayout(model)} path={["mob", "texture"]} label="Texture" hint={`64x64 PNG in the vanilla ${model} layout`} />
+        <TextureField {...f} size={[64, 64]} path={["mob", "babyTexture"]} label="Baby texture" optional hint={`Optional. In the vanilla baby ${model} layout`} />
+        <TextureField {...f} path={["mob", "spawnEgg"]} label="Spawn egg icon" />
       </Section>
       <Section title="Behavior">
         <NumberField {...f} path={["mob", "health"]} label="Health" min={1} max={1024} hint="In half hearts. Pig 10, cow 10" />

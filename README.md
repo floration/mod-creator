@@ -35,6 +35,7 @@ From the app:
 - **Save** (Ctrl+S) writes the spec file and regenerates `src/generated/`.
 - **Build** runs `gradlew build`. The mod jar lands in `build/libs/`.
 - **Run client** runs `gradlew runClient`, Loom's dev client with its own `run/` folder.
+- **Edit** (or **Draw**, for a texture that doesn't exist yet) next to any texture opens the pixel editor: pencil, eraser, fill, color picker, mirror, undo. Saving writes the PNG in `art/` and the 3D preview updates. Mob textures can show the model's parts on the sheet.
 - Problems (bad fields, broken references, missing textures) appear in the Problems panel and next to the field.
 
 Edits made in other editors show up in the app, which watches `spec/`, `art/` and `modcreator.json`.
