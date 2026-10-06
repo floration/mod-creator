@@ -1,4 +1,4 @@
-import { CreativeTab, SoundType } from "@modcreator/core/schema";
+import { CreativeTab, OreHost, SoundType } from "@modcreator/core/schema";
 import {
   CheckField,
   ListField,
@@ -201,13 +201,44 @@ export function RecipeEditor(p: EditorProps) {
   );
 }
 
+export function OreEditor(p: EditorProps) {
+  const f = { draft: p.draft, errors: p.errors, onChange: p.onChange };
+  const replaces = getAt(p.draft, ["ore", "replaces"]) ?? "stone_and_deepslate";
+  return (
+    <>
+      <Section title="General">
+        <TextField {...f} path={["name"]} label="Name" />
+        <TextField {...f} path={["id"]} label="Id" />
+      </Section>
+      <Section title="Vein">
+        <TextField {...f} path={["ore", "block"]} label="Ore block" hint="A block from this mod, or minecraft:..." />
+        <SelectField {...f} path={["ore", "replaces"]} label="Generates in" options={OreHost.options} hint="Netherrack generates in the Nether, end stone in the End, the rest in the Overworld" />
+        {(replaces === "deepslate" || replaces === "stone_and_deepslate") && (
+          <TextField {...f} path={["ore", "deepslateBlock"]} label="Deepslate variant" optional hint="Optional. Used where the vein replaces deepslate; defaults to the ore block" />
+        )}
+        <NumberField {...f} path={["ore", "veinSize"]} label="Blocks per vein" min={1} max={64} hint="Iron 9, gold 9, diamond 4" />
+        <NumberField {...f} path={["ore", "veinsPerChunk"]} label="Veins per chunk" min={1} max={128} hint="Iron 10, diamond 7" />
+        <NumberField {...f} path={["ore", "airExposureSkip"]} label="Skip chance next to air" step={0.1} min={0} max={1} hint="0 to 1. Diamond uses 0.5 so fewer ores show in caves" />
+      </Section>
+      <Section title="Height">
+        <NumberField {...f} path={["ore", "minY"]} label="Lowest Y" min={-64} max={320} />
+        <NumberField {...f} path={["ore", "maxY"]} label="Highest Y" min={-64} max={320} />
+        <SelectField {...f} path={["ore", "distribution"]} label="Spread" options={["uniform", "triangle"]} hint="Triangle makes veins most common halfway between the two heights" />
+      </Section>
+    </>
+  );
+}
+
 /** Starting point for a new spec of each kind. */
-export function newSpec(kind: "block" | "item" | "recipe", id: string): Draft {
+export function newSpec(kind: "block" | "item" | "recipe" | "ore", id: string): Draft {
   const name = id.split("_").map((w) => w[0]?.toUpperCase() + w.slice(1)).join(" ");
   const schema = `../../.modcreator/schema/${kind}.json`;
   if (kind === "block") {
     return { $schema: schema, kind, id, name, tags: [], block: { hardness: 1.5, resistance: 6, sound: "stone", model: { type: "cube_all", texture: `art/${id}.png` } } };
   }
   if (kind === "item") return { $schema: schema, kind, id, name, item: { texture: `art/${id}.png` } };
+  if (kind === "ore") {
+    return { $schema: schema, kind, id, name, ore: { block: "", replaces: "stone_and_deepslate", veinSize: 8, veinsPerChunk: 4, minY: -64, maxY: 64, distribution: "uniform" } };
+  }
   return { $schema: schema, kind, id, recipe: RECIPE_TEMPLATES.shaped({ item: "", count: 1 }) };
 }

@@ -105,6 +105,11 @@ function itemIds(elements: LoadedElement[]): Set<string> {
 function checkReferences(root: string, elements: LoadedElement[]): Issue[] {
   const issues: Issue[] = [];
   const items = itemIds(elements);
+  const blocks = new Set(elements.flatMap(({ spec }) => (spec.kind === "block" ? [spec.id] : [])));
+  const checkBlock = (file: string, field: string, ref: string) => {
+    if (ref.startsWith("#")) issues.push({ severity: "error", file, field, message: "Use a block id here, not a tag" });
+    else if (!ref.includes(":") && !blocks.has(ref)) issues.push({ severity: "error", file, field, message: `No block named "${ref}" in this project` });
+  };
   const seen = new Map<string, string>();
   const checkItem = (file: string, field: string, ref: string) => {
     if (ref.includes(":")) return; // vanilla, other mod or tag: checked in the dev client
@@ -115,7 +120,7 @@ function checkReferences(root: string, elements: LoadedElement[]): Issue[] {
   };
 
   for (const { spec, file } of elements) {
-    const key = spec.kind === "recipe" ? `recipe:${spec.id}` : `item:${spec.id}`;
+    const key = spec.kind === "recipe" || spec.kind === "ore" ? `${spec.kind}:${spec.id}` : `item:${spec.id}`;
     const clash = seen.get(key);
     if (clash) issues.push({ severity: "error", file, field: "id", message: `Id "${spec.id}" is already used by ${clash}` });
     seen.set(key, file);
@@ -134,6 +139,10 @@ function checkReferences(root: string, elements: LoadedElement[]): Issue[] {
       }
     } else if (spec.kind === "item") {
       checkArt(file, "item.texture", spec.item.texture);
+    } else if (spec.kind === "ore") {
+      checkBlock(file, "ore.block", spec.ore.block);
+      if (spec.ore.deepslateBlock) checkBlock(file, "ore.deepslateBlock", spec.ore.deepslateBlock);
+      if (spec.ore.maxY < spec.ore.minY) issues.push({ severity: "error", file, field: "ore.maxY", message: "maxY must be at least minY" });
     } else {
       const r = spec.recipe;
       checkItem(file, "recipe.result.item", r.result.item);

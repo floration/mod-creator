@@ -1,15 +1,17 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { SCHEMAS } from "@modcreator/core/schema";
 import { api, type ElementSpec, type Issue, type LoadedProject } from "./api";
-import { BlockEditor, ItemEditor, RecipeEditor, newSpec } from "./Editors";
+import { BlockEditor, ItemEditor, OreEditor, RecipeEditor, newSpec } from "./Editors";
 import type { Draft, Errors } from "./forms";
+import { OrePreview } from "./OrePreview";
 import { Preview } from "./Preview";
 
-type Kind = "block" | "item" | "recipe";
+type Kind = "block" | "item" | "recipe" | "ore";
 const KINDS: { kind: Kind; folder: string; title: string }[] = [
   { kind: "block", folder: "blocks", title: "Blocks" },
   { kind: "item", folder: "items", title: "Items" },
   { kind: "recipe", folder: "recipes", title: "Recipes" },
+  { kind: "ore", folder: "worldgen", title: "Ore veins" },
 ];
 const LAST_PROJECT = "modcreator.lastProject";
 
@@ -222,13 +224,15 @@ export function App() {
               <div className="form">
                 {draft.kind === "block" && <BlockEditor draft={draft} errors={errors} onChange={(d) => { setDraft(d); setDirty(true); }} />}
                 {draft.kind === "item" && <ItemEditor draft={draft} errors={errors} onChange={(d) => { setDraft(d); setDirty(true); }} />}
+                {draft.kind === "ore" && <OreEditor draft={draft} errors={errors} onChange={(d) => { setDraft(d); setDirty(true); }} />}
                 {draft.kind === "recipe" && <RecipeEditor draft={draft} errors={errors} onChange={(d) => { setDraft(d); setDirty(true); }} />}
               </div>
-              {draft.kind !== "recipe" && errors.size === 0 && <Preview root={loaded.root} spec={draft as ElementSpec} version={version} />}
+              {(draft.kind === "block" || draft.kind === "item") && errors.size === 0 && <Preview root={loaded.root} spec={draft as ElementSpec} version={version} />}
+              {draft.kind === "ore" && <OrePreview draft={draft} />}
             </div>
           </>
         ) : (
-          <div className="empty">Pick a block, item or recipe on the left, or add one with +.</div>
+          <div className="empty">Pick a block, item, recipe or ore vein on the left, or add one with +.</div>
         )}
       </main>
 
