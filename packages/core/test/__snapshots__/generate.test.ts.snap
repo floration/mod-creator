@@ -123,13 +123,13 @@ public final class ModContent {
 	public static final Block AZUREWOOD_FENCE_GATE = registerBlock("azurewood_fence_gate", properties -> new FenceGateBlock(WoodType.OAK, properties),
 			BlockBehaviour.Properties.ofFullCopy(AZUREWOOD_PLANKS).forceSolidOn(), true);
 	public static final Block AZUREWOOD_DOOR = registerBlock("azurewood_door", properties -> new DoorBlock(BlockSetType.OAK, properties) {},
-			BlockBehaviour.Properties.ofFullCopy(AZUREWOOD_PLANKS).noOcclusion().pushReaction(PushReaction.DESTROY), true);
+			BlockBehaviour.Properties.ofFullCopy(AZUREWOOD_PLANKS).noOcclusion().pushReaction(PushReaction.POPPED), true);
 	public static final Block AZUREWOOD_TRAPDOOR = registerBlock("azurewood_trapdoor", properties -> new TrapDoorBlock(BlockSetType.OAK, properties) {},
 			BlockBehaviour.Properties.ofFullCopy(AZUREWOOD_PLANKS).noOcclusion(), true);
 	public static final Block AZUREWOOD_BUTTON = registerBlock("azurewood_button", properties -> new ButtonBlock(BlockSetType.OAK, 30, properties) {},
-			BlockBehaviour.Properties.ofFullCopy(AZUREWOOD_PLANKS).noCollision().strength(0.5f).pushReaction(PushReaction.DESTROY), true);
+			BlockBehaviour.Properties.ofFullCopy(AZUREWOOD_PLANKS).noCollision().strength(0.5f).pushReaction(PushReaction.POPPED), true);
 	public static final Block AZUREWOOD_PRESSURE_PLATE = registerBlock("azurewood_pressure_plate", properties -> new PressurePlateBlock(BlockSetType.OAK, properties) {},
-			BlockBehaviour.Properties.ofFullCopy(AZUREWOOD_PLANKS).forceSolidOn().noCollision().strength(0.5f).pushReaction(PushReaction.DESTROY), true);
+			BlockBehaviour.Properties.ofFullCopy(AZUREWOOD_PLANKS).forceSolidOn().noCollision().strength(0.5f).pushReaction(PushReaction.POPPED), true);
 
 	/** Azure Grass (spec/plants/azure_grass.json) */
 	public static final Block AZURE_GRASS = registerBlock("azure_grass", BushBlock::new,

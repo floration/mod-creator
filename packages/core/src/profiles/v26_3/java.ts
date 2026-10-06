@@ -79,7 +79,7 @@ function shapeFields(spec: BlockSpec | TreeSpec, base: string, wood: boolean, us
       case "door":
         use("net.minecraft.world.level.block.DoorBlock", "net.minecraft.world.level.block.state.properties.BlockSetType", "net.minecraft.world.level.material.PushReaction");
         factory = `properties -> new DoorBlock(${set}, properties) {}`;
-        props += ".noOcclusion().pushReaction(PushReaction.DESTROY)";
+        props += ".noOcclusion().pushReaction(PushReaction.POPPED)";
         break;
       case "trapdoor":
         use("net.minecraft.world.level.block.TrapDoorBlock", "net.minecraft.world.level.block.state.properties.BlockSetType");
@@ -89,12 +89,12 @@ function shapeFields(spec: BlockSpec | TreeSpec, base: string, wood: boolean, us
       case "button":
         use("net.minecraft.world.level.block.ButtonBlock", "net.minecraft.world.level.block.state.properties.BlockSetType", "net.minecraft.world.level.material.PushReaction");
         factory = `properties -> new ButtonBlock(${set}, ${wood ? 30 : 20}, properties) {}`;
-        props += ".noCollision().strength(0.5f).pushReaction(PushReaction.DESTROY)";
+        props += ".noCollision().strength(0.5f).pushReaction(PushReaction.POPPED)";
         break;
       case "pressurePlate":
         use("net.minecraft.world.level.block.PressurePlateBlock", "net.minecraft.world.level.block.state.properties.BlockSetType", "net.minecraft.world.level.material.PushReaction");
         factory = `properties -> new PressurePlateBlock(${set}, properties) {}`;
-        props += ".forceSolidOn().noCollision().strength(0.5f).pushReaction(PushReaction.DESTROY)";
+        props += ".forceSolidOn().noCollision().strength(0.5f).pushReaction(PushReaction.POPPED)";
         break;
     }
     fields.push(`	public static final Block ${constName(b.id)} = registerBlock("${b.id}", ${factory},
