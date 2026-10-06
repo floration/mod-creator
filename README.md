@@ -2,7 +2,7 @@
 
 A desktop tool for building Minecraft 26.3+ Fabric mods with forms, previews and plain files instead of hand-written registration code.
 
-Every block, item, tool, armor set, recipe, ore vein, tree, plant, mob, biome, structure, sound and quest is one small JSON file in the mod's `spec/` folder. The app is an editor for those files. A generator turns them into Java and resource files in `src/generated/`, and the mod stays a normal Gradle project you can open in IntelliJ at any time.
+Every block, item, tool, armor set, recipe, ore vein, tree, plant, mob, biome, structure, sound and advancement is one small JSON file in the mod's `spec/` folder. The app is an editor for those files. A generator turns them into Java and resource files in `src/generated/`, and the mod stays a normal Gradle project you can open in IntelliJ at any time.
 
 Design doc: [Mod Creator Architecture](https://claude.ai/code/artifact/ab83630b-aecd-4450-b781-0d67d2fd176f)
 
@@ -74,7 +74,7 @@ gems/
     biomes/<id>.json       Overworld biomes
     structures/<id>.json   buildings saved with a structure block, and where they spawn
     sounds/<id>.json       sound events made from .ogg files
-    advancements/<id>.json quests, as vanilla advancements
+    advancements/<id>.json vanilla advancements
   art/                     textures (PNG), Blockbench models (.bbmodel), structures (.nbt) and sounds (.ogg)
   src/main/                yours: never touched by the generator
   src/generated/           the generator's: rewritten on every run, do not edit
@@ -93,8 +93,8 @@ Rules the generator follows:
 
 Two example mods show every supported field:
 
-- [`examples/ruby`](examples/ruby): an ore that drops gems with Fortune, a storage block, a lamp with a custom Java class, a gem item, shaped, shapeless and smelting recipes, a ruby ore vein that generates between Y -16 and 48, the Glowmoth, a tameable flying mob with its own Blockbench model whose wings flap, and a two-step quest tab (find a ruby, then tame a Glowmoth).
-- [`examples/azuregrove`](examples/azuregrove): one of each of the other kinds. Azurite ore and bricks (with brick stairs, slab and wall), the Azure Plum food, a full set of Azurite tools (sword, pickaxe, axe, shovel and hoe) and armor, an azurite geode, the Azurewood tree (fancy oak shape, its leaves drop plums) and its full wood set, the Sky Willow (a weeping willow built by hand as a custom tree shape), Azure Grass, the Bluetusk (a blue pig that eats plums, fights back and grunts with its own sound), the Grove Lurker (a hostile bark creature on the zombie body with its own AI goals), the Azure Grove biome, which takes over part of Plains and Forest and grows all of them, an Azure Grove quest tab with seven quests that use every kind of criterion and reward, and the Azure Shrine, a small azurite brick structure that spawns in the biome.
+- [`examples/ruby`](examples/ruby): an ore that drops gems with Fortune, a storage block, a lamp with a custom Java class, a gem item, shaped, shapeless and smelting recipes, a ruby ore vein that generates between Y -16 and 48, the Glowmoth, a tameable flying mob with its own Blockbench model whose wings flap, and a two-step advancement tab (find a ruby, then tame a Glowmoth).
+- [`examples/azuregrove`](examples/azuregrove): one of each of the other kinds. Azurite ore and bricks (with brick stairs, slab and wall), the Azure Plum food, a full set of Azurite tools (sword, pickaxe, axe, shovel and hoe) and armor, an azurite geode, the Azurewood tree (fancy oak shape, its leaves drop plums) and its full wood set, the Sky Willow (a weeping willow built by hand as a custom tree shape), Azure Grass, the Bluetusk (a blue pig that eats plums, fights back and grunts with its own sound), the Grove Lurker (a hostile bark creature on the zombie body with its own AI goals), the Azure Grove biome, which takes over part of Plains and Forest and grows all of them, an Azure Grove advancement tab with seven advancements that use every kind of criterion and reward, and the Azure Shrine, a small azurite brick structure that spawns in the biome.
 
 ### Tree shapes
 
@@ -159,11 +159,11 @@ Enchantments are data files, like vanilla's. **Goes on** takes an item tag such 
 
 Enchantments that aren't treasure show up in the enchanting table, in loot and in librarian trades. Treasure ones show up only in loot and trades. Weight, anvil cost and enchanting power work like the vanilla numbers shown in the hints. **Can't be combined with** takes enchantment ids or a vanilla exclusive set like `#minecraft:exclusive_set/damage`. Lurker's Bane in Azure Grove does extra damage to the Grove Lurker and slows what it hits. In game, `/enchant @s <modid>:<id>` adds it.
 
-### Quests
+### Advancements
 
-Quests are vanilla advancements, so they show in the game's advancements screen (L) with no extra mod. Each one has a title, a description, an icon, a frame (task, goal or challenge) and what completes it: obtaining items, killing, breeding or taming a mob, visiting a biome, crafting a recipe, eating something or placing a block. With several criteria, **Done when** picks whether all of them or any one is needed. Rewards are experience, items and recipes unlocked in the recipe book.
+Advancements are the game's own, so they show in the advancements screen (L) with no extra mod. Each one has a title, a description, an icon, a frame (task, goal or challenge) and what completes it: obtaining items, killing, breeding or taming a mob, visiting a biome, crafting a recipe, eating something or placing a block. With several criteria, **Done when** picks whether all of them or any one is needed. Rewards are experience, items and recipes unlocked in the recipe book.
 
-**Comes after** names the quest it unlocks after. A quest with nothing there starts its own tab, and can have a 16x16 **Tab background** tiled behind it. Next to the form, the quest line shows every tab as a tree; click a quest to open it. A quest can also hang under a vanilla one, like `minecraft:story/mine_stone`, to join Minecraft's own tabs.
+**Comes after** names the advancement it unlocks after. One with nothing there starts its own tab, and can have a 16x16 **Tab background** tiled behind it. Next to the form, the advancement tree shows every tab; click an advancement to open it. An advancement can also hang under a vanilla one, like `minecraft:story/mine_stone`, to join Minecraft's own tabs.
 
 ### Recipes
 
@@ -171,7 +171,7 @@ The recipe editor is a crafting table: pick an item from the list under it and c
 
 ### Tags
 
-Every field that takes a tag has a dropdown that filters as you type: an element's **Tags**, a structure's **Biomes**, an enchantment's **Goes on**, **Can't be combined with** and damage target, a mob's **Food**, and quest criteria. It lists Minecraft's tags (from the same jar as the recipe items), Fabric's shared `c:` tags such as `c:ingots/iron` (from the Fabric API jar in the Gradle cache, after the first Build), and the tags this mod already makes, with a look at what is in each. Arrow keys and Enter pick one; a name that isn't listed becomes a new tag of this mod's, and a `minecraft:` or `c:` tag that doesn't exist is marked red. The recipe picker's Tags tab lists the `c:` and mod item tags too.
+Every field that takes a tag has a dropdown that filters as you type: an element's **Tags**, a structure's **Biomes**, an enchantment's **Goes on**, **Can't be combined with** and damage target, a mob's **Food**, and advancement criteria. It lists Minecraft's tags (from the same jar as the recipe items), Fabric's shared `c:` tags such as `c:ingots/iron` (from the Fabric API jar in the Gradle cache, after the first Build), and the tags this mod already makes, with a look at what is in each. Arrow keys and Enter pick one; a name that isn't listed becomes a new tag of this mod's, and a `minecraft:` or `c:` tag that doesn't exist is marked red. The recipe picker's Tags tab lists the `c:` and mod item tags too.
 
 ## Repository layout
 
@@ -190,4 +190,4 @@ Minecraft 26.3, Fabric Loader 0.19.5, Fabric Loom 1.18.2 (`net.fabricmc.fabric-l
 
 ## Status
 
-Milestones 2 and 3 of the design doc are in: the project skeleton, blocks, items and recipes. So are ore veins, food, tools, armor, trees, plants, mobs (on vanilla bodies or Blockbench models) and biomes. Mobs can be animals, neutral, tameable or hostile, and fly. Blocks can have stairs, slabs, walls, fences, doors and other shapes, and trees a full wood set. Project settings, Modrinth search and quests (advancements, with a quest line view) structures from structure block files, sounds from .ogg files, and status effects with brewable potions and food effects, and enchantments are in the app. That completes phase 3 of the roadmap.
+Milestones 2 and 3 of the design doc are in: the project skeleton, blocks, items and recipes. So are ore veins, food, tools, armor, trees, plants, mobs (on vanilla bodies or Blockbench models) and biomes. Mobs can be animals, neutral, tameable or hostile, and fly. Blocks can have stairs, slabs, walls, fences, doors and other shapes, and trees a full wood set. Project settings, Modrinth search, advancements (with a tree view like the game's), structures from structure block files, sounds from .ogg files, and status effects with brewable potions and food effects, and enchantments are in the app. That completes phase 3 of the roadmap.
