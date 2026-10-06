@@ -88,8 +88,8 @@ Rules the generator follows:
 
 Two example mods show every supported field:
 
-- [`examples/ruby`](examples/ruby): an ore that drops gems with Fortune, a storage block, a lamp with a custom Java class, a gem item, shaped, shapeless and smelting recipes, a ruby ore vein that generates between Y -16 and 48, and the Glowmoth, a mob with its own Blockbench model whose wings flap.
-- [`examples/azuregrove`](examples/azuregrove): one of each of the other kinds. Azurite ore and bricks, the Azure Plum food, an Azurite Sword and armor set, the Azurewood tree (fancy oak shape, its leaves drop plums), Azure Grass, the Bluetusk (a blue pig that eats plums), and the Azure Grove biome, which takes over part of Plains and Forest and grows all of them.
+- [`examples/ruby`](examples/ruby): an ore that drops gems with Fortune, a storage block, a lamp with a custom Java class, a gem item, shaped, shapeless and smelting recipes, a ruby ore vein that generates between Y -16 and 48, and the Glowmoth, a tameable flying mob with its own Blockbench model whose wings flap.
+- [`examples/azuregrove`](examples/azuregrove): one of each of the other kinds. Azurite ore and bricks, the Azure Plum food, an Azurite Sword and armor set, the Azurewood tree (fancy oak shape, its leaves drop plums), Azure Grass, the Bluetusk (a blue pig that eats plums and fights back), the Grove Lurker (a hostile one that comes out at night), and the Azure Grove biome, which takes over part of Plains and Forest and grows all of them.
 
 ### Biomes
 
@@ -97,7 +97,14 @@ Biomes are placed with the [Biolith](https://modrinth.com/mod/biolith) library, 
 
 ### Mobs
 
-A mob either borrows the vanilla pig or cow model and animations, with your own 64x64 texture in the same layout as the vanilla one, or uses its own model from [Blockbench](https://www.blockbench.net/). It wanders, panics when hurt, follows players holding its food, breeds with that food and has a spawn egg.
+A mob either borrows the vanilla pig or cow model and animations, with your own 64x64 texture in the same layout as the vanilla one, or uses its own model from [Blockbench](https://www.blockbench.net/). Every mob has a spawn egg, and **Acts like** picks its behavior:
+
+- `animal` wanders, runs when hurt, follows players holding its food and breeds with that food.
+- `neutral` acts like an animal but fights back when hurt, and its herd joins in.
+- `tameable` is tamed by feeding it (one try in three). Once tamed it follows its owner, fights what hurts them or what they hit, and sits or stands when they click it with an empty hand.
+- `hostile` spawns in the dark like a zombie, hunts players and doesn't breed, so it needs no food. A biome lists it with its other spawns and the generator files it under monsters.
+
+**Flies** makes any of them fly around like a parrot and skip fall damage. **Attack damage** sets how hard the fighting ones hit. The Bluetusk in `examples/azuregrove` is neutral, the Grove Lurker there is hostile, and the Glowmoth in `examples/ruby` is a tameable flyer.
 
 For a Blockbench body, set **Body** to `blockbench` and point **Blockbench model** at a `.bbmodel` in `art/`. Make the model with Blockbench's **Modded Entity** format and **Box UV** (Minecraft entity models can't use per-face UV or meshes). Groups become the model's parts, rotated cubes get a part of their own, and the texture size comes from the project's resolution. An animation whose name contains `walk` plays while the mob moves and one containing `idle` loops all the time; keyframes must be plain numbers, not Molang. A part named `head` turns to look around. **Use the texture saved in the model** copies the texture embedded in the `.bbmodel` into `art/`, the pixel editor outlines every box on the sheet, and the 3D preview plays the animations (tick **Walking** to see the walk). The Glowmoth in `examples/ruby` is one. Its renderer is registered by the generated `ModContentClient`, so `fabric.mod.json` lists that class as the `client` entrypoint (new projects already do).
 
@@ -122,4 +129,4 @@ Minecraft 26.3, Fabric Loader 0.19.5, Fabric Loom 1.18.2 (`net.fabricmc.fabric-l
 
 ## Status
 
-Milestones 2 and 3 of the design doc are in: the project skeleton, blocks, items and recipes. So are ore veins, food, tools, armor, trees, plants, mobs (on vanilla bodies or Blockbench models) and biomes. Next up: mob behavior presets.
+Milestones 2 and 3 of the design doc are in: the project skeleton, blocks, items and recipes. So are ore veins, food, tools, armor, trees, plants, mobs (on vanilla bodies or Blockbench models) and biomes. Mobs can be animals, neutral, tameable or hostile, and fly. Next up: stairs, slabs, walls, doors and wood sets.

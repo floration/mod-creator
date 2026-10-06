@@ -375,7 +375,8 @@ function mobFiles(out: Output, m: MobSpec) {
 
 // ---- Biomes ----
 
-function biomeFiles(out: Output, b: BiomeSpec) {
+/** `hostiles` holds the full ids of this mod's hostile mobs, which spawn as monsters (in the dark) instead of creatures. */
+function biomeFiles(out: Output, b: BiomeSpec, hostiles: Set<string>) {
   const modId = out.modId;
   const x = b.biome;
   out.lang[`biome.${modId}.${b.id}`] = b.name;
@@ -423,14 +424,18 @@ function biomeFiles(out: Output, b: BiomeSpec) {
   const features = STANDARD_FEATURES.map((step) => [...step]);
   features[VEGETATION_STEP] = [...features[VEGETATION_STEP], ...vegetation, ...x.vanillaFeatures.map((f) => resolveRef("minecraft", f))];
 
-  const creature = x.spawns.map((s) => ({
+  const entry = (s: (typeof x.spawns)[number]) => ({
     type: resolveRef(modId, s.mob),
     count: s.min === s.max ? s.min : { type: "minecraft:uniform", min_inclusive: s.min, max_inclusive: s.max },
     weight: s.weight,
-  }));
+  });
+  const isHostile = (s: (typeof x.spawns)[number]) => hostiles.has(resolveRef(modId, s.mob));
+  const creature = x.spawns.filter((s) => !isHostile(s)).map(entry);
+  const ourMonsters = x.spawns.filter(isHostile).map(entry);
+  const monster = [...STANDARD_SPAWNS.monster, ...ourMonsters];
   const attributes: Record<string, unknown> = {
     "minecraft:gameplay/natural_mob_spawns": {
-      argument: { spawn_costs: {}, spawns_by_category: { ...STANDARD_SPAWNS, creature } },
+      argument: { spawn_costs: {}, spawns_by_category: { ...STANDARD_SPAWNS, monster, creature } },
       modifier: "overlay",
     },
     "minecraft:visual/sky_color": x.colors.sky,
@@ -547,6 +552,7 @@ function oreFiles(out: Output, o: OreSpec) {
 /** Every generated resource file for the project. */
 export function resourceFiles(project: Project, elements: ElementSpec[]): ResourceFiles {
   const out = new Output(project.modId);
+  const hostiles = new Set(elements.flatMap((e) => (e.kind === "mob" && e.mob.behavior === "hostile" ? [`${project.modId}:${e.id}`] : [])));
   for (const e of elements) {
     switch (e.kind) {
       case "block": blockFiles(out, e); break;
@@ -556,7 +562,7 @@ export function resourceFiles(project: Project, elements: ElementSpec[]): Resour
       case "tree": treeFiles(out, e); break;
       case "plant": plantFiles(out, e); break;
       case "mob": mobFiles(out, e); break;
-      case "biome": biomeFiles(out, e); break;
+      case "biome": biomeFiles(out, e, hostiles); break;
       case "ore": oreFiles(out, e); break;
       case "recipe": out.set(`data/${project.modId}/recipe/${e.id}.json`, recipeJson(project.modId, e)); break;
     }

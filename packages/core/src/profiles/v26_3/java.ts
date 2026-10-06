@@ -236,7 +236,6 @@ export function modContentJava(project: Project, elements: ElementSpec[]): strin
       "net.minecraft.world.entity.MobCategory",
       "net.minecraft.world.entity.SpawnPlacements",
       "net.minecraft.world.entity.SpawnPlacementTypes",
-      "net.minecraft.world.entity.animal.Animal",
       "net.minecraft.world.entity.ai.attributes.Attributes",
       "net.minecraft.world.item.SpawnEggItem",
       "net.minecraft.world.level.levelgen.Heightmap",
@@ -248,17 +247,25 @@ export function modContentJava(project: Project, elements: ElementSpec[]): strin
     fields.push(
       `\t/** ${m.name} (spec/mobs/${m.id}.json) */\n` +
         `\tpublic static final EntityType<${P}> ${C} = registerEntity("${m.id}",\n` +
-        `\t\t\tEntityType.Builder.of(${P}::new, MobCategory.CREATURE).sized(${float(m.mob.width)}, ${float(m.mob.height)}));\n` +
+        `\t\t\tEntityType.Builder.of(${P}::new, MobCategory.${m.mob.behavior === "hostile" ? "MONSTER" : "CREATURE"}).sized(${float(m.mob.width)}, ${float(m.mob.height)}));\n` +
         `\tpublic static final Item ${C}_SPAWN_EGG = registerItem("${m.id}_spawn_egg", SpawnEggItem::new, new Item.Properties().spawnEgg(${C}));`,
     );
     addToTab("spawn_eggs", `${C}_SPAWN_EGG`);
+    const hostile = m.mob.behavior === "hostile";
+    const attributes = [
+      `.add(Attributes.MAX_HEALTH, ${double(m.mob.health)})`,
+      `.add(Attributes.MOVEMENT_SPEED, ${double(m.mob.speed)})`,
+      ...(m.mob.behavior !== "animal" ? [`.add(Attributes.ATTACK_DAMAGE, ${double(m.mob.attackDamage)})`] : []),
+      ...(m.mob.flies ? [`.add(Attributes.FLYING_SPEED, ${double(Math.round(m.mob.speed * 2 * 1000) / 1000)})`] : []),
+    ];
     body.push(
       `\t\t// ${m.name} (spec/mobs/${m.id}.json)\n` +
-        `\t\tFabricDefaultAttributeRegistry.register(${C}, Animal.createAnimalAttributes()\n` +
-        `\t\t\t\t.add(Attributes.MAX_HEALTH, ${double(m.mob.health)})\n` +
-        `\t\t\t\t.add(Attributes.MOVEMENT_SPEED, ${double(m.mob.speed)}));\n` +
-        `\t\tSpawnPlacements.register(${C}, SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Animal::checkAnimalSpawnRules);`,
+        `\t\tFabricDefaultAttributeRegistry.register(${C}, ${hostile ? "Monster.createMonsterAttributes()" : "Animal.createAnimalAttributes()"}\n` +
+        attributes.map((a) => `\t\t\t\t${a}`).join("\n") +
+        ");\n" +
+        `\t\tSpawnPlacements.register(${C}, SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, ${hostile ? "Monster::checkMonsterSpawnRules" : "Animal::checkAnimalSpawnRules"});`,
     );
+    use(hostile ? MOB_BASE.hostile.imp : MOB_BASE.animal.imp);
   }
 
   const tabCode = [...tabs].map(
@@ -352,60 +359,97 @@ function sortImports(imports: Set<string>): string {
     .join("\n\n");
 }
 
-/** One class per mob: a vanilla-style animal that wanders, panics, follows its food and breeds. */
+/** Java class each behavior extends. */
+const MOB_BASE: Record<MobSpec["mob"]["behavior"], { cls: string; imp: string }> = {
+  animal: { cls: "Animal", imp: "net.minecraft.world.entity.animal.Animal" },
+  neutral: { cls: "Animal", imp: "net.minecraft.world.entity.animal.Animal" },
+  tameable: { cls: "TamableAnimal", imp: "net.minecraft.world.entity.TamableAnimal" },
+  hostile: { cls: "Monster", imp: "net.minecraft.world.entity.monster.Monster" },
+};
+
+/**
+ * One class per mob. Its behavior picks the base class and AI goals: an animal wanders, panics, follows its food
+ * and breeds; a neutral one fights back; a tameable one is tamed with its food, sits and follows its owner; a hostile
+ * one hunts players. Flying mobs swap walking for flying, like parrots.
+ */
 export function mobEntityJava(project: Project, m: MobSpec): string {
   const modId = project.modId;
   const P = pascal(m.id);
+  const { behavior, flies } = m.mob;
+  const base = MOB_BASE[behavior];
+  const breeds = behavior !== "hostile";
   const sounds = { ...MOB_SOUNDS[m.mob.model], ...m.mob.sounds };
   // A Blockbench mob has no vanilla animal to take sounds from, so it is silent unless the spec names some.
   const sound = (ref: string | undefined) => (ref ? `BuiltInRegistries.SOUND_EVENT.getValue(Identifier.parse("${resolveRef("minecraft", ref)}"))` : "null");
-  const test = stackTest(modId, m.mob.food);
-  const tagImports = test.includes("TagKey") ? "import net.minecraft.core.registries.Registries;\n" : "";
-  return `${GENERATED_HEADER}
-package ${project.package}.generated.entity;
+  const test = breeds && m.mob.food ? stackTest(modId, m.mob.food) : "false";
 
-import net.minecraft.core.registries.BuiltInRegistries;
-${tagImports}import net.minecraft.resources.Identifier;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvent;
-${test.includes("TagKey") ? "import net.minecraft.tags.TagKey;\n" : ""}import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.AgeableMob;
-import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.ai.goal.BreedGoal;
-import net.minecraft.world.entity.ai.goal.FloatGoal;
-import net.minecraft.world.entity.ai.goal.FollowParentGoal;
-import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
-import net.minecraft.world.entity.ai.goal.PanicGoal;
-import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
-import net.minecraft.world.entity.ai.goal.TemptGoal;
-import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
-import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
+  const imports = new Set<string>([
+    "net.minecraft.core.registries.BuiltInRegistries",
+    "net.minecraft.resources.Identifier",
+    "net.minecraft.sounds.SoundEvent",
+    "net.minecraft.world.damagesource.DamageSource",
+    "net.minecraft.world.entity.EntityType",
+    "net.minecraft.world.entity.ai.goal.FloatGoal",
+    "net.minecraft.world.entity.ai.goal.LookAtPlayerGoal",
+    "net.minecraft.world.entity.ai.goal.RandomLookAroundGoal",
+    "net.minecraft.world.entity.player.Player",
+    "net.minecraft.world.level.Level",
+    base.imp,
+  ]);
+  const use = (...names: string[]) => names.forEach((n) => imports.add(n));
+  if (test.includes("TagKey")) use("net.minecraft.core.registries.Registries", "net.minecraft.tags.TagKey");
+  if (breeds) {
+    use(
+      "net.minecraft.server.level.ServerLevel",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.EntitySpawnReason",
+      "net.minecraft.world.entity.ai.goal.BreedGoal",
+      "net.minecraft.world.entity.ai.goal.FollowParentGoal",
+      "net.minecraft.world.entity.ai.goal.TemptGoal",
+      "net.minecraft.world.item.ItemStack",
+    );
+  }
+  const stroll = flies ? "WaterAvoidingRandomFlyingGoal" : "WaterAvoidingRandomStrollGoal";
+  use(`net.minecraft.world.entity.ai.goal.${stroll}`);
 
-import ${project.package}.generated.ModContent;
+  // [priority, goal] for goalSelector and targetSelector.
+  const goals: [number, string][] = [[0, "new FloatGoal(this)"]];
+  const targets: [number, string][] = [];
+  const fights = behavior !== "animal";
+  if (fights) use("net.minecraft.world.entity.ai.goal.MeleeAttackGoal", "net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal");
+  switch (behavior) {
+    case "animal":
+      use("net.minecraft.world.entity.ai.goal.PanicGoal");
+      goals.push([1, "new PanicGoal(this, 1.25)"]);
+      break;
+    case "neutral":
+      goals.push([1, "new MeleeAttackGoal(this, 1.2, true)"]);
+      targets.push([1, "new HurtByTargetGoal(this).setAlertOthers()"]);
+      break;
+    case "tameable":
+      use(
+        "net.minecraft.world.entity.ai.goal.SitWhenOrderedToGoal",
+        "net.minecraft.world.entity.ai.goal.FollowOwnerGoal",
+        "net.minecraft.world.entity.ai.goal.target.OwnerHurtByTargetGoal",
+        "net.minecraft.world.entity.ai.goal.target.OwnerHurtTargetGoal",
+      );
+      goals.push([2, "new SitWhenOrderedToGoal(this)"], [3, "new MeleeAttackGoal(this, 1.0, true)"], [4, "new FollowOwnerGoal(this, 1.0, 10.0f, 2.0f)"]);
+      targets.push([1, "new OwnerHurtByTargetGoal(this)"], [2, "new OwnerHurtTargetGoal(this)"], [3, "new HurtByTargetGoal(this)"]);
+      break;
+    case "hostile":
+      use("net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal");
+      goals.push([2, "new MeleeAttackGoal(this, 1.0, false)"]);
+      targets.push([1, "new HurtByTargetGoal(this)"], [2, "new NearestAttackableTargetGoal<>(this, Player.class, true)"]);
+      break;
+  }
+  if (breeds) {
+    goals.push([5, "new BreedGoal(this, 1.0)"], [6, "new TemptGoal(this, 1.2, this::isFood, false)"], [6, "new FollowParentGoal(this, 1.1)"]);
+  }
+  goals.push([7, `new ${stroll}(this, 1.0)`], [8, "new LookAtPlayerGoal(this, Player.class, 6.0f)"], [8, "new RandomLookAroundGoal(this)"]);
 
-/** ${m.name} (spec/mobs/${m.id}.json). For custom behavior, subclass it in src/main/java. */
-public class ${P} extends Animal {
-\tpublic ${P}(EntityType<? extends ${P}> type, Level level) {
-\t\tsuper(type, level);
-\t}
-
-\t@Override
-\tprotected void registerGoals() {
-\t\tthis.goalSelector.addGoal(0, new FloatGoal(this));
-\t\tthis.goalSelector.addGoal(1, new PanicGoal(this, 1.25));
-\t\tthis.goalSelector.addGoal(3, new BreedGoal(this, 1.0));
-\t\tthis.goalSelector.addGoal(4, new TemptGoal(this, 1.2, this::isFood, false));
-\t\tthis.goalSelector.addGoal(5, new FollowParentGoal(this, 1.1));
-\t\tthis.goalSelector.addGoal(6, new WaterAvoidingRandomStrollGoal(this, 1.0));
-\t\tthis.goalSelector.addGoal(7, new LookAtPlayerGoal(this, Player.class, 6.0f));
-\t\tthis.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
-\t}
-
-\t@Override
+  const methods: string[] = [];
+  if (breeds) {
+    methods.push(`\t@Override
 \tpublic boolean isFood(ItemStack stack) {
 \t\treturn ${test};
 \t}
@@ -413,9 +457,67 @@ public class ${P} extends Animal {
 \t@Override
 \tpublic AgeableMob getBreedOffspring(ServerLevel level, AgeableMob partner) {
 \t\treturn ModContent.${constName(m.id)}.create(level, EntitySpawnReason.BREEDING);
+\t}`);
+  }
+  if (behavior === "tameable") {
+    use("net.minecraft.world.InteractionHand", "net.minecraft.world.InteractionResult");
+    methods.push(`\t/** Feeding it while wild tames it one time in three; its owner's empty hand makes it sit or stand. */
+\t@Override
+\tpublic InteractionResult mobInteract(Player player, InteractionHand hand) {
+\t\tItemStack stack = player.getItemInHand(hand);
+\t\tif (!this.isTame() && this.isFood(stack)) {
+\t\t\tthis.usePlayerItem(player, hand, stack);
+\t\t\tif (!this.level().isClientSide()) {
+\t\t\t\tif (this.getRandom().nextInt(3) == 0) {
+\t\t\t\t\tthis.tame(player);
+\t\t\t\t\tthis.navigation.stop();
+\t\t\t\t\tthis.setOrderedToSit(true);
+\t\t\t\t\tthis.level().broadcastEntityEvent(this, (byte) 7);
+\t\t\t\t} else {
+\t\t\t\t\tthis.level().broadcastEntityEvent(this, (byte) 6);
+\t\t\t\t}
+\t\t\t}
+\t\t\treturn InteractionResult.SUCCESS;
+\t\t}
+\t\tif (this.isTame() && this.isOwnedBy(player) && stack.isEmpty()) {
+\t\t\tif (!this.level().isClientSide()) {
+\t\t\t\tthis.setOrderedToSit(!this.isOrderedToSit());
+\t\t\t\tthis.navigation.stop();
+\t\t\t}
+\t\t\treturn InteractionResult.SUCCESS;
+\t\t}
+\t\treturn super.mobInteract(player, hand);
+\t}`);
+  }
+  let constructorExtra = "";
+  if (flies) {
+    use(
+      "net.minecraft.core.BlockPos",
+      "net.minecraft.world.entity.ai.control.FlyingMoveControl",
+      "net.minecraft.world.entity.ai.navigation.FlyingPathNavigation",
+      "net.minecraft.world.entity.ai.navigation.PathNavigation",
+      "net.minecraft.world.level.block.state.BlockState",
+    );
+    constructorExtra = "\n\t\tthis.moveControl = new FlyingMoveControl<>(this, 10, false);";
+    methods.push(`\t@Override
+\tprotected PathNavigation createNavigation(Level level) {
+\t\tFlyingPathNavigation navigation = new FlyingPathNavigation(this, level);
+\t\tnavigation.setCanOpenDoors(false);
+\t\tnavigation.setCanFloat(true);
+\t\treturn navigation;
+\t}
+
+\t/** Flyers don't take fall damage. */
+\t@Override
+\tpublic boolean causeFallDamage(double distance, float multiplier, DamageSource source) {
+\t\treturn false;
 \t}
 
 \t@Override
+\tprotected void checkFallDamage(double y, boolean onGround, BlockState state, BlockPos pos) {
+\t}`);
+  }
+  methods.push(`\t@Override
 \tprotected SoundEvent getAmbientSound() {
 \t\treturn ${sound(sounds.ambient)};
 \t}
@@ -428,7 +530,29 @@ public class ${P} extends Animal {
 \t@Override
 \tprotected SoundEvent getDeathSound() {
 \t\treturn ${sound(sounds.death)};
+\t}`);
+
+  const addGoals = (selector: string, list: [number, string][]) => list.map(([n, g]) => `\t\tthis.${selector}.addGoal(${n}, ${g});`);
+  const what = { animal: "An animal", neutral: "A neutral animal that fights back", tameable: "A tameable animal", hostile: "A hostile mob" }[behavior];
+  return `${GENERATED_HEADER}
+package ${project.package}.generated.entity;
+
+${[...imports].sort().map((i) => `import ${i};`).join("\n")}
+
+import ${project.package}.generated.ModContent;
+
+/** ${m.name} (spec/mobs/${m.id}.json): ${what.toLowerCase()}${flies ? " that flies" : ""}. For custom behavior, subclass it in src/main/java. */
+public class ${P} extends ${base.cls} {
+\tpublic ${P}(EntityType<? extends ${P}> type, Level level) {
+\t\tsuper(type, level);${constructorExtra}
 \t}
+
+\t@Override
+\tprotected void registerGoals() {
+${[...addGoals("goalSelector", goals), ...addGoals("targetSelector", targets)].join("\n")}
+\t}
+
+${methods.join("\n\n")}
 }
 `;
 }

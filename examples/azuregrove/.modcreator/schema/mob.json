@@ -25,8 +25,12 @@
           "type": "string",
           "enum": [
             "pig",
-            "cow"
+            "cow",
+            "blockbench"
           ]
+        },
+        "blockbench": {
+          "type": "string"
         },
         "texture": {
           "type": "string"
@@ -57,6 +61,26 @@
           "type": "number",
           "minimum": 0.1,
           "maximum": 16
+        },
+        "behavior": {
+          "default": "animal",
+          "type": "string",
+          "enum": [
+            "animal",
+            "neutral",
+            "tameable",
+            "hostile"
+          ]
+        },
+        "flies": {
+          "default": false,
+          "type": "boolean"
+        },
+        "attackDamage": {
+          "default": 3,
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
         },
         "food": {
           "type": "string",
@@ -114,7 +138,6 @@
       },
       "required": [
         "texture",
-        "food",
         "spawnEgg"
       ]
     }

@@ -251,6 +251,8 @@ export type PlantSpec = z.infer<typeof PlantSpecSchema>;
  */
 export const MobModel = z.enum(["pig", "cow", "blockbench"]);
 
+export const MobBehavior = z.enum(["animal", "neutral", "tameable", "hostile"]);
+
 export const MobSpecSchema = z.object({
   kind: z.literal("mob"),
   $schema: z.string().optional(),
@@ -273,8 +275,20 @@ export const MobSpecSchema = z.object({
     /** Hitbox size in blocks. */
     width: z.number().min(0.1).max(16).default(0.9),
     height: z.number().min(0.1).max(16).default(0.9),
-    /** Item that tempts and breeds it; an id, `minecraft:carrot` or `#minecraft:pig_food`. */
-    food: Ref,
+    /**
+     * How it acts. `animal` wanders, flees when hurt and breeds; `neutral` also fights back; `tameable` is tamed
+     * by feeding it, then sits and follows its owner; `hostile` hunts players in the dark and doesn't breed.
+     */
+    behavior: MobBehavior.default("animal"),
+    /** Flies around like a parrot or bee instead of walking, and takes no fall damage. */
+    flies: z.boolean().default(false),
+    /** Damage per hit, for mobs that fight. A zombie does 3, a wolf 4. */
+    attackDamage: z.number().min(0).max(100).default(3),
+    /**
+     * Item that tempts, breeds and tames it; an id, `minecraft:carrot` or `#minecraft:pig_food`. Hostile mobs
+     * don't need one.
+     */
+    food: Ref.optional(),
     /** Sound events; default to the model animal's own. */
     sounds: z.object({ ambient: Ref.optional(), hurt: Ref.optional(), death: Ref.optional() }).default({}),
     drops: z

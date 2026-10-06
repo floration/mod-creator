@@ -1,6 +1,6 @@
 import { useContext, useEffect, useMemo, useState } from "react";
 import { EMPTY_SLOTS, listFromSlots, patternFromSlots, sameShape, slotsFromList, slotsFromPattern, type Slots } from "@modcreator/core/recipe-grid";
-import { ARMOR_PIECES, CreativeTab, EquipSound, MobModel, OreHost, Rarity, SoundType, ToolTier, TreeShape } from "@modcreator/core/schema";
+import { ARMOR_PIECES, CreativeTab, EquipSound, MobBehavior, MobModel, OreHost, Rarity, SoundType, ToolTier, TreeShape } from "@modcreator/core/schema";
 import {
   CheckField,
   ColorField,
@@ -289,6 +289,13 @@ function useBlockbench(file: string | undefined): { model: EntityModelDef | null
   return result;
 }
 
+const BEHAVIOR_HINTS: Record<string, string> = {
+  animal: "Wanders, runs when hurt, and breeds when fed",
+  neutral: "Like an animal, but fights back when hurt, with its herd",
+  tameable: "Feeding it may tame it. Tamed, it follows you, fights for you, and sits when you click it",
+  hostile: "Spawns in the dark and attacks players. Doesn't breed",
+};
+
 export function MobEditor(p: EditorProps) {
   const f = { draft: p.draft, errors: p.errors, onChange: p.onChange };
   const model = getAt(p.draft, ["mob", "model"]) ?? "pig";
@@ -297,6 +304,7 @@ export function MobEditor(p: EditorProps) {
   const world = useContext(TextureContext);
   const sheet: [number, number] = bb.model ? [bb.model.textureWidth, bb.model.textureHeight] : [64, 64];
   const { walk, idle } = bb.model ? pickAnimations(bb.model) : { walk: null, idle: null };
+  const behavior: string = getAt(p.draft, ["mob", "behavior"]) ?? "animal";
 
   /** Save the texture embedded in the .bbmodel to art/<id>.png and use it. */
   const useEmbedded = async () => {
@@ -341,7 +349,18 @@ export function MobEditor(p: EditorProps) {
       <Section title="Behavior">
         <NumberField {...f} path={["mob", "health"]} label="Health" min={1} max={1024} hint="In half hearts. Pig 10, cow 10" />
         <NumberField {...f} path={["mob", "speed"]} label="Speed" step={0.05} min={0} max={2} hint="Pig 0.25, cow 0.2" />
-        <TextField {...f} path={["mob", "food"]} label="Food" hint="Tempts and breeds it. An item, or a tag like #minecraft:pig_food" />
+        <SelectField {...f} path={["mob", "behavior"]} label="Acts like" options={MobBehavior.options} hint={BEHAVIOR_HINTS[behavior]} />
+        <CheckField {...f} path={["mob", "flies"]} label="Flies" hint="Flies around like a parrot instead of walking, and takes no fall damage" />
+        {behavior !== "animal" && (
+          <NumberField {...f} path={["mob", "attackDamage"]} label="Attack damage" step={0.5} min={0} max={100} hint="Per hit, in half hearts. Zombie 3, wolf 4" />
+        )}
+        <TextField
+          {...f}
+          path={["mob", "food"]}
+          label="Food"
+          optional={behavior === "hostile"}
+          hint={behavior === "hostile" ? "Not needed: hostile mobs don't breed" : `${behavior === "tameable" ? "Tames, tempts" : "Tempts"} and breeds it. An item, or a tag like #minecraft:pig_food`}
+        />
         <NumberField {...f} path={["mob", "width"]} label="Hitbox width" step={0.1} min={0.1} max={16} />
         <NumberField {...f} path={["mob", "height"]} label="Hitbox height" step={0.1} min={0.1} max={16} />
       </Section>
