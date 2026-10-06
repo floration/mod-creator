@@ -1,4 +1,4 @@
-import { checkReferences, type Issue, type LoadedElement, type LoadedProject } from "./project.js";
+import { checkReferences, recipeIds, type Issue, type LoadedElement, type LoadedProject } from "./project.js";
 import { registeredBlocks, registeredItems, type ElementSpec } from "./schema.js";
 
 /** A spec file to write back after a change elsewhere in the project. */
@@ -22,10 +22,10 @@ export function dependentsOf(loaded: LoadedProject, file: string): Issue[] {
   return newIssues(loaded, loaded.elements.filter((e) => e.file !== file)).filter((i) => i.file !== file);
 }
 
-/** Ids other specs can point at: the items and blocks a spec registers, and trees, plants and mobs by id. */
+/** Ids other specs can point at: the items, blocks and recipes a spec creates, and the other kinds by id. */
 function referenceableIds(spec: ElementSpec): Set<string> {
-  const ids = new Set([...registeredItems(spec).map(([id]) => id), ...registeredBlocks(spec)]);
-  if (spec.kind === "tree" || spec.kind === "plant" || spec.kind === "mob") ids.add(spec.id);
+  const ids = new Set([...registeredItems(spec).map(([id]) => id), ...registeredBlocks(spec), ...recipeIds(spec)]);
+  if (["tree", "plant", "mob", "biome", "advancement"].includes(spec.kind)) ids.add(spec.id);
   return ids;
 }
 

@@ -1,0 +1,16 @@
+{
+  "$schema": "../../.modcreator/schema/advancement.json",
+  "kind": "advancement",
+  "id": "ruby",
+  "name": "Ruby",
+  "advancement": {
+    "description": "Find a ruby",
+    "icon": "ruby",
+    "criteria": [
+      {
+        "type": "obtain",
+        "item": "ruby"
+      }
+    ]
+  }
+}

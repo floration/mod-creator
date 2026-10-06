@@ -195,6 +195,70 @@
     "hasItem": {
       "default": true,
       "type": "boolean"
+    },
+    "shapes": {
+      "default": {
+        "stairs": false,
+        "slab": false,
+        "wall": false,
+        "fence": false,
+        "fenceGate": false,
+        "button": false,
+        "pressurePlate": false
+      },
+      "type": "object",
+      "properties": {
+        "stairs": {
+          "default": false,
+          "type": "boolean"
+        },
+        "slab": {
+          "default": false,
+          "type": "boolean"
+        },
+        "wall": {
+          "default": false,
+          "type": "boolean"
+        },
+        "fence": {
+          "default": false,
+          "type": "boolean"
+        },
+        "fenceGate": {
+          "default": false,
+          "type": "boolean"
+        },
+        "button": {
+          "default": false,
+          "type": "boolean"
+        },
+        "pressurePlate": {
+          "default": false,
+          "type": "boolean"
+        },
+        "door": {
+          "type": "object",
+          "properties": {
+            "top": {
+              "type": "string"
+            },
+            "bottom": {
+              "type": "string"
+            },
+            "icon": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "top",
+            "bottom",
+            "icon"
+          ]
+        },
+        "trapdoor": {
+          "type": "string"
+        }
+      }
     }
   },
   "required": [

@@ -1803,7 +1803,21 @@ public class GroveLurker extends Monster {
   "item.azuregrove.bluetusk_spawn_egg": "Bluetusk Spawn Egg",
   "entity.azuregrove.grove_lurker": "Grove Lurker",
   "item.azuregrove.grove_lurker_spawn_egg": "Grove Lurker Spawn Egg",
-  "biome.azuregrove.azure_grove": "Azure Grove"
+  "biome.azuregrove.azure_grove": "Azure Grove",
+  "advancements.azuregrove.azure_grove.title": "Azure Grove",
+  "advancements.azuregrove.azure_grove.description": "Find an Azure Grove",
+  "advancements.azuregrove.blue_rocks.title": "Blue Rocks",
+  "advancements.azuregrove.blue_rocks.description": "Mine some azurite",
+  "advancements.azuregrove.brick_by_brick.title": "Brick by Brick",
+  "advancements.azuregrove.brick_by_brick.description": "Place azurite brick stairs or a wall",
+  "advancements.azuregrove.lurker_hunter.title": "Lurker Hunter",
+  "advancements.azuregrove.lurker_hunter.description": "Defeat a Grove Lurker and a Bluetusk",
+  "advancements.azuregrove.plum_picker.title": "Plum Picker",
+  "advancements.azuregrove.plum_picker.description": "Eat an Azure Plum",
+  "advancements.azuregrove.sharp_and_blue.title": "Sharp and Blue",
+  "advancements.azuregrove.sharp_and_blue.description": "Craft an Azurite Sword",
+  "advancements.azuregrove.tusk_rancher.title": "Tusk Rancher",
+  "advancements.azuregrove.tusk_rancher.description": "Breed two Bluetusks with plums"
 }
 ",
   "src/generated/resources/assets/azuregrove/models/block/azure_grass.json": "{
@@ -2252,6 +2266,7 @@ public class GroveLurker extends Monster {
   "src/generated/resources/assets/azuregrove/textures/entity/equipment/humanoid_leggings/azurite.png": "<copy of art/azurite_layer_2.png>",
   "src/generated/resources/assets/azuregrove/textures/entity/grove_lurker.png": "<copy of art/grove_lurker.png>",
   "src/generated/resources/assets/azuregrove/textures/entity/grove_lurker_baby.png": "<copy of art/grove_lurker.png>",
+  "src/generated/resources/assets/azuregrove/textures/gui/advancements/backgrounds/azure_grove.png": "<copy of art/azurewood_planks.png>",
   "src/generated/resources/assets/azuregrove/textures/item/azure_plum.png": "<copy of art/azure_plum.png>",
   "src/generated/resources/assets/azuregrove/textures/item/azurewood_door.png": "<copy of art/azurewood_door_icon.png>",
   "src/generated/resources/assets/azuregrove/textures/item/azurite.png": "<copy of art/azurite.png>",
@@ -2262,6 +2277,298 @@ public class GroveLurker extends Monster {
   "src/generated/resources/assets/azuregrove/textures/item/azurite_sword.png": "<copy of art/azurite_sword.png>",
   "src/generated/resources/assets/azuregrove/textures/item/bluetusk_spawn_egg.png": "<copy of art/bluetusk_spawn_egg.png>",
   "src/generated/resources/assets/azuregrove/textures/item/grove_lurker_spawn_egg.png": "<copy of art/grove_lurker_spawn_egg.png>",
+  "src/generated/resources/data/azuregrove/advancement/azure_grove.json": "{
+  "criteria": {
+    "visit_1": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "biomes": "azuregrove:azure_grove"
+            }
+          }
+        }
+      }
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "azuregrove:azurewood_sapling"
+    },
+    "title": {
+      "translate": "advancements.azuregrove.azure_grove.title"
+    },
+    "description": {
+      "translate": "advancements.azuregrove.azure_grove.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false,
+    "background": "azuregrove:gui/advancements/backgrounds/azure_grove"
+  },
+  "requirements": [
+    [
+      "visit_1"
+    ]
+  ]
+}
+",
+  "src/generated/resources/data/azuregrove/advancement/blue_rocks.json": "{
+  "parent": "azuregrove:azure_grove",
+  "criteria": {
+    "obtain_1": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "azuregrove:azurite"
+          }
+        ]
+      }
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "azuregrove:azurite"
+    },
+    "title": {
+      "translate": "advancements.azuregrove.blue_rocks.title"
+    },
+    "description": {
+      "translate": "advancements.azuregrove.blue_rocks.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "requirements": [
+    [
+      "obtain_1"
+    ]
+  ]
+}
+",
+  "src/generated/resources/data/azuregrove/advancement/brick_by_brick.json": "{
+  "parent": "azuregrove:blue_rocks",
+  "criteria": {
+    "place_1": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:match_block",
+          "blocks": "azuregrove:azurite_brick_stairs"
+        }
+      }
+    },
+    "place_2": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:match_block",
+          "blocks": "azuregrove:azurite_brick_wall"
+        }
+      }
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "azuregrove:azurite_brick_stairs"
+    },
+    "title": {
+      "translate": "advancements.azuregrove.brick_by_brick.title"
+    },
+    "description": {
+      "translate": "advancements.azuregrove.brick_by_brick.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "requirements": [
+    [
+      "place_1",
+      "place_2"
+    ]
+  ]
+}
+",
+  "src/generated/resources/data/azuregrove/advancement/lurker_hunter.json": "{
+  "parent": "azuregrove:azure_grove",
+  "criteria": {
+    "kill_1": {
+      "trigger": "minecraft:player_killed_entity",
+      "conditions": {
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "azuregrove:grove_lurker"
+          }
+        }
+      }
+    },
+    "kill_2": {
+      "trigger": "minecraft:player_killed_entity",
+      "conditions": {
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "azuregrove:bluetusk"
+          }
+        }
+      }
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "azuregrove:azurite_sword"
+    },
+    "title": {
+      "translate": "advancements.azuregrove.lurker_hunter.title"
+    },
+    "description": {
+      "translate": "advancements.azuregrove.lurker_hunter.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "requirements": [
+    [
+      "kill_1"
+    ],
+    [
+      "kill_2"
+    ]
+  ],
+  "rewards": {
+    "experience": 50,
+    "loot": [
+      "azuregrove:advancement_reward/lurker_hunter"
+    ]
+  }
+}
+",
+  "src/generated/resources/data/azuregrove/advancement/plum_picker.json": "{
+  "parent": "azuregrove:azure_grove",
+  "criteria": {
+    "eat_1": {
+      "trigger": "minecraft:consume_item",
+      "conditions": {
+        "item": {
+          "items": "azuregrove:azure_plum"
+        }
+      }
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "azuregrove:azure_plum"
+    },
+    "title": {
+      "translate": "advancements.azuregrove.plum_picker.title"
+    },
+    "description": {
+      "translate": "advancements.azuregrove.plum_picker.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "requirements": [
+    [
+      "eat_1"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "azuregrove:azurewood_door"
+    ]
+  }
+}
+",
+  "src/generated/resources/data/azuregrove/advancement/sharp_and_blue.json": "{
+  "parent": "azuregrove:blue_rocks",
+  "criteria": {
+    "craft_1": {
+      "trigger": "minecraft:recipe_crafted",
+      "conditions": {
+        "recipes": "azuregrove:azurite_sword"
+      }
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "azuregrove:azurite_sword"
+    },
+    "title": {
+      "translate": "advancements.azuregrove.sharp_and_blue.title"
+    },
+    "description": {
+      "translate": "advancements.azuregrove.sharp_and_blue.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "requirements": [
+    [
+      "craft_1"
+    ]
+  ],
+  "rewards": {
+    "experience": 20
+  }
+}
+",
+  "src/generated/resources/data/azuregrove/advancement/tusk_rancher.json": "{
+  "parent": "azuregrove:plum_picker",
+  "criteria": {
+    "breed_1": {
+      "trigger": "minecraft:bred_animals",
+      "conditions": {
+        "child": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "azuregrove:bluetusk"
+          }
+        }
+      }
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "azuregrove:bluetusk_spawn_egg"
+    },
+    "title": {
+      "translate": "advancements.azuregrove.tusk_rancher.title"
+    },
+    "description": {
+      "translate": "advancements.azuregrove.tusk_rancher.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "requirements": [
+    [
+      "breed_1"
+    ]
+  ]
+}
+",
   "src/generated/resources/data/azuregrove/biolith/biome_placement/azure_grove.json": "{
   "replacements": [
     {
@@ -2277,6 +2584,43 @@ public class GroveLurker extends Monster {
       "proportion": 0.2
     }
   ]
+}
+",
+  "src/generated/resources/data/azuregrove/loot_table/advancement_reward/lurker_hunter.json": "{
+  "type": "minecraft:advancement_reward",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "azuregrove:azurite",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "azuregrove:azure_plum",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": 2
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "random_sequence": "azuregrove:advancement_reward/lurker_hunter"
 }
 ",
   "src/generated/resources/data/azuregrove/loot_table/blocks/azure_grass.json": "{
@@ -4464,7 +4808,11 @@ public class Glowmoth extends TamableAnimal {
   "block.ruby.ruby_ore": "Ruby Ore",
   "item.ruby.ruby": "Ruby",
   "entity.ruby.glowmoth": "Glowmoth",
-  "item.ruby.glowmoth_spawn_egg": "Glowmoth Spawn Egg"
+  "item.ruby.glowmoth_spawn_egg": "Glowmoth Spawn Egg",
+  "advancements.ruby.moth_friend.title": "Moth Friend",
+  "advancements.ruby.moth_friend.description": "Tame a Glowmoth",
+  "advancements.ruby.ruby.title": "Ruby",
+  "advancements.ruby.ruby.description": "Find a ruby"
 }
 ",
   "src/generated/resources/assets/ruby/models/block/ruby_block.json": "{
@@ -4530,6 +4878,80 @@ public class Glowmoth extends TamableAnimal {
   "values": [
     "ruby:ruby_block",
     "ruby:ruby_ore"
+  ]
+}
+",
+  "src/generated/resources/data/ruby/advancement/moth_friend.json": "{
+  "parent": "ruby:ruby",
+  "criteria": {
+    "tame_1": {
+      "trigger": "minecraft:tame_animal",
+      "conditions": {
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "ruby:glowmoth"
+          }
+        }
+      }
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "ruby:glowmoth_spawn_egg"
+    },
+    "title": {
+      "translate": "advancements.ruby.moth_friend.title"
+    },
+    "description": {
+      "translate": "advancements.ruby.moth_friend.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "requirements": [
+    [
+      "tame_1"
+    ]
+  ]
+}
+",
+  "src/generated/resources/data/ruby/advancement/ruby.json": "{
+  "criteria": {
+    "obtain_1": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "ruby:ruby"
+          }
+        ]
+      }
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "ruby:ruby"
+    },
+    "title": {
+      "translate": "advancements.ruby.ruby.title"
+    },
+    "description": {
+      "translate": "advancements.ruby.ruby.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false,
+    "background": "minecraft:gui/advancements/backgrounds/stone"
+  },
+  "requirements": [
+    [
+      "obtain_1"
+    ]
   ]
 }
 ",

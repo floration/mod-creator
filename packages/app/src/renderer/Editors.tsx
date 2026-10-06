@@ -716,7 +716,7 @@ export function OreEditor(p: EditorProps) {
   );
 }
 
-export type Kind = "block" | "item" | "recipe" | "ore" | "tool" | "armor" | "tree" | "plant" | "mob" | "biome";
+export type Kind = "block" | "item" | "recipe" | "ore" | "tool" | "armor" | "tree" | "plant" | "mob" | "biome" | "advancement";
 
 /** Starting point for a new spec of each kind. */
 export function newSpec(kind: Kind, id: string): Draft {
@@ -754,5 +754,7 @@ export function newSpec(kind: Kind, id: string): Draft {
       return { ...base, tags: [], biome: { temperature: 0.7, downfall: 0.8, colors: { sky: "#78a7ff", water: "#3f76e4" }, replaces: [{ biome: "minecraft:plains", share: 0.25 }], trees: [], plants: [], spawns: [] } };
     case "recipe":
       return { $schema: base.$schema, kind, id, recipe: RECIPE_TEMPLATES.shaped({ item: "", count: 1 }) };
+    case "advancement":
+      return { ...base, advancement: { description: "", icon: "minecraft:book", frame: "task", criteria: [{ type: "obtain", item: "", count: 1 }] } };
   }
 }

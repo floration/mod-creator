@@ -1,0 +1,17 @@
+{
+  "$schema": "../../.modcreator/schema/advancement.json",
+  "kind": "advancement",
+  "id": "blue_rocks",
+  "name": "Blue Rocks",
+  "advancement": {
+    "parent": "azure_grove",
+    "description": "Mine some azurite",
+    "icon": "azurite",
+    "criteria": [
+      {
+        "type": "obtain",
+        "item": "azurite"
+      }
+    ]
+  }
+}

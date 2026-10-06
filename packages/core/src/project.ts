@@ -8,7 +8,9 @@ import {
   registeredBlocks,
   registeredItems,
   shapeBlocks,
+  type AdvancementSpec,
   type ElementSpec,
+  type MobSpec,
   type Project,
 } from "./schema.js";
 import { parseBlockbench, type EntityModelDef } from "./blockbench.js";
@@ -135,6 +137,9 @@ export function checkReferences(root: string, elements: LoadedElement[]): Issue[
   const trees = idsOf("tree");
   const plants = idsOf("plant");
   const mobs = idsOf("mob");
+  const biomes = idsOf("biome");
+  const advancements = idsOf("advancement");
+  const recipes = new Set(specs.flatMap(recipeIds));
   const err = (file: string, field: string, message: string) => issues.push({ severity: "error", file, field, message });
 
   const checkBlock = (file: string, field: string, ref: string) => {
@@ -154,6 +159,50 @@ export function checkReferences(root: string, elements: LoadedElement[]): Issue[
   };
   const checkArt = (file: string, field: string, art: string) => {
     if (!existsSync(path.join(root, art))) err(file, field, `Missing file ${art}`);
+  };
+
+  const checkAdvancement = (file: string, spec: AdvancementSpec) => {
+    const a = spec.advancement;
+    if (a.parent) {
+      if (a.parent === spec.id) err(file, "advancement.parent", "An advancement can't be its own parent");
+      else checkLocal(file, "advancement.parent", a.parent, advancements, "advancement");
+      if (!a.parent.includes(":") && advancements.has(a.parent) && parentLoop(spec.id, specs)) {
+        err(file, "advancement.parent", "Parents go round in a loop; one advancement in the line needs no parent");
+      }
+      if (a.background) issues.push({ severity: "warning", file, field: "advancement.background", message: "Only a tab's first advancement (one without a parent) shows a background" });
+    }
+    if (a.background) checkArt(file, "advancement.background", a.background);
+    checkItem(file, "advancement.icon", a.icon, false);
+    const mobSpec = (ref: string) => specs.find((s): s is MobSpec => s.kind === "mob" && s.id === ref);
+    a.criteria.forEach((c, i) => {
+      const at = `advancement.criteria.${i}`;
+      switch (c.type) {
+        case "obtain":
+        case "eat":
+          checkItem(file, `${at}.item`, c.item);
+          break;
+        case "place":
+          if (!c.block.startsWith("#")) checkBlock(file, `${at}.block`, c.block);
+          break;
+        case "visit":
+          checkLocal(file, `${at}.biome`, c.biome, biomes, "biome");
+          break;
+        case "craft":
+          checkLocal(file, `${at}.recipe`, c.recipe, recipes, "recipe");
+          break;
+        case "kill":
+        case "breed":
+        case "tame": {
+          checkLocal(file, `${at}.mob`, c.mob, mobs, "mob");
+          const mob = mobSpec(c.mob);
+          if (mob && c.type === "tame" && mob.mob.behavior !== "tameable") err(file, `${at}.mob`, `${mob.name} can't be tamed; set its Acts like to tameable`);
+          if (mob && c.type === "breed" && mob.mob.behavior === "hostile") err(file, `${at}.mob`, `${mob.name} is hostile and doesn't breed`);
+          break;
+        }
+      }
+    });
+    a.rewards.items.forEach((r, i) => checkItem(file, `advancement.rewards.items.${i}.item`, r.item, false));
+    a.rewards.recipes.forEach((r, i) => checkLocal(file, `advancement.rewards.recipes.${i}`, r, recipes, "recipe"));
   };
 
   // Ids share a registry across kinds: an item from an armor set can clash with a plain item.
@@ -233,6 +282,8 @@ export function checkReferences(root: string, elements: LoadedElement[]): Issue[
       checkBlock(file, "ore.block", spec.ore.block);
       if (spec.ore.deepslateBlock) checkBlock(file, "ore.deepslateBlock", spec.ore.deepslateBlock);
       if (spec.ore.maxY < spec.ore.minY) err(file, "ore.maxY", "maxY must be at least minY");
+    } else if (spec.kind === "advancement") {
+      checkAdvancement(file, spec);
     } else {
       const r = spec.recipe;
       checkItem(file, "recipe.result.item", r.result.item, false);
@@ -252,6 +303,31 @@ export function checkReferences(root: string, elements: LoadedElement[]): Issue[
     }
   }
   return issues;
+}
+
+/** Recipe ids a spec creates: its own for recipe specs, and the crafting and stonecutter recipes of shapes and planks. */
+export function recipeIds(spec: ElementSpec): string[] {
+  if (spec.kind === "recipe") return [spec.id];
+  if (spec.kind !== "block" && spec.kind !== "tree") return [];
+  const ids = spec.kind === "tree" ? [`${spec.id}_planks`] : [];
+  if (spec.kind === "block" && !spec.hasItem) return ids;
+  for (const b of shapeBlocks(spec)) {
+    ids.push(b.id);
+    if (spec.kind === "block" && spec.block.sound !== "wood" && (b.shape === "stairs" || b.shape === "slab" || b.shape === "wall")) ids.push(`${b.id}_from_${spec.id}_stonecutting`);
+  }
+  return ids;
+}
+
+/** True when following parents up from advancement `id` comes back to it. */
+function parentLoop(id: string, specs: ElementSpec[]): boolean {
+  const parentOf = new Map(specs.flatMap((s) => (s.kind === "advancement" && s.advancement.parent ? [[s.id, s.advancement.parent] as const] : [])));
+  const seen = new Set<string>();
+  for (let at: string | undefined = parentOf.get(id); at !== undefined; at = parentOf.get(at)) {
+    if (at === id) return true;
+    if (seen.has(at)) return false;
+    seen.add(at);
+  }
+  return false;
 }
 
 /** Project-level needs of some kinds: a library for biomes, a client entrypoint for mobs. */

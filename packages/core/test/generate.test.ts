@@ -53,6 +53,8 @@ describe("Ruby example", () => {
       "recipe:ruby_from_smelting",
       "recipe:ruby_lamp",
       "ore:ruby_ore_vein",
+      "advancement:moth_friend",
+      "advancement:ruby",
     ]);
   });
 
@@ -70,7 +72,7 @@ describe("Azure Grove example", () => {
     const loaded = await loadProject(AZUREGROVE);
     expect(loaded.issues).toEqual([]);
     expect(new Set(loaded.elements.map((e) => e.spec.kind))).toEqual(
-      new Set(["block", "item", "recipe", "ore", "tool", "armor", "tree", "plant", "mob", "biome"]),
+      new Set(["block", "item", "recipe", "ore", "tool", "armor", "tree", "plant", "mob", "biome", "advancement"]),
     );
   });
 
@@ -174,6 +176,56 @@ describe("Azure Grove example", () => {
     expect(issues.map((i) => i.message)).toEqual([expect.stringContaining('maven.modrinth:biolith:K3CS4Akl')]);
     await writeFile(path.join(dir, "build.gradle"), old.replace("dependencies {", 'dependencies {\n\timplementation "maven.modrinth:biolith:K3CS4Akl"'));
     expect((await loadProject(dir)).issues.filter((i) => i.file === "build.gradle")).toEqual([]);
+  });
+});
+
+describe("advancements", () => {
+  it("writes vanilla advancement JSON, reward loot and lang entries", async () => {
+    const files = plan(await loadProject(AZUREGROVE));
+    const res = (p: string) => JSON.parse(files.get(`src/generated/resources/${p}`) as string);
+    const root = res("data/azuregrove/advancement/azure_grove.json");
+    expect(root.parent).toBeUndefined();
+    expect(root.display.background).toBe("azuregrove:gui/advancements/backgrounds/azure_grove");
+    expect(files.get("src/generated/resources/assets/azuregrove/textures/gui/advancements/backgrounds/azure_grove.png")).toEqual({ copy: "art/azurewood_planks.png" });
+    expect(root.criteria.visit_1.conditions.player.predicate["minecraft:location"].biomes).toBe("azuregrove:azure_grove");
+
+    const hunter = res("data/azuregrove/advancement/lurker_hunter.json");
+    expect(hunter.parent).toBe("azuregrove:azure_grove");
+    expect(hunter.requirements).toEqual([["kill_1"], ["kill_2"]]);
+    expect(hunter.rewards).toEqual({ experience: 50, loot: ["azuregrove:advancement_reward/lurker_hunter"] });
+    expect(res("data/azuregrove/loot_table/advancement_reward/lurker_hunter.json").type).toBe("minecraft:advancement_reward");
+
+    expect(res("data/azuregrove/advancement/brick_by_brick.json").requirements).toEqual([["place_1", "place_2"]]);
+    expect(res("data/azuregrove/advancement/sharp_and_blue.json").criteria.craft_1.conditions.recipes).toBe("azuregrove:azurite_sword");
+    expect(res("data/azuregrove/advancement/plum_picker.json").rewards.recipes).toEqual(["azuregrove:azurewood_door"]);
+    const lang = res("assets/azuregrove/lang/en_us.json");
+    expect(lang["advancements.azuregrove.lurker_hunter.title"]).toBe("Lurker Hunter");
+    expect(lang["advancements.azuregrove.lurker_hunter.description"]).toBe("Defeat a Grove Lurker and a Bluetusk");
+  });
+
+  it("reports missing parents, parent loops and criteria that can't happen", async () => {
+    const dir = await copyOf(AZUREGROVE);
+    await editSpec(dir, "spec/advancements/azure_grove.json", (json) => { json.advancement.parent = "tusk_rancher"; });
+    await editSpec(dir, "spec/advancements/blue_rocks.json", (json) => { json.advancement.parent = "azure_grov"; });
+    await editSpec(dir, "spec/advancements/tusk_rancher.json", (json) => {
+      json.advancement.criteria = [{ type: "tame", mob: "bluetusk" }, { type: "breed", mob: "grove_lurker" }, { type: "craft", recipe: "azurite_pickaxe" }, { type: "visit", biome: "azure_meadow" }];
+    });
+    const issues = (await loadProject(dir)).issues.filter((i) => i.severity === "error");
+    const at = (file: string) => issues.filter((i) => i.file === `spec/advancements/${file}.json`).map((i) => i.field);
+    expect(at("azure_grove")).toEqual(["advancement.parent"]);
+    expect(at("blue_rocks")).toEqual(["advancement.parent"]);
+    expect(at("tusk_rancher")).toEqual(
+      expect.arrayContaining(["advancement.parent", "advancement.criteria.0.mob", "advancement.criteria.1.mob", "advancement.criteria.2.recipe", "advancement.criteria.3.biome"]),
+    );
+  });
+
+  it("knows the recipes shapes and planks create", async () => {
+    const dir = await copyOf(AZUREGROVE);
+    await editSpec(dir, "spec/advancements/plum_picker.json", (json) => {
+      json.advancement.rewards.recipes = ["azurewood_planks", "azurite_brick_wall_from_azurite_bricks_stonecutting", "azurewood_slab_from_azurewood_planks_stonecutting"];
+    });
+    const fields = (await loadProject(dir)).issues.filter((i) => i.severity === "error").map((i) => i.field);
+    expect(fields).toEqual(["advancement.rewards.recipes.2"]);
   });
 });
 

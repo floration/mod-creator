@@ -1,0 +1,272 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "kind": {
+      "type": "string",
+      "const": "advancement"
+    },
+    "$schema": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "advancement": {
+      "type": "object",
+      "properties": {
+        "parent": {
+          "type": "string",
+          "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+        },
+        "description": {
+          "default": "",
+          "type": "string"
+        },
+        "icon": {
+          "type": "string",
+          "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+        },
+        "frame": {
+          "default": "task",
+          "type": "string",
+          "enum": [
+            "task",
+            "goal",
+            "challenge"
+          ]
+        },
+        "background": {
+          "type": "string"
+        },
+        "criteria": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "obtain"
+                  },
+                  "item": {
+                    "type": "string",
+                    "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+                  },
+                  "count": {
+                    "default": 1,
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 6400
+                  }
+                },
+                "required": [
+                  "type",
+                  "item"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "kill"
+                  },
+                  "mob": {
+                    "type": "string",
+                    "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+                  }
+                },
+                "required": [
+                  "type",
+                  "mob"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "visit"
+                  },
+                  "biome": {
+                    "type": "string",
+                    "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+                  }
+                },
+                "required": [
+                  "type",
+                  "biome"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "craft"
+                  },
+                  "recipe": {
+                    "type": "string",
+                    "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+                  }
+                },
+                "required": [
+                  "type",
+                  "recipe"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "eat"
+                  },
+                  "item": {
+                    "type": "string",
+                    "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+                  }
+                },
+                "required": [
+                  "type",
+                  "item"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "place"
+                  },
+                  "block": {
+                    "type": "string",
+                    "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+                  }
+                },
+                "required": [
+                  "type",
+                  "block"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "breed"
+                  },
+                  "mob": {
+                    "type": "string",
+                    "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+                  }
+                },
+                "required": [
+                  "type",
+                  "mob"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "tame"
+                  },
+                  "mob": {
+                    "type": "string",
+                    "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+                  }
+                },
+                "required": [
+                  "type",
+                  "mob"
+                ]
+              }
+            ]
+          }
+        },
+        "requires": {
+          "default": "all",
+          "type": "string",
+          "enum": [
+            "all",
+            "any"
+          ]
+        },
+        "announce": {
+          "default": true,
+          "type": "boolean"
+        },
+        "hidden": {
+          "default": false,
+          "type": "boolean"
+        },
+        "rewards": {
+          "default": {
+            "experience": 0,
+            "items": [],
+            "recipes": []
+          },
+          "type": "object",
+          "properties": {
+            "experience": {
+              "default": 0,
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000
+            },
+            "items": {
+              "default": [],
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "item": {
+                    "type": "string",
+                    "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+                  },
+                  "count": {
+                    "default": 1,
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 99
+                  }
+                },
+                "required": [
+                  "item"
+                ]
+              }
+            },
+            "recipes": {
+              "default": [],
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+              }
+            }
+          }
+        }
+      },
+      "required": [
+        "icon",
+        "criteria"
+      ]
+    }
+  },
+  "required": [
+    "kind",
+    "id",
+    "name",
+    "advancement"
+  ]
+}
