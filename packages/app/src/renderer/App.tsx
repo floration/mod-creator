@@ -48,11 +48,20 @@ function draftErrors(draft: Draft | null, file: string | null, issues: Issue[]):
   return errors;
 }
 
+/** A spec as JSON text, for telling whether the file on disk changed since the form was loaded. */
+const snapshot = (spec: unknown) => (spec === undefined ? null : JSON.stringify(spec));
+
+/** What happened on disk to the open file while the form had unsaved edits. */
+type Conflict = "changed" | "missing";
+
 export function App() {
   const [loaded, setLoaded] = useState<LoadedProject | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [draft, setDraft] = useState<Draft | null>(null);
   const [dirty, setDirty] = useState(false);
+  /** The open file as it was on disk when the form was loaded or last saved. */
+  const [base, setBase] = useState<string | null>(null);
+  const [conflict, setConflict] = useState<Conflict | null>(null);
   const [log, setLog] = useState("");
   const [panel, setPanel] = useState<"problems" | "log">("problems");
   const [running, setRunning] = useState<string | null>(null);
@@ -101,6 +110,9 @@ export function App() {
       if (!keepSelection) {
         setSelected(null);
         setDraft(null);
+        setDirty(false);
+        setBase(null);
+        setConflict(null);
       }
       return next;
     } catch (e) {
@@ -119,22 +131,79 @@ export function App() {
     return offLog;
   }, [open]);
 
-  // Reload when specs change on disk (edited in IntelliJ, VS Code or Blockbench), unless there are unsaved edits.
+  // Reload when specs change on disk (edited in IntelliJ, VS Code or Blockbench). Unsaved edits to the open
+  // file are kept, and if that file changed underneath them the editor asks which version to keep.
   useEffect(() => {
     return api().onProjectChanged(async (changedRoot) => {
-      if (dirty) return;
       const next = await open(changedRoot, true);
-      const el = next?.elements.find((e) => e.file === selected);
-      if (el) setDraft(el.spec as Draft);
+      if (!next || !selected) return;
+      const el = next.elements.find((e) => e.file === selected);
+      if (!dirty) {
+        if (el) {
+          setDraft(el.spec as Draft);
+          setBase(snapshot(el.spec));
+        } else if (!next.issues.some((i) => i.file === selected)) {
+          // Deleted outside the app: nothing left to show.
+          setSelected(null);
+          setDraft(null);
+          setBase(null);
+        }
+        return;
+      }
+      const onDisk = snapshot(el?.spec);
+      if (onDisk === base) return;
+      if (!el) setConflict("missing");
+      else if (onDisk === snapshot(draft)) {
+        // Someone saved exactly what the form holds: nothing left to save.
+        setBase(onDisk);
+        setDirty(false);
+        setConflict(null);
+      } else setConflict("changed");
     });
-  }, [dirty, open, selected]);
+  }, [dirty, open, selected, base, draft]);
+
+  /** True when there is nothing unsaved, or the user agrees to throw it away. */
+  const discardOk = useCallback(() => !dirty || confirm("Discard unsaved changes?"), [dirty]);
 
   const select = (file: string, spec: ElementSpec) => {
-    if (dirty && !confirm("Discard unsaved changes?")) return;
+    if (!discardOk()) return;
     setSelected(file);
     setDraft(spec as Draft);
     setDirty(false);
+    setBase(snapshot(spec));
+    setConflict(null);
   };
+
+  /** Resolve a conflict: keep the form's edits (Save will overwrite the file), or load the file from disk. */
+  const keepMine = () => {
+    const el = loaded?.elements.find((e) => e.file === selected);
+    setBase(snapshot(el?.spec));
+    setConflict(null);
+  };
+  const takeTheirs = () => {
+    const el = loaded?.elements.find((e) => e.file === selected);
+    if (el) {
+      setDraft(el.spec as Draft);
+      setBase(snapshot(el.spec));
+    } else {
+      setSelected(null);
+      setDraft(null);
+      setBase(null);
+    }
+    setDirty(false);
+    setConflict(null);
+  };
+
+  // Closing the window with unsaved edits asks first (the main process shows the question).
+  useEffect(() => {
+    if (!dirty) return;
+    const guard = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", guard);
+    return () => window.removeEventListener("beforeunload", guard);
+  }, [dirty]);
 
   const errors = useMemo(() => draftErrors(draft, selected, loaded?.issues ?? []), [draft, selected, loaded]);
 
@@ -150,6 +219,7 @@ export function App() {
 
   const save = useCallback(async () => {
     if (!root || !selected || !draft) return;
+    if (conflict === "changed" && !confirm("This file was changed outside Mod Creator. Save over those changes?")) return;
     let file = selected;
     const kind = KINDS.find((k) => k.kind === draft.kind);
     // Renaming the id renames the file, so spec/<kind>/<id>.json always matches.
@@ -164,9 +234,11 @@ export function App() {
     if (file === selected) await api().saveSpec(root, file, draft);
     setSelected(file);
     setDirty(false);
+    setConflict(null);
     const next = await open(root, true);
+    setBase(snapshot(next?.elements.find((e) => e.file === file)?.spec));
     if (next && !next.issues.some((i) => i.severity === "error")) await generate(root);
-  }, [root, selected, draft, open, generate]);
+  }, [root, selected, draft, conflict, open, generate]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -194,16 +266,18 @@ export function App() {
   };
 
   const add = async (kind: Kind, id: string) => {
-    if (!root || !/^[a-z0-9_]+$/.test(id)) return;
+    if (!root || !/^[a-z0-9_]+$/.test(id) || !discardOk()) return;
     const folder = KINDS.find((k) => k.kind === kind)!.folder;
     const file = `spec/${folder}/${id}.json`;
     const spec = newSpec(kind, id);
     await api().saveSpec(root, file, spec);
     setAdding(null);
-    await open(root, true);
+    const next = await open(root, true);
     setSelected(file);
     setDraft(spec);
     setDirty(false);
+    setBase(snapshot(next?.elements.find((e) => e.file === file)?.spec));
+    setConflict(null);
   };
 
   if (!loaded) return <Welcome error={error} onOpen={(dir) => open(dir)} />;
@@ -217,8 +291,8 @@ export function App() {
         <strong className="project-name">{loaded.project.name}</strong>
         <span className="muted">{loaded.project.modId} · Minecraft {loaded.project.profile}</span>
         <span className="spacer" />
-        <button onClick={async () => { const dir = await api().pickProject(); if (dir) open(dir); }}>Open</button>
-        <button onClick={() => { storage(LAST_PROJECT, null); setLoaded(null); }}>Close</button>
+        <button onClick={async () => { if (!discardOk()) return; const dir = await api().pickProject(); if (dir) open(dir); }}>Open</button>
+        <button onClick={() => { if (!discardOk()) return; storage(LAST_PROJECT, null); setLoaded(null); setSelected(null); setDraft(null); setDirty(false); setConflict(null); }}>Close</button>
         <button onClick={() => { setPanel("log"); generate(loaded.root); }}>Generate</button>
         <button disabled={!!running} onClick={() => runGradle("build")}>Build</button>
         <button disabled={!!running} onClick={() => runGradle("runClient")}>Run client</button>
@@ -260,6 +334,18 @@ export function App() {
               <button onClick={() => api().openPath(loaded.root, selected)}>Open file</button>
               <button className="primary" disabled={!dirty} onClick={save}>{dirty ? "Save (Ctrl+S)" : "Saved"}</button>
             </div>
+            {conflict && (
+              <div className="conflict">
+                <span>
+                  {conflict === "changed"
+                    ? "This file was changed outside Mod Creator while you had unsaved edits."
+                    : "This file was deleted or can no longer be read (see Problems) while you had unsaved edits."}
+                </span>
+                <span className="spacer" />
+                <button onClick={keepMine}>{conflict === "changed" ? "Keep my edits" : "Keep my edits (Save recreates it)"}</button>
+                <button onClick={takeTheirs}>{conflict === "changed" ? "Load the file's version" : "Discard my edits"}</button>
+              </div>
+            )}
             <div className="editor-body">
               <div className={`form${draft.kind === "recipe" ? " wide" : ""}`}>
                 {draft.kind in EDITORS && (() => {

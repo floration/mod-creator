@@ -183,6 +183,19 @@ app.whenReady().then(() => {
       sandbox: true,
     },
   });
+  // The window cancels closing while a form has unsaved edits; ask here whether to close anyway.
+  window.webContents.on("will-prevent-unload", (event) => {
+    const choice = dialog.showMessageBoxSync(window!, {
+      type: "question",
+      buttons: ["Close without saving", "Cancel"],
+      defaultId: 1,
+      cancelId: 1,
+      title: "Unsaved changes",
+      message: "You have unsaved changes.",
+      detail: "Close Mod Creator and lose them?",
+    });
+    if (choice === 0) event.preventDefault();
+  });
   window.loadFile(path.join(here, "../renderer/index.html"));
 });
 

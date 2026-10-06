@@ -92,6 +92,7 @@ button.icon { padding: 0 8px; line-height: 20px; }
 
 .editor { grid-area: editor; display: flex; flex-direction: column; min-height: 0; }
 .editor-head { display: flex; gap: 8px; align-items: center; padding: 8px 12px; border-bottom: 1px solid var(--border); }
+.conflict { display: flex; gap: 8px; align-items: center; padding: 8px 12px; border-bottom: 1px solid var(--border); background: color-mix(in srgb, var(--warning) 18%, var(--surface)); }
 .editor-body { display: flex; flex: 1; min-height: 0; }
 .form { width: 440px; overflow: auto; padding: 12px; }
 .empty { margin: auto; color: var(--muted); }
