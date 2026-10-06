@@ -630,6 +630,69 @@ export const EffectSpecSchema = z.object({
 });
 export type EffectSpec = z.infer<typeof EffectSpecSchema>;
 
+/** A number that grows with the enchantment level: `amount` at level I, plus `perLevel` for each level above. */
+const Scaling = { amount: z.number().default(1), perLevel: z.number().default(1) };
+
+/** What an enchantment does, picked from vanilla's building blocks. */
+export const EnchantmentEffect = z.discriminatedUnion("type", [
+  /** Extra melee damage, like Sharpness (1 + 0.5 a level). Optionally only against one mob or an entity tag. */
+  z.object({ type: z.literal("damage"), ...Scaling, against: Ref.optional() }),
+  /** Less damage taken, like Protection: each point is about 4%. */
+  z.object({ type: z.literal("protection"), ...Scaling }),
+  /** Extra knockback on hit, like Knockback. */
+  z.object({ type: z.literal("knockback"), ...Scaling }),
+  /** Sets the target on fire for some seconds, like Fire Aspect (4 + 4 a level). */
+  z.object({ type: z.literal("ignite"), ...Scaling }),
+  /** Gives the target a status effect for some seconds, like Bane of Arthropods' slowness. */
+  z.object({ type: z.literal("effect_on_hit"), ...Scaling, effect: Ref, amplifier: z.number().int().min(0).max(255).default(0) }),
+  /** Changes an attribute while the item is in its slot, like Swift Sneak. */
+  z.object({
+    type: z.literal("attribute"),
+    ...Scaling,
+    attribute: z.enum(EFFECT_ATTRIBUTES),
+    operation: z.enum(["add", "multiply_base", "multiply_total"]).default("add"),
+  }),
+]);
+export type EnchantmentEffect = z.infer<typeof EnchantmentEffect>;
+
+export const EnchantmentSlot = z.enum(["mainhand", "offhand", "hand", "head", "chest", "legs", "feet", "armor", "body", "any"]);
+
+/**
+ * An enchantment, written as a data file like vanilla's: which items take it, its levels, how rare it is and what it
+ * does. Ones that aren't treasure show up in the enchanting table, in loot and in librarian trades.
+ */
+export const EnchantmentSpecSchema = z.object({
+  kind: z.literal("enchantment"),
+  $schema: z.string().optional(),
+  id: LocalId,
+  /** Shown on the item, like "Lurker's Bane". */
+  name: z.string().min(1),
+  enchantment: z.object({
+    /** Items it can go on in an anvil: an item tag like `#minecraft:enchantable/sharp_weapon`, or one item. */
+    items: Ref.default("#minecraft:enchantable/sharp_weapon"),
+    /** Items the enchanting table offers it on. Defaults to the same as items. */
+    tableItems: Ref.optional(),
+    /** Where the item has to be for it to work. */
+    slots: z.array(EnchantmentSlot).min(1, "Pick at least one slot").default(["mainhand"]),
+    maxLevel: z.number().int().min(1).max(255).default(1),
+    /** How often it comes up compared with others: Sharpness 10, Fire Aspect 2, Mending 2, Silk Touch 1. */
+    weight: z.number().int().min(1).max(1024).default(5),
+    /** Levels an anvil charges per enchantment level. Sharpness 1, Fire Aspect 4. */
+    anvilCost: z.number().int().min(0).max(255).default(2),
+    /** Enchanting cost range at level I and how much it grows each level. Sharpness: 1-21, +11 a level. */
+    minCost: z.object({ base: z.number().int().default(1), perLevel: z.number().int().default(11) }).default({ base: 1, perLevel: 11 }),
+    maxCost: z.object({ base: z.number().int().default(21), perLevel: z.number().int().default(11) }).default({ base: 21, perLevel: 11 }),
+    /** Only from loot and trades, never the enchanting table, like Mending. */
+    treasure: z.boolean().default(false),
+    /** Shown in red and can't be removed with a grindstone, like Curse of Binding. */
+    curse: z.boolean().default(false),
+    /** Enchantments it can't be combined with: ids from this mod, vanilla ids or a tag like `#minecraft:exclusive_set/damage`. */
+    exclusiveWith: z.array(Ref).default([]),
+    effects: z.array(EnchantmentEffect).default([]),
+  }),
+});
+export type EnchantmentSpec = z.infer<typeof EnchantmentSpecSchema>;
+
 export const ElementSpecSchema = z.discriminatedUnion("kind", [
   BlockSpecSchema,
   ItemSpecSchema,
@@ -645,6 +708,7 @@ export const ElementSpecSchema = z.discriminatedUnion("kind", [
   StructureSpecSchema,
   SoundSpecSchema,
   EffectSpecSchema,
+  EnchantmentSpecSchema,
 ]);
 export type ElementSpec = z.infer<typeof ElementSpecSchema>;
 export type ElementKind = ElementSpec["kind"];
@@ -665,6 +729,7 @@ export const KIND_FOLDERS: Record<ElementKind, string> = {
   structure: "structures",
   sound: "sounds",
   effect: "effects",
+  enchantment: "enchantments",
 };
 
 export const SCHEMAS = {
@@ -683,6 +748,7 @@ export const SCHEMAS = {
   structure: StructureSpecSchema,
   sound: SoundSpecSchema,
   effect: EffectSpecSchema,
+  enchantment: EnchantmentSpecSchema,
 } as const;
 
 /** JSON Schema for each spec kind, written to `.modcreator/schema/` for editor autocomplete. */

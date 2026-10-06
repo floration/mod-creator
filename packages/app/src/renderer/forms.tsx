@@ -39,11 +39,12 @@ export function Row({ label, hint, error, children }: { label: string; hint?: st
   );
 }
 
-export function TextField(p: FieldProps & { placeholder?: string; optional?: boolean }) {
+export function TextField(p: FieldProps & { placeholder?: string; optional?: boolean; list?: string }) {
   const value = getAt(p.draft, p.path) ?? "";
   return (
     <Row label={p.label} hint={p.hint} error={p.errors.get(p.path.join("."))}>
       <input
+        list={p.list}
         value={value}
         placeholder={p.placeholder}
         onChange={(e) => p.onChange(setAt(p.draft, p.path, e.target.value === "" && p.optional ? undefined : e.target.value))}

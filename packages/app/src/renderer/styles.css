@@ -302,3 +302,11 @@ table.rows td.has-error input { border-color: var(--error); }
 .rows.sound-files th:nth-child(n+2):nth-child(-n+4), .rows.sound-files td:nth-child(n+2):nth-child(-n+4) { width: 58px; }
 .rows.sound-files td:last-child { width: 32px; }
 .sound-actions { display: flex; gap: 12px; margin-top: 6px; }
+
+.enchant-effect { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 6px 0; border-bottom: 1px solid var(--border, #333); }
+.enchant-effect input { width: 130px; }
+.enchant-effect label.inline input { width: 64px; margin-left: 4px; }
+.enchant-effect .field-hint { flex-basis: 100%; }
+.checks { display: flex; flex-wrap: wrap; gap: 4px 12px; }
+label.inline { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; }
+.enchant-effect select { width: auto; }

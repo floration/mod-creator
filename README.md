@@ -134,6 +134,18 @@ Tick **Can be brewed** for a potion. It is brewed by adding the ingredient to an
 
 A food's **Effects when eaten** can give this mod's effects or vanilla ones like `minecraft:speed`, with a chance. The Azure Plum gives Grove Stride half the time and brews into a Potion of Grove Stride.
 
+### Enchantments
+
+Enchantments are data files, like vanilla's. **Goes on** takes an item tag such as `#minecraft:enchantable/sharp_weapon` or `#minecraft:enchantable/armor`, or one item. **Works while in** sets the slots it acts from. Each effect has a value at level I and an amount added per level, and the editor shows the value at each level. The effects are:
+- extra damage, optionally only against one mob or an entity tag
+- protection
+- knockback
+- setting the target on fire
+- giving the target a status effect
+- an attribute change while the item is in its slot
+
+Enchantments that aren't treasure show up in the enchanting table, in loot and in librarian trades. Treasure ones show up only in loot and trades. Weight, anvil cost and enchanting power work like the vanilla numbers shown in the hints. **Can't be combined with** takes enchantment ids or a vanilla exclusive set like `#minecraft:exclusive_set/damage`. Lurker's Bane in Azure Grove does extra damage to the Grove Lurker and slows what it hits. In game, `/enchant @s <modid>:<id>` adds it.
+
 ### Quests
 
 Quests are vanilla advancements, so they show in the game's advancements screen (L) with no extra mod. Each one has a title, a description, an icon, a frame (task, goal or challenge) and what completes it: obtaining items, killing, breeding or taming a mob, visiting a biome, crafting a recipe, eating something or placing a block. With several criteria, **Done when** picks whether all of them or any one is needed. Rewards are experience, items and recipes unlocked in the recipe book.
@@ -161,4 +173,4 @@ Minecraft 26.3, Fabric Loader 0.19.5, Fabric Loom 1.18.2 (`net.fabricmc.fabric-l
 
 ## Status
 
-Milestones 2 and 3 of the design doc are in: the project skeleton, blocks, items and recipes. So are ore veins, food, tools, armor, trees, plants, mobs (on vanilla bodies or Blockbench models) and biomes. Mobs can be animals, neutral, tameable or hostile, and fly. Blocks can have stairs, slabs, walls, fences, doors and other shapes, and trees a full wood set. Project settings, Modrinth search and quests (advancements, with a quest line view) structures from structure block files, sounds from .ogg files, and status effects with brewable potions and food effects are in the app. Next up: enchantments.
+Milestones 2 and 3 of the design doc are in: the project skeleton, blocks, items and recipes. So are ore veins, food, tools, armor, trees, plants, mobs (on vanilla bodies or Blockbench models) and biomes. Mobs can be animals, neutral, tameable or hostile, and fly. Blocks can have stairs, slabs, walls, fences, doors and other shapes, and trees a full wood set. Project settings, Modrinth search and quests (advancements, with a quest line view) structures from structure block files, sounds from .ogg files, and status effects with brewable potions and food effects, and enchantments are in the app. That completes phase 3 of the roadmap.

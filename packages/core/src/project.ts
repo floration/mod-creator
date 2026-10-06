@@ -218,6 +218,7 @@ export function checkReferences(root: string, elements: LoadedElement[]): Issue[
   const biomes = idsOf("biome");
   const sounds = idsOf("sound");
   const effects = idsOf("effect");
+  const enchantments = idsOf("enchantment");
   const advancements = idsOf("advancement");
   const recipes = new Set(specs.flatMap(recipeIds));
   const err = (file: string, field: string, message: string) => issues.push({ severity: "error", file, field, message });
@@ -393,6 +394,20 @@ export function checkReferences(root: string, elements: LoadedElement[]): Issue[
         if (twin && twin !== file) err(file, field, `${twin} already brews from ${p.ingredient}`);
         else brewed.set(p.ingredient, file);
       }
+    } else if (spec.kind === "enchantment") {
+      const x = spec.enchantment;
+      checkItem(file, "enchantment.items", x.items);
+      if (x.tableItems) checkItem(file, "enchantment.tableItems", x.tableItems);
+      x.exclusiveWith.forEach((ref, i) => {
+        if (ref === spec.id) err(file, `enchantment.exclusiveWith.${i}`, "An enchantment can't exclude itself");
+        else if (!ref.startsWith("#")) checkLocal(file, `enchantment.exclusiveWith.${i}`, ref, enchantments, "enchantment");
+      });
+      x.effects.forEach((fx, i) => {
+        if (fx.type === "effect_on_hit") checkEffect(file, `enchantment.effects.${i}.effect`, fx.effect);
+        if (fx.type === "damage" && fx.against && !fx.against.startsWith("#")) checkLocal(file, `enchantment.effects.${i}.against`, fx.against, mobs, "mob");
+      });
+      if (x.maxCost.base < x.minCost.base) err(file, "enchantment.maxCost.base", "The highest cost must be at least the lowest");
+      if (!x.effects.length && !x.curse) issues.push({ severity: "warning", file, field: "enchantment.effects", message: "It doesn't do anything yet; add an effect" });
     } else if (spec.kind === "structure") {
       const st = spec.structure;
       if (!st.file.endsWith(".nbt")) err(file, "structure.file", "Pick the .nbt file a structure block saved");
