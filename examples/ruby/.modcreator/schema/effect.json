@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "kind": {
+      "type": "string",
+      "const": "effect"
+    },
+    "$schema": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "effect": {
+      "type": "object",
+      "properties": {
+        "category": {
+          "default": "beneficial",
+          "type": "string",
+          "enum": [
+            "beneficial",
+            "harmful",
+            "neutral"
+          ]
+        },
+        "color": {
+          "default": "#6ab0ff",
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "icon": {
+          "type": "string"
+        },
+        "modifiers": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "attribute": {
+                "type": "string",
+                "enum": [
+                  "movement_speed",
+                  "attack_damage",
+                  "attack_speed",
+                  "armor",
+                  "armor_toughness",
+                  "max_health",
+                  "knockback_resistance",
+                  "jump_strength",
+                  "safe_fall_distance",
+                  "gravity",
+                  "scale",
+                  "step_height",
+                  "luck",
+                  "block_break_speed",
+                  "mining_efficiency",
+                  "oxygen_bonus",
+                  "water_movement_efficiency",
+                  "block_interaction_range",
+                  "entity_interaction_range",
+                  "burning_time",
+                  "fall_damage_multiplier",
+                  "max_absorption",
+                  "sneaking_speed"
+                ]
+              },
+              "amount": {
+                "type": "number"
+              },
+              "operation": {
+                "default": "add",
+                "type": "string",
+                "enum": [
+                  "add",
+                  "multiply_base",
+                  "multiply_total"
+                ]
+              }
+            },
+            "required": [
+              "attribute",
+              "amount"
+            ]
+          }
+        },
+        "potion": {
+          "type": "object",
+          "properties": {
+            "ingredient": {
+              "type": "string",
+              "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+            },
+            "seconds": {
+              "default": 180,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 86400
+            },
+            "longer": {
+              "default": true,
+              "type": "boolean"
+            },
+            "stronger": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "ingredient"
+          ]
+        }
+      },
+      "required": [
+        "icon"
+      ]
+    }
+  },
+  "required": [
+    "kind",
+    "id",
+    "name",
+    "effect"
+  ]
+}

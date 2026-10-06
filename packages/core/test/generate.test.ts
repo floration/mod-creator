@@ -72,7 +72,7 @@ describe("Azure Grove example", () => {
     const loaded = await loadProject(AZUREGROVE);
     expect(loaded.issues).toEqual([]);
     expect(new Set(loaded.elements.map((e) => e.spec.kind))).toEqual(
-      new Set(["block", "item", "recipe", "ore", "tool", "armor", "tree", "plant", "mob", "biome", "advancement", "structure", "sound"]),
+      new Set(["block", "item", "recipe", "ore", "tool", "armor", "tree", "plant", "mob", "biome", "advancement", "structure", "sound", "effect"]),
     );
   });
 
@@ -325,6 +325,56 @@ describe("sounds", () => {
       ]),
     );
     expect(issues.filter((i) => i.includes("mob.sounds"))).toHaveLength(1);
+  });
+});
+
+describe("effects", () => {
+  const RES = "src/generated/resources";
+  it("registers the effect and its potions, and writes brewing recipes like vanilla's", async () => {
+    const files = plan(await loadProject(AZUREGROVE));
+    const java = files.get("src/generated/java/com/example/azuregrove/generated/ModContent.java") as string;
+    expect(java).toContain('public static final Holder<MobEffect> GROVE_STRIDE_EFFECT = registerEffect("grove_stride", new MobEffect(MobEffectCategory.BENEFICIAL, 0x4a8cff) {}');
+    expect(java).toContain('.addAttributeModifier(Attributes.MOVEMENT_SPEED, id("effect.grove_stride.movement_speed"), 0.2, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)');
+    expect(java).toContain('new Potion("azuregrove.grove_stride", new MobEffectInstance(GROVE_STRIDE_EFFECT, 9600))');
+    expect(java).toContain('new Potion("azuregrove.grove_stride", new MobEffectInstance(GROVE_STRIDE_EFFECT, 1800, 1))');
+    // Effects are declared before the foods that give them.
+    expect(java.indexOf("GROVE_STRIDE_EFFECT =")).toBeLessThan(java.indexOf("AZURE_PLUM ="));
+    expect(java).toContain("new ApplyStatusEffectsConsumeEffect(new MobEffectInstance(GROVE_STRIDE_EFFECT, 200, 0), 0.5f)");
+    expect(files.get(`${RES}/assets/azuregrove/textures/mob_effect/grove_stride.png`)).toEqual({ copy: "art/grove_stride.png" });
+    const lang = JSON.parse(files.get(`${RES}/assets/azuregrove/lang/en_us.json`) as string);
+    expect(lang["effect.azuregrove.grove_stride"]).toBe("Grove Stride");
+    expect(lang["item.minecraft.tipped_arrow.effect.azuregrove.grove_stride"]).toBe("Arrow of Grove Stride");
+    const brewing = [...files.keys()].filter((f) => f.includes("/recipe/brewing/"));
+    // 3 bottles x (awkward + redstone + glowstone), and gunpowder and dragon's breath for each of the 3 potions.
+    expect(brewing).toHaveLength(15);
+    expect(JSON.parse(files.get(`${RES}/data/azuregrove/recipe/brewing/splash_potion_awkward_azure_plum.json`) as string)).toEqual({
+      type: "minecraft:brewing",
+      input: { item: "minecraft:splash_potion", potion_contents: { potions: "minecraft:awkward" } },
+      output: { components: { "minecraft:potion_contents": { potion: "azuregrove:grove_stride" } }, id: "minecraft:splash_potion" },
+      reagent: { item: "azuregrove:azure_plum" },
+    });
+  });
+
+  it("looks up vanilla food effects by id", async () => {
+    const dir = await copyOf(AZUREGROVE);
+    await editSpec(dir, "spec/items/azure_plum.json", (json) => { json.item.food.effects = [{ effect: "minecraft:speed", seconds: 5 }]; });
+    const java = plan(await loadProject(dir)).get("src/generated/java/com/example/azuregrove/generated/ModContent.java") as string;
+    expect(java).toContain('new MobEffectInstance(BuiltInRegistries.MOB_EFFECT.get(Identifier.parse("minecraft:speed")).orElseThrow(), 100, 0), 1.0f)');
+  });
+
+  it("reports unknown effects, brewing ingredients vanilla already uses and odd icon sizes", async () => {
+    const dir = await copyOf(AZUREGROVE);
+    await editSpec(dir, "spec/items/azure_plum.json", (json) => { json.item.food.effects = [{ effect: "grove_dash" }, { effect: "minecraft:sped" }]; });
+    await editSpec(dir, "spec/effects/grove_stride.json", (json) => { json.effect.potion.ingredient = "minecraft:sugar"; json.effect.icon = "art/azure_plum.png"; });
+    const issues = (await loadProject(dir)).issues.map((i) => `${i.severity} ${i.file} ${i.field}`);
+    expect(issues).toEqual(
+      expect.arrayContaining([
+        "error spec/items/azure_plum.json item.food.effects.0.effect",
+        "error spec/items/azure_plum.json item.food.effects.1.effect",
+        "error spec/effects/grove_stride.json effect.potion.ingredient",
+        "warning spec/effects/grove_stride.json effect.icon",
+      ]),
+    );
   });
 });
 

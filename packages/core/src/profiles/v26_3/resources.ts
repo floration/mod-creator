@@ -3,6 +3,7 @@ import {
   type AdvancementSpec,
   type StructureSpec,
   type SoundSpec,
+  type EffectSpec,
   type Criterion,
   TREE_PARTS,
   registeredItems,
@@ -21,7 +22,7 @@ import {
   type ToolSpec,
   type TreeSpec,
 } from "../../schema.js";
-import { repairTag } from "./java.js";
+import { potionVariants, repairTag } from "./java.js";
 import { resolveRef } from "./refs.js";
 import { SHAPE_BLOCKSTATES } from "./shapeStates.js";
 import { STANDARD_CARVERS, STANDARD_FEATURES, STANDARD_SPAWNS, TREE_SHAPES, VEGETATION_STEP } from "./vanillaData.js";
@@ -842,6 +843,55 @@ function soundFiles(out: Output, sounds: SoundSpec[]) {
   out.set(`assets/${modId}/sounds.json`, events);
 }
 
+// ---- Effects and potions ----
+
+const POTION_ITEMS = [
+  ["potion", "Potion of"],
+  ["splash_potion", "Splash Potion of"],
+  ["lingering_potion", "Lingering Potion of"],
+  ["tipped_arrow", "Arrow of"],
+] as const;
+
+/** A data-driven brewing recipe: `input` potion in `container` plus `reagent` makes `output` in `to`. */
+function brewing(container: string, input: string, reagent: string, output: string, to = container) {
+  return {
+    type: "minecraft:brewing",
+    input: { item: `minecraft:${container}`, potion_contents: { potions: input } },
+    output: { components: { "minecraft:potion_contents": { potion: output } }, id: `minecraft:${to}` },
+    reagent: { item: reagent },
+  };
+}
+
+/**
+ * The effect's icon and name, and for a potion its names and brewing recipes, the same set vanilla has for each
+ * potion: awkward + ingredient in all three bottles, redstone and glowstone for the long and strong versions,
+ * gunpowder for splash and dragon's breath for lingering.
+ */
+function effectFiles(out: Output, e: EffectSpec) {
+  const modId = out.modId;
+  out.lang[`effect.${modId}.${e.id}`] = e.name;
+  out.copy(e.effect.icon, `assets/${modId}/textures/mob_effect/${e.id}.png`);
+  const p = e.effect.potion;
+  if (!p) return;
+  for (const [item, prefix] of POTION_ITEMS) out.lang[`item.minecraft.${item}.effect.${modId}.${e.id}`] = `${prefix} ${e.name}`;
+  const ingredient = resolveRef(modId, p.ingredient);
+  const variants = potionVariants(e).map((v) => ({ ...v, ref: `${modId}:${v.id}` }));
+  const base = variants[0].ref;
+  const recipe = (container: string, variant: string, reagent: string, value: unknown) =>
+    out.set(`data/${modId}/recipe/brewing/${container}_${variant}_${reagent.split(":").pop()}.json`, value);
+  for (const c of ["potion", "splash_potion", "lingering_potion"]) {
+    recipe(c, "awkward", ingredient, brewing(c, "minecraft:awkward", ingredient, base));
+    for (const v of variants.slice(1)) {
+      const reagent = v.id.startsWith("long_") ? "minecraft:redstone" : "minecraft:glowstone_dust";
+      recipe(c, e.id, reagent, brewing(c, base, reagent, v.ref));
+    }
+  }
+  for (const v of variants) {
+    recipe("potion", v.id, "gunpowder", brewing("potion", v.ref, "minecraft:gunpowder", v.ref, "splash_potion"));
+    recipe("splash_potion", v.id, "dragon_breath", brewing("splash_potion", v.ref, "minecraft:dragon_breath", v.ref, "lingering_potion"));
+  }
+}
+
 /** Every generated resource file for the project. */
 export function resourceFiles(project: Project, elements: ElementSpec[]): ResourceFiles {
   const out = new Output(project.modId);
@@ -859,6 +909,7 @@ export function resourceFiles(project: Project, elements: ElementSpec[]): Resour
       case "ore": oreFiles(out, e); break;
       case "advancement": advancementFiles(out, e); break;
       case "structure": structureFiles(out, e); break;
+      case "effect": effectFiles(out, e); break;
       case "recipe": out.set(`data/${project.modId}/recipe/${e.id}.json`, recipeJson(project.modId, e)); break;
     }
   }

@@ -12,6 +12,9 @@ import {
   type ElementSpec,
   type MobSpec,
   type Project,
+  POTION_MODIFIERS,
+  VANILLA_AWKWARD_INGREDIENTS,
+  VANILLA_EFFECTS,
 } from "./schema.js";
 import { parseBlockbench, type EntityModelDef } from "./blockbench.js";
 import { parseStructure } from "./nbt.js";
@@ -107,6 +110,7 @@ export async function loadProject(root: string): Promise<LoadedProject> {
   const models = await loadModels(root, elements, issues);
   issues.push(...(await checkStructures(root, parsed.data.modId, elements)));
   issues.push(...(await checkSounds(root, elements)));
+  issues.push(...(await checkEffectIcons(root, elements)));
   return { root, project: parsed.data, elements, issues, models };
 }
 
@@ -180,6 +184,27 @@ async function checkSounds(root: string, elements: LoadedElement[]): Promise<Iss
   return issues;
 }
 
+/** Width and height of a PNG, from its header; null when it isn't one. */
+export function pngSize(data: Buffer): [number, number] | null {
+  if (data.length < 24 || data.readUInt32BE(0) !== 0x89504e47 || data.toString("latin1", 12, 16) !== "IHDR") return null;
+  return [data.readUInt32BE(16), data.readUInt32BE(20)];
+}
+
+/** Effect icons are drawn 18x18; other sizes get squashed or cut. */
+async function checkEffectIcons(root: string, elements: LoadedElement[]): Promise<Issue[]> {
+  const issues: Issue[] = [];
+  for (const { spec, file } of elements) {
+    if (spec.kind !== "effect") continue;
+    const full = path.join(root, spec.effect.icon);
+    if (!existsSync(full)) continue; // reported with the art
+    const size = pngSize(await readFile(full));
+    const field = "effect.icon";
+    if (!size) issues.push({ severity: "error", file, field, message: `${spec.effect.icon} isn't a PNG` });
+    else if (size[0] !== 18 || size[1] !== 18) issues.push({ severity: "warning", file, field, message: `${spec.effect.icon} is ${size[0]}x${size[1]}; effect icons are 18x18` });
+  }
+  return issues;
+}
+
 /** Broken references, id clashes and missing art across a set of elements. */
 export function checkReferences(root: string, elements: LoadedElement[]): Issue[] {
   const issues: Issue[] = [];
@@ -192,6 +217,7 @@ export function checkReferences(root: string, elements: LoadedElement[]): Issue[
   const mobs = idsOf("mob");
   const biomes = idsOf("biome");
   const sounds = idsOf("sound");
+  const effects = idsOf("effect");
   const advancements = idsOf("advancement");
   const recipes = new Set(specs.flatMap(recipeIds));
   const err = (file: string, field: string, message: string) => issues.push({ severity: "error", file, field, message });
@@ -211,6 +237,13 @@ export function checkReferences(root: string, elements: LoadedElement[]): Issue[
   const checkLocal = (file: string, field: string, ref: string, ids: Set<string>, what: string) => {
     if (!ref.includes(":") && !ids.has(ref)) err(file, field, `No ${what} named "${ref}" in this project`);
   };
+  const checkEffect = (file: string, field: string, ref: string) => {
+    if (ref.startsWith("minecraft:")) {
+      if (!(VANILLA_EFFECTS as readonly string[]).includes(ref.slice(10))) err(file, field, `Minecraft has no effect named "${ref}"`);
+    } else checkLocal(file, field, ref, effects, "effect");
+  };
+  /** Brewing ingredient -> the effect spec using it, so two potions don't share one. */
+  const brewed = new Map<string, string>();
   const checkArt = (file: string, field: string, art: string) => {
     if (!existsSync(path.join(root, art))) err(file, field, `Missing file ${art}`);
   };
@@ -293,6 +326,7 @@ export function checkReferences(root: string, elements: LoadedElement[]): Issue[
       }
     } else if (spec.kind === "item") {
       checkArt(file, "item.texture", spec.item.texture);
+      spec.item.food?.effects.forEach((e, i) => checkEffect(file, `item.food.effects.${i}.effect`, e.effect));
     } else if (spec.kind === "tool") {
       checkArt(file, "tool.texture", spec.tool.texture);
       if (spec.tool.repairItem) checkItem(file, "tool.repairItem", spec.tool.repairItem);
@@ -346,6 +380,19 @@ export function checkReferences(root: string, elements: LoadedElement[]): Issue[
         if (!f.file.endsWith(".ogg")) err(file, `sound.files.${i}.file`, "Minecraft only plays .ogg files");
         else checkArt(file, `sound.files.${i}.file`, f.file);
       });
+    } else if (spec.kind === "effect") {
+      checkArt(file, "effect.icon", spec.effect.icon);
+      const p = spec.effect.potion;
+      if (p) {
+        const field = "effect.potion.ingredient";
+        const vanilla = p.ingredient.startsWith("minecraft:") ? p.ingredient.slice(10) : "";
+        if ((POTION_MODIFIERS as readonly string[]).includes(vanilla)) err(file, field, `${p.ingredient} already changes every potion in the brewing stand; pick another ingredient`);
+        else if ((VANILLA_AWKWARD_INGREDIENTS as readonly string[]).includes(vanilla)) err(file, field, `${p.ingredient} already brews a vanilla potion from an awkward one; pick another ingredient`);
+        else checkItem(file, field, p.ingredient, false);
+        const twin = brewed.get(p.ingredient);
+        if (twin && twin !== file) err(file, field, `${twin} already brews from ${p.ingredient}`);
+        else brewed.set(p.ingredient, file);
+      }
     } else if (spec.kind === "structure") {
       const st = spec.structure;
       if (!st.file.endsWith(".nbt")) err(file, "structure.file", "Pick the .nbt file a structure block saved");

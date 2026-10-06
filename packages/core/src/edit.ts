@@ -25,7 +25,7 @@ export function dependentsOf(loaded: LoadedProject, file: string): Issue[] {
 /** Ids other specs can point at: the items, blocks and recipes a spec creates, and the other kinds by id. */
 function referenceableIds(spec: ElementSpec): Set<string> {
   const ids = new Set([...registeredItems(spec).map(([id]) => id), ...registeredBlocks(spec), ...recipeIds(spec)]);
-  if (["tree", "plant", "mob", "biome", "advancement", "sound"].includes(spec.kind)) ids.add(spec.id);
+  if (["tree", "plant", "mob", "biome", "advancement", "sound", "effect"].includes(spec.kind)) ids.add(spec.id);
   return ids;
 }
 

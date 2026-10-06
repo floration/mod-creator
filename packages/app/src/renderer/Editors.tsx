@@ -1,6 +1,6 @@
 import { useContext, useEffect, useMemo, useState } from "react";
 import { EMPTY_SLOTS, listFromSlots, patternFromSlots, sameShape, slotsFromList, slotsFromPattern, type Slots } from "@modcreator/core/recipe-grid";
-import { ARMOR_PIECES, CreativeTab, EquipSound, MobBehavior, MobModel, OreHost, Rarity, SoundType, ToolTier, TreeShape, shapeBlocks, type ElementSpec } from "@modcreator/core/schema";
+import { ARMOR_PIECES, CreativeTab, EquipSound, MobBehavior, MobModel, OreHost, Rarity, SoundType, ToolTier, TreeShape, VANILLA_EFFECTS, shapeBlocks, type ElementSpec } from "@modcreator/core/schema";
 import {
   CheckField,
   ColorField,
@@ -164,6 +164,20 @@ export function ItemEditor(p: EditorProps) {
           <NumberField {...f} path={["item", "food", "nutrition"]} label="Nutrition" min={0} max={20} hint="Hunger points; each drumstick is 2. Apple 4, bread 5, steak 8" />
           <NumberField {...f} path={["item", "food", "saturation"]} label="Saturation" step={0.1} min={0} max={2} hint="How long it keeps you full. Apple 0.3, bread 0.6, steak 0.8" />
           <CheckField {...f} path={["item", "food", "alwaysEdible"]} label="Can be eaten when not hungry" />
+          <RowsField
+            {...f}
+            path={["item", "food", "effects"]}
+            label="Effects when eaten"
+            hint="An effect from this mod by id, or minecraft:speed and the like. Level 0 is I. Chance 0.5 gives it half the time."
+            columns={[
+              { key: "effect", label: "Effect", type: "text", placeholder: "minecraft:speed", suggestions: VANILLA_EFFECTS.map((e) => `minecraft:${e}`) },
+              { key: "seconds", label: "Seconds", type: "number", min: 0.05 },
+              { key: "amplifier", label: "Level", type: "number", min: 0, max: 255 },
+              { key: "chance", label: "Chance", type: "number", step: 0.1, min: 0, max: 1 },
+            ]}
+            template={{ effect: "", seconds: 30, amplifier: 0, chance: 1 }}
+            addLabel="+ Add an effect"
+          />
         </OptionalGroup>
       </Section>
     </>
@@ -718,7 +732,7 @@ export function OreEditor(p: EditorProps) {
   );
 }
 
-export type Kind = "block" | "item" | "recipe" | "ore" | "tool" | "armor" | "tree" | "plant" | "mob" | "biome" | "advancement" | "structure" | "sound";
+export type Kind = "block" | "item" | "recipe" | "ore" | "tool" | "armor" | "tree" | "plant" | "mob" | "biome" | "advancement" | "structure" | "sound" | "effect";
 
 /** Starting point for a new spec of each kind. */
 export function newSpec(kind: Kind, id: string): Draft {
@@ -758,6 +772,8 @@ export function newSpec(kind: Kind, id: string): Draft {
       return { $schema: base.$schema, kind, id, recipe: RECIPE_TEMPLATES.shaped({ item: "", count: 1 }) };
     case "sound":
       return { ...base, sound: { files: [] } };
+    case "effect":
+      return { ...base, effect: { category: "beneficial", color: "#6ab0ff", icon: `art/${id}.png`, modifiers: [] } };
     case "structure":
       return { ...base, structure: { file: `art/${id}.nbt`, biomes: ["minecraft:plains"], spacing: 32, separation: 8, placement: "surface", y: 0, terrain: "beard_thin" } };
     case "advancement":

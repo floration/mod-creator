@@ -16,6 +16,7 @@ import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -26,11 +27,15 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.random.WeightedList;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.SpawnPlacementTypes;
 import net.minecraft.world.entity.SpawnPlacements;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.monster.Monster;
@@ -41,6 +46,9 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.item.ToolMaterial;
+import net.minecraft.world.item.alchemy.Potion;
+import net.minecraft.world.item.component.Consumables;
+import net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect;
 import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.item.equipment.EquipmentAssets;
@@ -81,6 +89,17 @@ public final class ModContent {
 
 	/** Bluetusk grunts (spec/sounds/bluetusk_grunt.json) */
 	public static final SoundEvent BLUETUSK_GRUNT_SOUND = registerSound("bluetusk_grunt");
+
+	/** Grove Stride (spec/effects/grove_stride.json) */
+	public static final Holder<MobEffect> GROVE_STRIDE_EFFECT = registerEffect("grove_stride", new MobEffect(MobEffectCategory.BENEFICIAL, 0x4a8cff) {}
+			.addAttributeModifier(Attributes.MOVEMENT_SPEED, id("effect.grove_stride.movement_speed"), 0.2, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
+			.addAttributeModifier(Attributes.STEP_HEIGHT, id("effect.grove_stride.step_height"), 0.5, AttributeModifier.Operation.ADD_VALUE));
+	public static final Holder<Potion> GROVE_STRIDE_POTION = registerPotion("grove_stride",
+			new Potion("azuregrove.grove_stride", new MobEffectInstance(GROVE_STRIDE_EFFECT, 3600)));
+	public static final Holder<Potion> LONG_GROVE_STRIDE_POTION = registerPotion("long_grove_stride",
+			new Potion("azuregrove.grove_stride", new MobEffectInstance(GROVE_STRIDE_EFFECT, 9600)));
+	public static final Holder<Potion> STRONG_GROVE_STRIDE_POTION = registerPotion("strong_grove_stride",
+			new Potion("azuregrove.grove_stride", new MobEffectInstance(GROVE_STRIDE_EFFECT, 1800, 1)));
 
 	/** Azurite Bricks (spec/blocks/azurite_bricks.json) */
 	public static final Block AZURITE_BRICKS = registerBlock("azurite_bricks", Block::new,
@@ -141,7 +160,9 @@ public final class ModContent {
 
 	/** Azure Plum (spec/items/azure_plum.json) */
 	public static final Item AZURE_PLUM = registerItem("azure_plum", Item::new, new Item.Properties()
-			.food(new FoodProperties.Builder().nutrition(4).saturationModifier(0.6f).build()));
+			.food(new FoodProperties.Builder().nutrition(4).saturationModifier(0.6f).build(),
+				Consumables.defaultFood()
+					.onConsume(new ApplyStatusEffectsConsumeEffect(new MobEffectInstance(GROVE_STRIDE_EFFECT, 200, 0), 0.5f)).build()));
 
 	/** Azurite (spec/items/azurite.json) */
 	public static final Item AZURITE = registerItem("azurite", Item::new, new Item.Properties().rarity(Rarity.UNCOMMON));
@@ -259,6 +280,14 @@ public final class ModContent {
 
 	private static SoundEvent registerSound(String name) {
 		return Registry.register(BuiltInRegistries.SOUND_EVENT, id(name), SoundEvent.createVariableRangeEvent(id(name)));
+	}
+
+	private static Holder<MobEffect> registerEffect(String name, MobEffect effect) {
+		return Registry.registerForHolder(BuiltInRegistries.MOB_EFFECT, id(name), effect);
+	}
+
+	private static Holder<Potion> registerPotion(String name, Potion potion) {
+		return Registry.registerForHolder(BuiltInRegistries.POTION, id(name), potion);
 	}
 
 	private static Item registerItem(String name, Function<Item.Properties, Item> factory, Item.Properties properties) {
@@ -1826,6 +1855,11 @@ public class GroveLurker extends Monster {
   "advancements.azuregrove.sharp_and_blue.description": "Craft an Azurite Sword",
   "advancements.azuregrove.tusk_rancher.title": "Tusk Rancher",
   "advancements.azuregrove.tusk_rancher.description": "Breed two Bluetusks with plums",
+  "effect.azuregrove.grove_stride": "Grove Stride",
+  "item.minecraft.potion.effect.azuregrove.grove_stride": "Potion of Grove Stride",
+  "item.minecraft.splash_potion.effect.azuregrove.grove_stride": "Splash Potion of Grove Stride",
+  "item.minecraft.lingering_potion.effect.azuregrove.grove_stride": "Lingering Potion of Grove Stride",
+  "item.minecraft.tipped_arrow.effect.azuregrove.grove_stride": "Arrow of Grove Stride",
   "subtitles.azuregrove.bluetusk_grunt": "Bluetusk grunts"
 }
 ",
@@ -2302,6 +2336,7 @@ public class GroveLurker extends Monster {
   "src/generated/resources/assets/azuregrove/textures/item/azurite_sword.png": "<copy of art/azurite_sword.png>",
   "src/generated/resources/assets/azuregrove/textures/item/bluetusk_spawn_egg.png": "<copy of art/bluetusk_spawn_egg.png>",
   "src/generated/resources/assets/azuregrove/textures/item/grove_lurker_spawn_egg.png": "<copy of art/grove_lurker_spawn_egg.png>",
+  "src/generated/resources/assets/azuregrove/textures/mob_effect/grove_stride.png": "<copy of art/grove_stride.png>",
   "src/generated/resources/data/azuregrove/advancement/azure_grove.json": "{
   "criteria": {
     "visit_1": {
@@ -3570,6 +3605,321 @@ public class GroveLurker extends Monster {
   "result": {
     "id": "azuregrove:azurite_sword",
     "count": 1
+  }
+}
+",
+  "src/generated/resources/data/azuregrove/recipe/brewing/lingering_potion_awkward_azure_plum.json": "{
+  "type": "minecraft:brewing",
+  "input": {
+    "item": "minecraft:lingering_potion",
+    "potion_contents": {
+      "potions": "minecraft:awkward"
+    }
+  },
+  "output": {
+    "components": {
+      "minecraft:potion_contents": {
+        "potion": "azuregrove:grove_stride"
+      }
+    },
+    "id": "minecraft:lingering_potion"
+  },
+  "reagent": {
+    "item": "azuregrove:azure_plum"
+  }
+}
+",
+  "src/generated/resources/data/azuregrove/recipe/brewing/lingering_potion_grove_stride_glowstone_dust.json": "{
+  "type": "minecraft:brewing",
+  "input": {
+    "item": "minecraft:lingering_potion",
+    "potion_contents": {
+      "potions": "azuregrove:grove_stride"
+    }
+  },
+  "output": {
+    "components": {
+      "minecraft:potion_contents": {
+        "potion": "azuregrove:strong_grove_stride"
+      }
+    },
+    "id": "minecraft:lingering_potion"
+  },
+  "reagent": {
+    "item": "minecraft:glowstone_dust"
+  }
+}
+",
+  "src/generated/resources/data/azuregrove/recipe/brewing/lingering_potion_grove_stride_redstone.json": "{
+  "type": "minecraft:brewing",
+  "input": {
+    "item": "minecraft:lingering_potion",
+    "potion_contents": {
+      "potions": "azuregrove:grove_stride"
+    }
+  },
+  "output": {
+    "components": {
+      "minecraft:potion_contents": {
+        "potion": "azuregrove:long_grove_stride"
+      }
+    },
+    "id": "minecraft:lingering_potion"
+  },
+  "reagent": {
+    "item": "minecraft:redstone"
+  }
+}
+",
+  "src/generated/resources/data/azuregrove/recipe/brewing/potion_awkward_azure_plum.json": "{
+  "type": "minecraft:brewing",
+  "input": {
+    "item": "minecraft:potion",
+    "potion_contents": {
+      "potions": "minecraft:awkward"
+    }
+  },
+  "output": {
+    "components": {
+      "minecraft:potion_contents": {
+        "potion": "azuregrove:grove_stride"
+      }
+    },
+    "id": "minecraft:potion"
+  },
+  "reagent": {
+    "item": "azuregrove:azure_plum"
+  }
+}
+",
+  "src/generated/resources/data/azuregrove/recipe/brewing/potion_grove_stride_glowstone_dust.json": "{
+  "type": "minecraft:brewing",
+  "input": {
+    "item": "minecraft:potion",
+    "potion_contents": {
+      "potions": "azuregrove:grove_stride"
+    }
+  },
+  "output": {
+    "components": {
+      "minecraft:potion_contents": {
+        "potion": "azuregrove:strong_grove_stride"
+      }
+    },
+    "id": "minecraft:potion"
+  },
+  "reagent": {
+    "item": "minecraft:glowstone_dust"
+  }
+}
+",
+  "src/generated/resources/data/azuregrove/recipe/brewing/potion_grove_stride_gunpowder.json": "{
+  "type": "minecraft:brewing",
+  "input": {
+    "item": "minecraft:potion",
+    "potion_contents": {
+      "potions": "azuregrove:grove_stride"
+    }
+  },
+  "output": {
+    "components": {
+      "minecraft:potion_contents": {
+        "potion": "azuregrove:grove_stride"
+      }
+    },
+    "id": "minecraft:splash_potion"
+  },
+  "reagent": {
+    "item": "minecraft:gunpowder"
+  }
+}
+",
+  "src/generated/resources/data/azuregrove/recipe/brewing/potion_grove_stride_redstone.json": "{
+  "type": "minecraft:brewing",
+  "input": {
+    "item": "minecraft:potion",
+    "potion_contents": {
+      "potions": "azuregrove:grove_stride"
+    }
+  },
+  "output": {
+    "components": {
+      "minecraft:potion_contents": {
+        "potion": "azuregrove:long_grove_stride"
+      }
+    },
+    "id": "minecraft:potion"
+  },
+  "reagent": {
+    "item": "minecraft:redstone"
+  }
+}
+",
+  "src/generated/resources/data/azuregrove/recipe/brewing/potion_long_grove_stride_gunpowder.json": "{
+  "type": "minecraft:brewing",
+  "input": {
+    "item": "minecraft:potion",
+    "potion_contents": {
+      "potions": "azuregrove:long_grove_stride"
+    }
+  },
+  "output": {
+    "components": {
+      "minecraft:potion_contents": {
+        "potion": "azuregrove:long_grove_stride"
+      }
+    },
+    "id": "minecraft:splash_potion"
+  },
+  "reagent": {
+    "item": "minecraft:gunpowder"
+  }
+}
+",
+  "src/generated/resources/data/azuregrove/recipe/brewing/potion_strong_grove_stride_gunpowder.json": "{
+  "type": "minecraft:brewing",
+  "input": {
+    "item": "minecraft:potion",
+    "potion_contents": {
+      "potions": "azuregrove:strong_grove_stride"
+    }
+  },
+  "output": {
+    "components": {
+      "minecraft:potion_contents": {
+        "potion": "azuregrove:strong_grove_stride"
+      }
+    },
+    "id": "minecraft:splash_potion"
+  },
+  "reagent": {
+    "item": "minecraft:gunpowder"
+  }
+}
+",
+  "src/generated/resources/data/azuregrove/recipe/brewing/splash_potion_awkward_azure_plum.json": "{
+  "type": "minecraft:brewing",
+  "input": {
+    "item": "minecraft:splash_potion",
+    "potion_contents": {
+      "potions": "minecraft:awkward"
+    }
+  },
+  "output": {
+    "components": {
+      "minecraft:potion_contents": {
+        "potion": "azuregrove:grove_stride"
+      }
+    },
+    "id": "minecraft:splash_potion"
+  },
+  "reagent": {
+    "item": "azuregrove:azure_plum"
+  }
+}
+",
+  "src/generated/resources/data/azuregrove/recipe/brewing/splash_potion_grove_stride_dragon_breath.json": "{
+  "type": "minecraft:brewing",
+  "input": {
+    "item": "minecraft:splash_potion",
+    "potion_contents": {
+      "potions": "azuregrove:grove_stride"
+    }
+  },
+  "output": {
+    "components": {
+      "minecraft:potion_contents": {
+        "potion": "azuregrove:grove_stride"
+      }
+    },
+    "id": "minecraft:lingering_potion"
+  },
+  "reagent": {
+    "item": "minecraft:dragon_breath"
+  }
+}
+",
+  "src/generated/resources/data/azuregrove/recipe/brewing/splash_potion_grove_stride_glowstone_dust.json": "{
+  "type": "minecraft:brewing",
+  "input": {
+    "item": "minecraft:splash_potion",
+    "potion_contents": {
+      "potions": "azuregrove:grove_stride"
+    }
+  },
+  "output": {
+    "components": {
+      "minecraft:potion_contents": {
+        "potion": "azuregrove:strong_grove_stride"
+      }
+    },
+    "id": "minecraft:splash_potion"
+  },
+  "reagent": {
+    "item": "minecraft:glowstone_dust"
+  }
+}
+",
+  "src/generated/resources/data/azuregrove/recipe/brewing/splash_potion_grove_stride_redstone.json": "{
+  "type": "minecraft:brewing",
+  "input": {
+    "item": "minecraft:splash_potion",
+    "potion_contents": {
+      "potions": "azuregrove:grove_stride"
+    }
+  },
+  "output": {
+    "components": {
+      "minecraft:potion_contents": {
+        "potion": "azuregrove:long_grove_stride"
+      }
+    },
+    "id": "minecraft:splash_potion"
+  },
+  "reagent": {
+    "item": "minecraft:redstone"
+  }
+}
+",
+  "src/generated/resources/data/azuregrove/recipe/brewing/splash_potion_long_grove_stride_dragon_breath.json": "{
+  "type": "minecraft:brewing",
+  "input": {
+    "item": "minecraft:splash_potion",
+    "potion_contents": {
+      "potions": "azuregrove:long_grove_stride"
+    }
+  },
+  "output": {
+    "components": {
+      "minecraft:potion_contents": {
+        "potion": "azuregrove:long_grove_stride"
+      }
+    },
+    "id": "minecraft:lingering_potion"
+  },
+  "reagent": {
+    "item": "minecraft:dragon_breath"
+  }
+}
+",
+  "src/generated/resources/data/azuregrove/recipe/brewing/splash_potion_strong_grove_stride_dragon_breath.json": "{
+  "type": "minecraft:brewing",
+  "input": {
+    "item": "minecraft:splash_potion",
+    "potion_contents": {
+      "potions": "azuregrove:strong_grove_stride"
+    }
+  },
+  "output": {
+    "components": {
+      "minecraft:potion_contents": {
+        "potion": "azuregrove:strong_grove_stride"
+      }
+    },
+    "id": "minecraft:lingering_potion"
+  },
+  "reagent": {
+    "item": "minecraft:dragon_breath"
   }
 }
 ",

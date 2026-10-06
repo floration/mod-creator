@@ -1,4 +1,4 @@
-import { ARMOR_PIECES, shapeBlocks, type BlockSpec, type ElementSpec, type ItemSpec, type MobSpec, type OreSpec, type Project, type ToolSpec, type TreeSpec } from "../../schema.js";
+import { ARMOR_PIECES, shapeBlocks, type BlockSpec, type EffectSpec, type ElementSpec, type ItemSpec, type MobSpec, type OreSpec, type Project, type ToolSpec, type TreeSpec } from "../../schema.js";
 import { resolveRef } from "./refs.js";
 import { allParts, pickAnimations, type EntityModelDef, type ModelAnimation, type ModelPartDef } from "../../blockbench.js";
 
@@ -108,16 +108,83 @@ function rarity(r: string): string {
   return r !== "common" ? `.rarity(Rarity.${r.toUpperCase()})` : "";
 }
 
-function itemProperties(spec: ItemSpec): string {
+/** Java for the `Holder<MobEffect>` of an effect ref: this mod's field, or a vanilla effect looked up by id. */
+function effectHolder(modId: string, ref: string): string {
+  const full = resolveRef(modId, ref);
+  return full.startsWith(`${modId}:`) ? `${constName(full.slice(modId.length + 1))}_EFFECT` : `BuiltInRegistries.MOB_EFFECT.get(Identifier.parse("${full}")).orElseThrow()`;
+}
+
+const ticks = (seconds: number) => Math.max(1, Math.round(seconds * 20));
+
+function itemProperties(modId: string, spec: ItemSpec, use: (...names: string[]) => void): string {
   let props = "new Item.Properties()";
   if (spec.item.maxStackSize !== 64) props += `.stacksTo(${spec.item.maxStackSize})`;
   props += rarity(spec.item.rarity);
   const food = spec.item.food;
   if (food) {
+    use("net.minecraft.world.food.FoodProperties");
     props += `\n\t\t\t.food(new FoodProperties.Builder().nutrition(${food.nutrition}).saturationModifier(${float(food.saturation)})`;
-    props += food.alwaysEdible ? ".alwaysEdible().build())" : ".build())";
+    props += food.alwaysEdible ? ".alwaysEdible().build()" : ".build()";
+    if (food.effects.length) {
+      use(
+        "net.minecraft.world.effect.MobEffectInstance",
+        "net.minecraft.world.item.component.Consumables",
+        "net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect",
+      );
+      props += ",\n\t\t\t\tConsumables.defaultFood()";
+      for (const e of food.effects) {
+        props += `\n\t\t\t\t\t.onConsume(new ApplyStatusEffectsConsumeEffect(new MobEffectInstance(${effectHolder(modId, e.effect)}, ${ticks(e.seconds)}, ${e.amplifier}), ${float(e.chance)}))`;
+      }
+      props += ".build()";
+    }
+    props += ")";
   }
   return props;
+}
+
+const OPERATIONS: Record<EffectSpec["effect"]["modifiers"][number]["operation"], string> = {
+  add: "ADD_VALUE",
+  multiply_base: "ADD_MULTIPLIED_BASE",
+  multiply_total: "ADD_MULTIPLIED_TOTAL",
+};
+
+/** Vanilla potion timings: long lasts 8/3 as long, strong is level II for half the time. */
+export function potionVariants(e: EffectSpec): { id: string; ticks: number; amplifier: number }[] {
+  const p = e.effect.potion;
+  if (!p) return [];
+  const base = p.seconds * 20;
+  return [
+    { id: e.id, ticks: base, amplifier: 0 },
+    ...(p.longer ? [{ id: `long_${e.id}`, ticks: Math.round((base * 8) / 3), amplifier: 0 }] : []),
+    ...(p.stronger ? [{ id: `strong_${e.id}`, ticks: Math.round(base / 2), amplifier: 1 }] : []),
+  ];
+}
+
+/** Effect and potion fields. Effects come first so the foods and potions below can use them. */
+function effectFields(modId: string, effects: EffectSpec[], use: (...names: string[]) => void): string[] {
+  if (!effects.length) return [];
+  use("net.minecraft.core.Holder", "net.minecraft.world.effect.MobEffect", "net.minecraft.world.effect.MobEffectCategory");
+  const out: string[] = [];
+  for (const e of effects) {
+    const C = constName(e.id);
+    const color = `0x${e.effect.color.slice(1).toLowerCase()}`;
+    let value = `new MobEffect(MobEffectCategory.${e.effect.category.toUpperCase()}, ${color}) {}`;
+    for (const m of e.effect.modifiers) {
+      use("net.minecraft.world.entity.ai.attributes.AttributeModifier", "net.minecraft.world.entity.ai.attributes.Attributes");
+      value += `\n\t\t\t.addAttributeModifier(Attributes.${m.attribute.toUpperCase()}, id("effect.${e.id}.${m.attribute}"), ${m.amount}, AttributeModifier.Operation.${OPERATIONS[m.operation]})`;
+    }
+    let field = `\t/** ${e.name} (spec/effects/${e.id}.json) */\n\tpublic static final Holder<MobEffect> ${C}_EFFECT = registerEffect("${e.id}", ${value});`;
+    const variants = potionVariants(e);
+    if (variants.length) {
+      use("net.minecraft.world.effect.MobEffectInstance", "net.minecraft.world.item.alchemy.Potion");
+      for (const v of variants) {
+        const amp = v.amplifier ? `, ${v.amplifier}` : "";
+        field += `\n\tpublic static final Holder<Potion> ${constName(v.id)}_POTION = registerPotion("${v.id}",\n\t\t\tnew Potion("${modId}.${e.id}", new MobEffectInstance(${C}_EFFECT, ${v.ticks}${amp})));`;
+      }
+    }
+    out.push(field);
+  }
+  return out;
 }
 
 const TIER_TAGS: Record<ToolSpec["tool"]["tier"], string> = {
@@ -160,6 +227,7 @@ export function modContentJava(project: Project, elements: ElementSpec[]): strin
   const mobs = of("mob");
   const ores = of("ore");
   const sounds = of("sound");
+  const effects = of("effect");
 
   const imports = new Set<string>([
     "java.util.function.Function",
@@ -192,6 +260,8 @@ export function modContentJava(project: Project, elements: ElementSpec[]): strin
       sounds.map((s) => `\t/** ${s.name} (spec/sounds/${s.id}.json) */\n\tpublic static final SoundEvent ${constName(s.id)}_SOUND = registerSound("${s.id}");`).join("\n"),
     );
   }
+
+  fields.push(...effectFields(modId, effects, use));
 
   for (const b of blocks) {
     const factory = b.customClass ? `${b.customClass}::new` : "Block::new";
@@ -255,11 +325,10 @@ export function modContentJava(project: Project, elements: ElementSpec[]): strin
   }
 
   for (const i of items) {
-    if (i.item.food) use("net.minecraft.world.food.FoodProperties");
     const factory = i.customClass ? `${i.customClass}::new` : "Item::new";
     fields.push(
       `\t/** ${i.name} (spec/items/${i.id}.json) */\n` +
-        `\tpublic static final Item ${constName(i.id)} = registerItem("${i.id}", ${factory}, ${itemProperties(i)});`,
+        `\tpublic static final Item ${constName(i.id)} = registerItem("${i.id}", ${factory}, ${itemProperties(modId, i, use)});`,
     );
     addToTab(i.creativeTab, constName(i.id));
   }
@@ -421,6 +490,14 @@ ${registerBody.join("\n") || "\t\t// Nothing else to register."}
 
 ${sounds.length ? `\tprivate static SoundEvent registerSound(String name) {
 \t\treturn Registry.register(BuiltInRegistries.SOUND_EVENT, id(name), SoundEvent.createVariableRangeEvent(id(name)));
+\t}
+
+` : ""}${effects.length ? `\tprivate static Holder<MobEffect> registerEffect(String name, MobEffect effect) {
+\t\treturn Registry.registerForHolder(BuiltInRegistries.MOB_EFFECT, id(name), effect);
+\t}
+
+` : ""}${effects.some((e) => e.effect.potion) ? `\tprivate static Holder<Potion> registerPotion(String name, Potion potion) {
+\t\treturn Registry.registerForHolder(BuiltInRegistries.POTION, id(name), potion);
 \t}
 
 ` : ""}\tprivate static Item registerItem(String name, Function<Item.Properties, Item> factory, Item.Properties properties) {
