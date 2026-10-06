@@ -1,0 +1,16 @@
+{
+  "$schema": "../../.modcreator/schema/effect.json",
+  "kind": "effect",
+  "id": "grove_stride",
+  "name": "Grove Stride",
+  "effect": {
+    "category": "beneficial",
+    "color": "#4a8cff",
+    "icon": "art/grove_stride.png",
+    "modifiers": [
+      { "attribute": "movement_speed", "amount": 0.2, "operation": "multiply_total" },
+      { "attribute": "step_height", "amount": 0.5, "operation": "add" }
+    ],
+    "potion": { "ingredient": "azure_plum", "seconds": 180, "longer": true, "stronger": true }
+  }
+}

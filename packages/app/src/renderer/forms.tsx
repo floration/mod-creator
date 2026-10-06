@@ -151,7 +151,11 @@ export function OptionalGroup(p: { draft: Draft; path: string[]; onChange: (draf
 export interface Column {
   key: string;
   label: string;
-  type: "text" | "number";
+  type: "text" | "number" | "select";
+  /** For select columns. */
+  options?: readonly string[];
+  /** Suggestions for text columns. */
+  suggestions?: readonly string[];
   step?: number;
   min?: number;
   max?: number;
@@ -181,7 +185,13 @@ export function RowsField(p: { draft: Draft; path: string[]; errors: Errors; onC
                   const error = p.errors.get([...p.path, String(i), c.key].join("."));
                   return (
                     <td key={c.key} className={error ? "has-error" : ""} title={error}>
+                      {c.type === "select" ? (
+                        <select value={row[c.key] ?? ""} onChange={(e) => setRows(rows.map((r, n) => (n === i ? setAt(r, [c.key], e.target.value) : r)))}>
+                          {(c.options ?? []).map((o) => <option key={o} value={o}>{o}</option>)}
+                        </select>
+                      ) : (
                       <input
+                        list={c.suggestions ? `${p.path.join(".")}.${c.key}.list` : undefined}
                         type={c.type}
                         step={c.step}
                         min={c.min}
@@ -193,6 +203,7 @@ export function RowsField(p: { draft: Draft; path: string[]; errors: Errors; onC
                           setRows(rows.map((r, n) => (n === i ? setAt(r, [c.key], v) : r)));
                         }}
                       />
+                      )}
                     </td>
                   );
                 })}
@@ -204,6 +215,11 @@ export function RowsField(p: { draft: Draft; path: string[]; errors: Errors; onC
           </tbody>
         </table>
       )}
+      {p.columns.filter((c) => c.suggestions).map((c) => (
+        <datalist key={c.key} id={`${p.path.join(".")}.${c.key}.list`}>
+          {c.suggestions!.map((o) => <option key={o} value={o} />)}
+        </datalist>
+      ))}
       <button className="link" onClick={() => setRows([...rows, p.template])}>{p.addLabel ?? "+ Add"}</button>
       {listError ? <span className="field-error">{listError}</span> : p.hint ? <span className="field-hint">{p.hint}</span> : null}
       {rows.some((_, i) => p.columns.some((c) => p.errors.has([...p.path, String(i), c.key].join(".")))) && (

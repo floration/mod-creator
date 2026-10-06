@@ -6,6 +6,10 @@
   "creativeTab": "food_and_drinks",
   "item": {
     "texture": "art/azure_plum.png",
-    "food": { "nutrition": 4, "saturation": 0.6 }
+    "food": {
+      "nutrition": 4,
+      "saturation": 0.6,
+      "effects": [{ "effect": "grove_stride", "seconds": 10, "chance": 0.5 }]
+    }
   }
 }

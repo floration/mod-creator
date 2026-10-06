@@ -126,6 +126,14 @@ The generator makes a one-piece jigsaw structure, like Minecraft's abandoned cam
 
 A sound is one or more Ogg Vorbis files; each time it plays, one is picked by weight, at its own volume and pitch. **Import .ogg** copies a file into `art/` and ▶ plays it in the app. Make sounds that come from a place (a mob, a block) mono: stereo files play equally loud everywhere, and the check warns about them. The **Subtitle** shows when subtitles are on. A mob's ambient, hurt and death sounds can name a sound from this mod by id (the Bluetusk's `bluetusk_grunt`) or a vanilla one like `minecraft:entity.bee.loop`. In game, `/playsound <modid>:<id> master @s` plays it.
 
+### Effects and potions
+
+An effect has a name, a color for its particles and potions, an 18x18 icon and attribute changes while it lasts, such as 20% more speed (`movement_speed`, `multiply_total`, 0.2) or a higher step. Each level of the effect adds the change again. In game, `/effect give @s <modid>:<id>` gives it.
+
+Tick **Can be brewed** for a potion. It is brewed by adding the ingredient to an awkward potion. Redstone makes a version that lasts 8/3 as long, and glowstone dust makes a level II version for half the time. Gunpowder and dragon's breath turn each one into splash and lingering potions, and lingering potions make tipped arrows. The generator writes the same brewing recipes vanilla has for its own potions. The check rejects ingredients that vanilla already brews from an awkward potion, such as sugar.
+
+A food's **Effects when eaten** can give this mod's effects or vanilla ones like `minecraft:speed`, with a chance. The Azure Plum gives Grove Stride half the time and brews into a Potion of Grove Stride.
+
 ### Quests
 
 Quests are vanilla advancements, so they show in the game's advancements screen (L) with no extra mod. Each one has a title, a description, an icon, a frame (task, goal or challenge) and what completes it: obtaining items, killing, breeding or taming a mob, visiting a biome, crafting a recipe, eating something or placing a block. With several criteria, **Done when** picks whether all of them or any one is needed. Rewards are experience, items and recipes unlocked in the recipe book.
@@ -153,4 +161,4 @@ Minecraft 26.3, Fabric Loader 0.19.5, Fabric Loom 1.18.2 (`net.fabricmc.fabric-l
 
 ## Status
 
-Milestones 2 and 3 of the design doc are in: the project skeleton, blocks, items and recipes. So are ore veins, food, tools, armor, trees, plants, mobs (on vanilla bodies or Blockbench models) and biomes. Mobs can be animals, neutral, tameable or hostile, and fly. Blocks can have stairs, slabs, walls, fences, doors and other shapes, and trees a full wood set. Project settings, Modrinth search and quests (advancements, with a quest line view) structures from structure block files, and sounds from .ogg files are in the app. Next up: status effects and potions.
+Milestones 2 and 3 of the design doc are in: the project skeleton, blocks, items and recipes. So are ore veins, food, tools, armor, trees, plants, mobs (on vanilla bodies or Blockbench models) and biomes. Mobs can be animals, neutral, tameable or hostile, and fly. Blocks can have stairs, slabs, walls, fences, doors and other shapes, and trees a full wood set. Project settings, Modrinth search and quests (advancements, with a quest line view) structures from structure block files, sounds from .ogg files, and status effects with brewable potions and food effects are in the app. Next up: enchantments.

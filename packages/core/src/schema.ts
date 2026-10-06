@@ -136,6 +136,20 @@ export const FoodSchema = z.object({
   saturation: z.number().min(0).max(2).default(0.3),
   /** Can be eaten with a full hunger bar, like golden apples. */
   alwaysEdible: z.boolean().default(false),
+  /** Effects eating it gives, like a golden apple's regeneration. */
+  effects: z
+    .array(
+      z.object({
+        /** An effect from this mod by id, or a vanilla one like `minecraft:speed`. */
+        effect: Ref,
+        seconds: z.number().min(0.05).max(86400).default(30),
+        /** 0 is level I, 1 is level II. */
+        amplifier: z.number().int().min(0).max(255).default(0),
+        /** Chance from 0 to 1 that eating gives it. */
+        chance: z.number().min(0).max(1).default(1),
+      }),
+    )
+    .default([]),
 });
 
 export const ItemSpecSchema = z.object({
@@ -546,6 +560,76 @@ export const SoundSpecSchema = z.object({
 });
 export type SoundSpec = z.infer<typeof SoundSpecSchema>;
 
+/** Attributes an effect can change while it lasts, by their vanilla names. */
+export const EFFECT_ATTRIBUTES = [
+  "movement_speed", "attack_damage", "attack_speed", "armor", "armor_toughness", "max_health", "knockback_resistance",
+  "jump_strength", "safe_fall_distance", "gravity", "scale", "step_height", "luck", "block_break_speed", "mining_efficiency",
+  "oxygen_bonus", "water_movement_efficiency", "block_interaction_range", "entity_interaction_range", "burning_time",
+  "fall_damage_multiplier", "max_absorption", "sneaking_speed",
+] as const;
+
+/** Vanilla 26.3 status effects, for food effects and suggestions. */
+export const VANILLA_EFFECTS = [
+  "absorption", "bad_omen", "blindness", "breath_of_the_nautilus", "conduit_power", "darkness", "dolphins_grace",
+  "fire_resistance", "glowing", "haste", "health_boost", "hero_of_the_village", "hunger", "infested", "instant_damage",
+  "instant_health", "invisibility", "jump_boost", "levitation", "luck", "mining_fatigue", "nausea", "night_vision", "oozing",
+  "poison", "raid_omen", "regeneration", "resistance", "saturation", "slow_falling", "slowness", "speed", "strength",
+  "trial_omen", "unluck", "water_breathing", "weakness", "weaving", "wind_charged", "wither",
+] as const;
+
+/** Brewing stand ingredients vanilla already brews into an awkward potion. */
+export const VANILLA_AWKWARD_INGREDIENTS = [
+  "blaze_powder", "breeze_rod", "cobweb", "ghast_tear", "glistering_melon_slice", "golden_carrot", "magma_cream",
+  "phantom_membrane", "pufferfish", "rabbit_foot", "slime_block", "spider_eye", "stone", "sugar", "turtle_helmet",
+] as const;
+
+/** Brewing stand ingredients that change any potion (longer, stronger, splash, lingering, corrupted). */
+export const POTION_MODIFIERS = ["nether_wart", "redstone", "glowstone_dust", "gunpowder", "dragon_breath", "fermented_spider_eye"] as const;
+
+/**
+ * A status effect: an icon in the inventory and HUD, particles in its color and attribute changes while it lasts.
+ * With a potion, it can be brewed from an awkward potion, then made longer, stronger, splash and lingering.
+ */
+export const EffectSpecSchema = z.object({
+  kind: z.literal("effect"),
+  $schema: z.string().optional(),
+  id: LocalId,
+  /** Shown in the inventory and on potions, like "Grove Sight". */
+  name: z.string().min(1),
+  effect: z.object({
+    /** Beneficial effects show blue in tooltips, harmful ones red; milk clears both. */
+    category: z.enum(["beneficial", "harmful", "neutral"]).default("beneficial"),
+    /** Particle and potion color. */
+    color: Hex.default("#6ab0ff"),
+    /** An 18x18 picture shown in the inventory and in the corner of the screen. */
+    icon: z.string(),
+    /** Attribute changes. Each level of the effect adds the amount again. */
+    modifiers: z
+      .array(
+        z.object({
+          attribute: z.enum(EFFECT_ATTRIBUTES),
+          amount: z.number(),
+          /** add: plus the amount. multiply_base: plus amount x the base value. multiply_total: times (1 + amount). */
+          operation: z.enum(["add", "multiply_base", "multiply_total"]).default("add"),
+        }),
+      )
+      .default([]),
+    potion: z
+      .object({
+        /** Brewed into an awkward potion to make it. */
+        ingredient: Ref,
+        /** How long the plain potion lasts. Vanilla potions use 180 seconds. */
+        seconds: z.number().int().min(1).max(86400).default(180),
+        /** Add redstone for a version that lasts 8/3 as long. */
+        longer: z.boolean().default(true),
+        /** Add glowstone dust for level II at half the time. */
+        stronger: z.boolean().default(false),
+      })
+      .optional(),
+  }),
+});
+export type EffectSpec = z.infer<typeof EffectSpecSchema>;
+
 export const ElementSpecSchema = z.discriminatedUnion("kind", [
   BlockSpecSchema,
   ItemSpecSchema,
@@ -560,6 +644,7 @@ export const ElementSpecSchema = z.discriminatedUnion("kind", [
   AdvancementSpecSchema,
   StructureSpecSchema,
   SoundSpecSchema,
+  EffectSpecSchema,
 ]);
 export type ElementSpec = z.infer<typeof ElementSpecSchema>;
 export type ElementKind = ElementSpec["kind"];
@@ -579,6 +664,7 @@ export const KIND_FOLDERS: Record<ElementKind, string> = {
   advancement: "advancements",
   structure: "structures",
   sound: "sounds",
+  effect: "effects",
 };
 
 export const SCHEMAS = {
@@ -596,6 +682,7 @@ export const SCHEMAS = {
   advancement: AdvancementSpecSchema,
   structure: StructureSpecSchema,
   sound: SoundSpecSchema,
+  effect: EffectSpecSchema,
 } as const;
 
 /** JSON Schema for each spec kind, written to `.modcreator/schema/` for editor autocomplete. */
