@@ -291,3 +291,9 @@ table.rows td.has-error input { border-color: var(--error); }
 .quest-node.current .quest-box { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
 .quest-node:hover:not(:disabled) .quest-box { border-color: var(--text); }
 .quest-label { font-size: 12px; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.structure-info {
+  position: absolute; left: 12px; bottom: 12px; max-width: 60%;
+  background: rgba(30, 31, 34, 0.85); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; font-size: 12px;
+}
+.structure-info ul { margin: 4px 0 0; padding-left: 16px; color: var(--muted); }

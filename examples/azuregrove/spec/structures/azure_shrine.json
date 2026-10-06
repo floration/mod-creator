@@ -1,0 +1,15 @@
+{
+  "$schema": "../../.modcreator/schema/structure.json",
+  "kind": "structure",
+  "id": "azure_shrine",
+  "name": "Azure Shrine",
+  "structure": {
+    "file": "art/azure_shrine.nbt",
+    "biomes": ["azure_grove"],
+    "spacing": 12,
+    "separation": 4,
+    "placement": "surface",
+    "y": 0,
+    "terrain": "beard_thin"
+  }
+}

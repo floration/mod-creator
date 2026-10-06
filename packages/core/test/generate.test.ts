@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it } from "vitest";
-import { createProject, generate, itemIconArt, loadProject, plan, registeredItems, resolveRef } from "../src/index.js";
+import { createProject, generate, itemIconArt, loadProject, parseStructure, plan, registeredItems, resolveRef, writeStructure } from "../src/index.js";
 
 const RUBY = fileURLToPath(new URL("../../../examples/ruby", import.meta.url));
 const AZUREGROVE = fileURLToPath(new URL("../../../examples/azuregrove", import.meta.url));
@@ -72,7 +72,7 @@ describe("Azure Grove example", () => {
     const loaded = await loadProject(AZUREGROVE);
     expect(loaded.issues).toEqual([]);
     expect(new Set(loaded.elements.map((e) => e.spec.kind))).toEqual(
-      new Set(["block", "item", "recipe", "ore", "tool", "armor", "tree", "plant", "mob", "biome", "advancement"]),
+      new Set(["block", "item", "recipe", "ore", "tool", "armor", "tree", "plant", "mob", "biome", "advancement", "structure"]),
     );
   });
 
@@ -226,6 +226,50 @@ describe("advancements", () => {
     });
     const fields = (await loadProject(dir)).issues.filter((i) => i.severity === "error").map((i) => i.field);
     expect(fields).toEqual(["advancement.rewards.recipes.2"]);
+  });
+});
+
+describe("structures", () => {
+  it("places the .nbt as a one-piece jigsaw structure in its biomes", async () => {
+    const files = plan(await loadProject(AZUREGROVE));
+    const res = (p: string) => JSON.parse(files.get(`src/generated/resources/${p}`) as string);
+    expect(files.get("src/generated/resources/data/azuregrove/structure/azure_shrine.nbt")).toEqual({ copy: "art/azure_shrine.nbt" });
+    const structure = res("data/azuregrove/worldgen/structure/azure_shrine.json");
+    expect(structure).toMatchObject({ type: "minecraft:jigsaw", biomes: "#azuregrove:has_structure/azure_shrine", start_pool: "azuregrove:azure_shrine/start", step: "surface_structures" });
+    expect(res("data/azuregrove/worldgen/template_pool/azure_shrine/start.json").elements[0].element.location).toBe("azuregrove:azure_shrine");
+    expect(res("data/azuregrove/tags/worldgen/biome/has_structure/azure_shrine.json").values).toEqual(["azuregrove:azure_grove"]);
+    expect(res("data/azuregrove/worldgen/structure_set/azure_shrine.json").placement).toMatchObject({ type: "minecraft:random_spread", spacing: 12, separation: 4 });
+  });
+
+  it("reads structure files back", async () => {
+    const t = parseStructure(await readFile(path.join(AZUREGROVE, "art/azure_shrine.nbt")));
+    expect(t.size).toEqual([5, 4, 6]);
+    expect(t.palette.map((p) => p.name)).toContain("azuregrove:azurite_brick_wall");
+    expect(t.palette.find((p) => p.name === "azuregrove:azurite_brick_slab")!.properties).toEqual({ type: "bottom", waterlogged: "false" });
+  });
+
+  it("reports blocks the mod doesn't have, files that aren't structures and bad spacing", async () => {
+    const dir = await copyOf(AZUREGROVE);
+    await writeFile(path.join(dir, "art/broken.nbt"), "not nbt");
+    await writeFile(
+      path.join(dir, "art/stranger.nbt"),
+      writeStructure({ dataVersion: 9999, size: [1, 1, 1], palette: [{ name: "azuregrove:sapphire_block", properties: {} }], blocks: [{ pos: [0, 0, 0], state: 0 }] }),
+    );
+    const spec = JSON.parse(await readFile(path.join(dir, "spec/structures/azure_shrine.json"), "utf8"));
+    for (const [id, file] of [["broken", "art/broken.nbt"], ["stranger", "art/stranger.nbt"]]) {
+      await writeFile(path.join(dir, `spec/structures/${id}.json`), JSON.stringify({ ...spec, id, structure: { ...spec.structure, file } }));
+    }
+    await editSpec(dir, "spec/structures/azure_shrine.json", (json) => { json.structure.separation = 20; json.structure.biomes = ["azure_meadow", "#minecraft:is_forest"]; });
+    const issues = (await loadProject(dir)).issues;
+    const of = (id: string) => issues.filter((i) => i.file === `spec/structures/${id}.json`).map((i) => `${i.severity} ${i.field}: ${i.message}`);
+    expect(of("broken")).toEqual([expect.stringMatching(/^error structure.file: art\/broken.nbt can't be read/)]);
+    expect(of("stranger")).toEqual(
+      expect.arrayContaining([expect.stringMatching(/^warning .*newer Minecraft/), expect.stringMatching(/^error .*azuregrove:sapphire_block/)]),
+    );
+    expect(of("azure_shrine")).toEqual(
+      expect.arrayContaining([expect.stringMatching(/^error structure.separation/), expect.stringMatching(/^error structure.biomes.0/)]),
+    );
+    expect(of("azure_shrine")).toHaveLength(2);
   });
 });
 

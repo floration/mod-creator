@@ -4,7 +4,7 @@ import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { app, BrowserWindow, dialog, ipcMain, shell } from "electron";
-import { VanillaAssets, createProject, modrinthVersions, searchModrinth, dependentsOf, parseBlockbench, findMinecraftJar, generate, loadProject, renameEdits, type CreateOptions, type ElementSpec } from "@modcreator/core";
+import { VanillaAssets, createProject, modrinthVersions, searchModrinth, dependentsOf, parseBlockbench, parseStructure, findMinecraftJar, generate, loadProject, renameEdits, type CreateOptions, type ElementSpec } from "@modcreator/core";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 let window: BrowserWindow | null = null;
@@ -105,6 +105,41 @@ ipcMain.handle("model:blockbench", async (_e, root: string, rel: string) => {
   } catch (e) {
     return { model: null, error: (e as Error).message };
   }
+});
+
+/** A structure block's .nbt, read for the structure preview. */
+ipcMain.handle("structure:load", async (_e, root: string, rel: string) => {
+  const file = inside(root, rel);
+  if (!existsSync(file)) return { structure: null, error: `Missing file ${rel}` };
+  try {
+    return { structure: parseStructure(await readFile(file)), error: null };
+  } catch (e) {
+    return { structure: null, error: (e as Error).message };
+  }
+});
+
+/**
+ * Copy an .nbt a structure block saved into the project's art/ folder. The dialog starts in the dev client's saves,
+ * where Run client's worlds keep them under generated/<namespace>/structure/.
+ */
+ipcMain.handle("structure:import", async (_e, root: string) => {
+  const saves = path.join(root, "run", "saves");
+  const result = await dialog.showOpenDialog({
+    title: "Choose a structure file",
+    defaultPath: existsSync(saves) ? saves : root,
+    filters: [{ name: "Structure", extensions: ["nbt"] }],
+    properties: ["openFile"],
+  });
+  const from = result.filePaths[0];
+  if (result.canceled || !from) return null;
+  const rel = `art/${path.basename(from).toLowerCase().replace(/[^a-z0-9_.-]/g, "_")}`;
+  const to = inside(root, rel);
+  if (path.resolve(from) !== to) {
+    parseStructure(await readFile(from)); // refuse files that aren't structures
+    await mkdir(path.dirname(to), { recursive: true });
+    await writeFile(to, await readFile(from));
+  }
+  return rel;
 });
 
 ipcMain.handle("file:dataUrl", async (_e, root: string, rel: string) => {

@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "kind": {
+      "type": "string",
+      "const": "structure"
+    },
+    "$schema": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "structure": {
+      "type": "object",
+      "properties": {
+        "file": {
+          "type": "string"
+        },
+        "biomes": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+          }
+        },
+        "spacing": {
+          "default": 32,
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 4096
+        },
+        "separation": {
+          "default": 8,
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4095
+        },
+        "placement": {
+          "default": "surface",
+          "type": "string",
+          "enum": [
+            "surface",
+            "fixed"
+          ]
+        },
+        "y": {
+          "default": 0,
+          "type": "integer",
+          "minimum": -64,
+          "maximum": 320
+        },
+        "terrain": {
+          "default": "beard_thin",
+          "type": "string",
+          "enum": [
+            "none",
+            "beard_thin",
+            "beard_box",
+            "bury",
+            "encapsulate"
+          ]
+        }
+      },
+      "required": [
+        "file",
+        "biomes"
+      ]
+    }
+  },
+  "required": [
+    "kind",
+    "id",
+    "name",
+    "structure"
+  ]
+}

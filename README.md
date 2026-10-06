@@ -2,7 +2,7 @@
 
 A desktop tool for building Minecraft 26.3+ Fabric mods with forms, previews and plain files instead of hand-written registration code.
 
-Every block, item, tool, armor set, recipe, ore vein, tree, plant, mob, biome and quest is one small JSON file in the mod's `spec/` folder. The app is an editor for those files. A generator turns them into Java and resource files in `src/generated/`, and the mod stays a normal Gradle project you can open in IntelliJ at any time.
+Every block, item, tool, armor set, recipe, ore vein, tree, plant, mob, biome, structure and quest is one small JSON file in the mod's `spec/` folder. The app is an editor for those files. A generator turns them into Java and resource files in `src/generated/`, and the mod stays a normal Gradle project you can open in IntelliJ at any time.
 
 Design doc: [Mod Creator Architecture](https://claude.ai/code/artifact/ab83630b-aecd-4450-b781-0d67d2fd176f)
 
@@ -71,8 +71,9 @@ gems/
     plants/<id>.json       grass-like plants
     mobs/<id>.json         animals on the vanilla pig or cow body, or a Blockbench model
     biomes/<id>.json       Overworld biomes
+    structures/<id>.json   buildings saved with a structure block, and where they spawn
     advancements/<id>.json quests, as vanilla advancements
-  art/                     textures (PNG) and Blockbench models (.bbmodel)
+  art/                     textures (PNG), Blockbench models (.bbmodel) and structures (.nbt)
   src/main/                yours: never touched by the generator
   src/generated/           the generator's: rewritten on every run, do not edit
   build.gradle, settings.gradle, gradle.properties, gradlew
@@ -91,7 +92,7 @@ Rules the generator follows:
 Two example mods show every supported field:
 
 - [`examples/ruby`](examples/ruby): an ore that drops gems with Fortune, a storage block, a lamp with a custom Java class, a gem item, shaped, shapeless and smelting recipes, a ruby ore vein that generates between Y -16 and 48, the Glowmoth, a tameable flying mob with its own Blockbench model whose wings flap, and a two-step quest tab (find a ruby, then tame a Glowmoth).
-- [`examples/azuregrove`](examples/azuregrove): one of each of the other kinds. Azurite ore and bricks (with brick stairs, slab and wall), the Azure Plum food, an Azurite Sword and armor set, the Azurewood tree (fancy oak shape, its leaves drop plums) and its full wood set, Azure Grass, the Bluetusk (a blue pig that eats plums and fights back), the Grove Lurker (a hostile one that comes out at night), the Azure Grove biome, which takes over part of Plains and Forest and grows all of them, and an Azure Grove quest tab with seven quests that use every kind of criterion and reward.
+- [`examples/azuregrove`](examples/azuregrove): one of each of the other kinds. Azurite ore and bricks (with brick stairs, slab and wall), the Azure Plum food, an Azurite Sword and armor set, the Azurewood tree (fancy oak shape, its leaves drop plums) and its full wood set, Azure Grass, the Bluetusk (a blue pig that eats plums and fights back), the Grove Lurker (a hostile one that comes out at night), the Azure Grove biome, which takes over part of Plains and Forest and grows all of them, an Azure Grove quest tab with seven quests that use every kind of criterion and reward, and the Azure Shrine, a small azurite brick structure that spawns in the biome.
 
 ### Shapes and wood sets
 
@@ -113,6 +114,12 @@ A mob either borrows the vanilla pig or cow model and animations, with your own 
 **Flies** makes any of them fly around like a parrot and skip fall damage. **Attack damage** sets how hard the fighting ones hit. The Bluetusk in `examples/azuregrove` is neutral, the Grove Lurker there is hostile, and the Glowmoth in `examples/ruby` is a tameable flyer.
 
 For a Blockbench body, set **Body** to `blockbench` and point **Blockbench model** at a `.bbmodel` in `art/`. Make the model with Blockbench's **Modded Entity** format and **Box UV** (Minecraft entity models can't use per-face UV or meshes). Groups become the model's parts, rotated cubes get a part of their own, and the texture size comes from the project's resolution. An animation whose name contains `walk` plays while the mob moves and one containing `idle` loops all the time; keyframes must be plain numbers, not Molang. A part named `head` turns to look around. **Use the texture saved in the model** copies the texture embedded in the `.bbmodel` into `art/`, the pixel editor outlines every box on the sheet, and the 3D preview plays the animations (tick **Walking** to see the walk). The Glowmoth in `examples/ruby` is one. Its renderer is registered by the generated `ModContentClient`, so `fabric.mod.json` lists that class as the `client` entrypoint (new projects already do).
+
+### Structures
+
+Build something in **Run client**, save it with a structure block (Save mode; the structure name becomes the file name), then click **Import .nbt** on a structure and pick the file from the dev world's `generated/minecraft/structure/` folder under `run/saves/`. The file is copied into `art/`, and the 3D preview shows it with the blocks it uses. **Biomes** lists where it may spawn (this mod's biomes, vanilla ones or tags like `#minecraft:is_forest`), **Spacing** and **Separation** set how far apart they are in chunks, **Height** puts it on the ground or at a fixed Y, and **Terrain** picks how the ground meets it. In game, `/place structure <modid>:<id>` places one next to you.
+
+The generator makes a one-piece jigsaw structure, like Minecraft's abandoned camps: the template, a start pool, the structure, a structure set and a `has_structure/<id>` biome tag. Blocks from this mod in the file have to exist in the project, or the check reports them.
 
 ### Quests
 
@@ -141,4 +148,4 @@ Minecraft 26.3, Fabric Loader 0.19.5, Fabric Loom 1.18.2 (`net.fabricmc.fabric-l
 
 ## Status
 
-Milestones 2 and 3 of the design doc are in: the project skeleton, blocks, items and recipes. So are ore veins, food, tools, armor, trees, plants, mobs (on vanilla bodies or Blockbench models) and biomes. Mobs can be animals, neutral, tameable or hostile, and fly. Blocks can have stairs, slabs, walls, fences, doors and other shapes, and trees a full wood set. Project settings, Modrinth search and quests (advancements, with a quest line view) are in the app. Next up: NBT structures.
+Milestones 2 and 3 of the design doc are in: the project skeleton, blocks, items and recipes. So are ore veins, food, tools, armor, trees, plants, mobs (on vanilla bodies or Blockbench models) and biomes. Mobs can be animals, neutral, tameable or hostile, and fly. Blocks can have stairs, slabs, walls, fences, doors and other shapes, and trees a full wood set. Project settings, Modrinth search and quests (advancements, with a quest line view) and structures from structure block files are in the app. Next up: sounds and effects.
