@@ -13,7 +13,7 @@
     "build": "npm run build -w @modcreator/core -w @modcreator/cli -w @modcreator/app",
     "test": "npm test -w @modcreator/core",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "app": "npm start -w @modcreator/app",
+    "app": "node scripts/start.mjs",
     "example": "node packages/cli/dist/index.js generate examples/ruby"
   },
   "engines": {
