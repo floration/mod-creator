@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it } from "vitest";
-import { createProject, generate, loadProject, plan, resolveRef } from "../src/index.js";
+import { createProject, generate, itemIconArt, loadProject, plan, registeredItems, resolveRef } from "../src/index.js";
 
 const RUBY = fileURLToPath(new URL("../../../examples/ruby", import.meta.url));
 const AZUREGROVE = fileURLToPath(new URL("../../../examples/azuregrove", import.meta.url));
@@ -71,6 +71,18 @@ describe("Azure Grove example", () => {
     expect(new Set(loaded.elements.map((e) => e.spec.kind))).toEqual(
       new Set(["block", "item", "recipe", "ore", "tool", "armor", "tree", "plant", "mob", "biome"]),
     );
+  });
+
+  it("has an inventory icon for every item it registers", async () => {
+    const loaded = await loadProject(AZUREGROVE);
+    const icons = Object.fromEntries(
+      loaded.elements.flatMap(({ spec }) => registeredItems(spec).map(([id]) => [id, itemIconArt(spec, id)])),
+    );
+    expect(Object.entries(icons).filter(([, icon]) => !icon)).toEqual([]);
+    expect(icons.azurite_helmet).toEqual({ kind: "flat", texture: "art/azurite_helmet.png" });
+    expect(icons.azurite_leggings).toEqual({ kind: "flat", texture: "art/azurite_leggings.png" });
+    expect(icons.azurewood_log).toEqual({ kind: "cube", top: "art/azurewood_log_top.png", side: "art/azurewood_log.png" });
+    expect(icons.bluetusk_spawn_egg).toEqual({ kind: "flat", texture: "art/bluetusk_spawn_egg.png" });
   });
 
   it("generates the same output as the snapshot", async () => {
