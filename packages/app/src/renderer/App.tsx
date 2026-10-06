@@ -7,6 +7,7 @@ import type { Draft, Errors } from "./forms";
 import { ItemContext, type ItemWorld } from "./items";
 import { OrePreview } from "./OrePreview";
 import { Preview } from "./Preview";
+import { TextureContext, type TextureWorld } from "./TextureField";
 
 const KINDS: { kind: Kind; folder: string; title: string }[] = [
   { kind: "block", folder: "blocks", title: "Blocks" },
@@ -83,6 +84,11 @@ export function App() {
         },
       },
     [loaded, vanilla],
+  );
+
+  const textures = useMemo<TextureWorld | null>(
+    () => loaded && { root: loaded.root, version, saved: () => setVersion((v) => v + 1) },
+    [loaded, version],
   );
 
   const open = useCallback(async (dir: string, keepSelection = false) => {
@@ -247,7 +253,7 @@ export function App() {
 
       <main className="editor">
         {draft && selected ? (
-          <>
+          <TextureContext.Provider value={textures}>
             <div className="editor-head">
               <span className="muted">{selected}</span>
               <span className="spacer" />
@@ -270,7 +276,7 @@ export function App() {
               {draft.kind === "ore" && <OrePreview draft={draft} />}
               {draft.kind === "biome" && <BiomePreview draft={draft} />}
             </div>
-          </>
+          </TextureContext.Provider>
         ) : (
           <div className="empty">Pick something on the left, or add one with +.</div>
         )}

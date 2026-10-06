@@ -138,6 +138,20 @@ const MOB_MODELS: Record<string, { uv: [number, number]; box: number[]; at: [num
   ],
 };
 
+/** The faces of each box of a mob model on its 64x64 sheet, as [left, top, width, height], for the texture editor's guide. */
+export function mobSheetLayout(model: string): [number, number, number, number][] | null {
+  const parts = MOB_MODELS[model];
+  if (!parts) return null;
+  return parts.flatMap(({ uv: [u, v], box: [, , , w, h, d] }) => [
+    [u + d, v, w, d],
+    [u + d + w, v, w, d],
+    [u, v + d, d, h],
+    [u + d, v + d, w, h],
+    [u + d + w, v + d, d, h],
+    [u + d + w + d, v + d, w, h],
+  ] as [number, number, number, number][]);
+}
+
 async function mob(load: Loader, model: string, texture: string): Promise<THREE.Group> {
   const material = shaded(await load(texture));
   const parts = new THREE.Group();
