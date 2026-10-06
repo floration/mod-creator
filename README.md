@@ -39,8 +39,10 @@ From the app:
 - **Run client** runs `gradlew runClient`, Loom's dev client with its own `run/` folder.
 - **Edit** (or **Draw**, for a texture that doesn't exist yet) next to any texture opens the pixel editor: pencil, eraser, fill, color picker, mirror, undo. Saving writes the PNG in `art/` and the 3D preview updates. Mob textures can show the model's parts on the sheet.
 - Problems (bad fields, broken references, missing textures) appear in the Problems panel and next to the field.
+- **Duplicate** copies the open element under a new id. **Delete** removes its spec file, after listing any other specs that still point at it. Changing an element's **Id** and saving renames the file and updates the recipes, biomes, drops and repair items that used the old id, including derived ids like `ruby_helmet`; the Output panel lists what changed.
+- The box above the element list filters by name or id.
 
-Edits made in other editors show up in the app, which watches `spec/`, `art/` and `modcreator.json`.
+Edits made in other editors show up in the app, which watches `spec/`, `art/` and `modcreator.json`. If the file open in the form changes while you have unsaved edits, the app asks whether to keep your edits or load the file's version.
 
 ## Command line
 

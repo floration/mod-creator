@@ -66,7 +66,7 @@ button.icon { padding: 0 8px; line-height: 20px; }
 .group { margin-bottom: 12px; }
 .group-title {
   display: flex;
-  justify-content: space-between;
+  gap: 6px;
   align-items: center;
   font-size: 12px;
   text-transform: uppercase;
@@ -88,7 +88,12 @@ button.icon { padding: 0 8px; line-height: 20px; }
 .item .muted { font-size: 12px; flex-shrink: 1; }
 .item.active { background: var(--surface-2); border-color: var(--border); }
 .item.bad { color: var(--error); }
+.group-title > span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.group-title .count { font-size: 11px; letter-spacing: 0; text-transform: none; }
+.search { width: 100%; margin-bottom: 8px; }
+.search-empty { padding: 4px; }
 .new-id { display: flex; gap: 4px; padding: 4px; }
+.editor-head .new-id { padding: 0; }
 
 .editor { grid-area: editor; display: flex; flex-direction: column; min-height: 0; }
 .editor-head { display: flex; gap: 8px; align-items: center; padding: 8px 12px; border-bottom: 1px solid var(--border); }

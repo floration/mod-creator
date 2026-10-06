@@ -4,7 +4,7 @@ import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { app, BrowserWindow, dialog, ipcMain, shell } from "electron";
-import { VanillaAssets, createProject, findMinecraftJar, generate, loadProject, type CreateOptions } from "@modcreator/core";
+import { VanillaAssets, createProject, dependentsOf, findMinecraftJar, generate, loadProject, renameEdits, type CreateOptions, type ElementSpec } from "@modcreator/core";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 let window: BrowserWindow | null = null;
@@ -83,6 +83,14 @@ ipcMain.handle("spec:save", async (_e, root: string, rel: string, value: unknown
 ipcMain.handle("spec:delete", async (_e, root: string, rel: string) => {
   await rm(inside(root, rel));
 });
+
+/** Fields in other specs that point at this one, so Delete can say what will break. */
+ipcMain.handle("spec:dependents", async (_e, root: string, rel: string) => dependentsOf(await loadProject(root), rel));
+
+/** Edits to other specs that keep them pointing at an element whose id is changing. */
+ipcMain.handle("spec:renameEdits", async (_e, root: string, rel: string, renamed: ElementSpec) =>
+  renameEdits(await loadProject(root), rel, renamed),
+);
 
 ipcMain.handle("file:dataUrl", async (_e, root: string, rel: string) => {
   const file = inside(root, rel);
