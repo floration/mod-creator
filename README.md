@@ -41,6 +41,7 @@ From the app:
 - Problems (bad fields, broken references, missing textures) appear in the Problems panel and next to the field.
 - **Duplicate** copies the open element under a new id. **Delete** removes its spec file, after listing any other specs that still point at it. Changing an element's **Id** and saving renames the file and updates the recipes, biomes, drops and repair items that used the old id, including derived ids like `ruby_helmet`; the Output panel lists what changed.
 - The box above the element list filters by name or id.
+- **Settings** in the toolbar edits `modcreator.json`: the mod's name, version, description, authors and Modrinth dependencies. Search Modrinth for a Fabric mod made for this Minecraft version and **Add** puts in its newest release; **Pick** next to a dependency lists its other builds. The mod id, Java package and Minecraft version are shown but fixed.
 
 Edits made in other editors show up in the app, which watches `spec/`, `art/` and `modcreator.json`. If the file open in the form changes while you have unsaved edits, the app asks whether to keep your edits or load the file's version.
 
@@ -133,4 +134,4 @@ Minecraft 26.3, Fabric Loader 0.19.5, Fabric Loom 1.18.2 (`net.fabricmc.fabric-l
 
 ## Status
 
-Milestones 2 and 3 of the design doc are in: the project skeleton, blocks, items and recipes. So are ore veins, food, tools, armor, trees, plants, mobs (on vanilla bodies or Blockbench models) and biomes. Mobs can be animals, neutral, tameable or hostile, and fly. Blocks can have stairs, slabs, walls, fences, doors and other shapes, and trees a full wood set. Next up: a project settings page and Modrinth search.
+Milestones 2 and 3 of the design doc are in: the project skeleton, blocks, items and recipes. So are ore veins, food, tools, armor, trees, plants, mobs (on vanilla bodies or Blockbench models) and biomes. Mobs can be animals, neutral, tameable or hostile, and fly. Blocks can have stairs, slabs, walls, fences, doors and other shapes, and trees a full wood set. Project settings and Modrinth search are in the app. Next up: the advancement (quest) editor.

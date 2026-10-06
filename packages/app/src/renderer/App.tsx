@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { SCHEMAS } from "@modcreator/core/schema";
+import { ProjectSchema, SCHEMAS } from "@modcreator/core/schema";
 import { api, type ElementSpec, type Issue, type LoadedProject, type VanillaCatalog } from "./api";
 import { ArmorEditor, BiomeEditor, BlockEditor, ItemEditor, MobEditor, OreEditor, PlantEditor, RecipeEditor, ToolEditor, TreeEditor, newSpec, type Kind } from "./Editors";
 import { BiomePreview } from "./BiomePreview";
@@ -7,6 +7,7 @@ import type { Draft, Errors } from "./forms";
 import { ItemContext, type ItemWorld } from "./items";
 import { OrePreview } from "./OrePreview";
 import { Preview } from "./Preview";
+import { ProjectEditor } from "./ProjectEditor";
 import { TextureContext, type TextureWorld } from "./TextureField";
 
 const KINDS: { kind: Kind; folder: string; title: string }[] = [
@@ -25,6 +26,14 @@ const KINDS: { kind: Kind; folder: string; title: string }[] = [
 const EDITORS = { block: BlockEditor, item: ItemEditor, ore: OreEditor, tool: ToolEditor, armor: ArmorEditor, tree: TreeEditor, plant: PlantEditor, mob: MobEditor, biome: BiomeEditor };
 const PREVIEWED = new Set(["block", "item", "tool", "armor", "tree", "plant", "mob"]);
 const LAST_PROJECT = "modcreator.lastProject";
+/** The project settings page edits this file like any spec. */
+const PROJECT_FILE = "modcreator.json";
+
+/** The open file's content as loaded: a spec, or the project settings. */
+function specAt(loaded: LoadedProject, file: string | null): unknown {
+  if (file === PROJECT_FILE) return loaded.project;
+  return loaded.elements.find((e) => e.file === file)?.spec;
+}
 
 function storage(key: string, value?: string | null): string | null {
   try {
@@ -41,7 +50,7 @@ function storage(key: string, value?: string | null): string | null {
 function draftErrors(draft: Draft | null, file: string | null, issues: Issue[]): Errors {
   const errors: Errors = new Map();
   if (!draft) return errors;
-  const schema = SCHEMAS[draft.kind as Kind];
+  const schema = file === PROJECT_FILE ? ProjectSchema : SCHEMAS[draft.kind as Kind];
   const result = schema?.safeParse(draft);
   if (result && !result.success) for (const i of result.error.issues) errors.set(i.path.join("."), i.message);
   for (const i of issues) if (i.file === file && i.field && !errors.has(i.field)) errors.set(i.field, i.message);
@@ -139,7 +148,8 @@ export function App() {
     return api().onProjectChanged(async (changedRoot) => {
       const next = await open(changedRoot, true);
       if (!next || !selected) return;
-      const el = next.elements.find((e) => e.file === selected);
+      const found = specAt(next, selected);
+      const el = found === undefined ? undefined : { spec: found };
       if (!dirty) {
         if (el) {
           setDraft(el.spec as Draft);
@@ -167,7 +177,7 @@ export function App() {
   /** True when there is nothing unsaved, or the user agrees to throw it away. */
   const discardOk = useCallback(() => !dirty || confirm("Discard unsaved changes?"), [dirty]);
 
-  const select = (file: string, spec: ElementSpec) => {
+  const select = (file: string, spec: unknown) => {
     if (!discardOk()) return;
     setSelected(file);
     setDraft(spec as Draft);
@@ -178,15 +188,14 @@ export function App() {
 
   /** Resolve a conflict: keep the form's edits (Save will overwrite the file), or load the file from disk. */
   const keepMine = () => {
-    const el = loaded?.elements.find((e) => e.file === selected);
-    setBase(snapshot(el?.spec));
+    setBase(snapshot(loaded && specAt(loaded, selected)));
     setConflict(null);
   };
   const takeTheirs = () => {
-    const el = loaded?.elements.find((e) => e.file === selected);
-    if (el) {
-      setDraft(el.spec as Draft);
-      setBase(snapshot(el.spec));
+    const spec = loaded ? specAt(loaded, selected) : undefined;
+    if (spec !== undefined) {
+      setDraft(spec as Draft);
+      setBase(snapshot(spec));
     } else {
       setSelected(null);
       setDraft(null);
@@ -222,6 +231,11 @@ export function App() {
   const save = useCallback(async () => {
     if (!root || !selected || !draft) return;
     if (conflict === "changed" && !confirm("This file was changed outside Mod Creator. Save over those changes?")) return;
+    // A broken modcreator.json would stop the project from opening at all, so it only saves when valid.
+    if (selected === PROJECT_FILE && !ProjectSchema.safeParse(draft).success) {
+      alert("Fix the highlighted settings first.");
+      return;
+    }
     let file = selected;
     const kind = KINDS.find((k) => k.kind === draft.kind);
     // Renaming the id renames the file, so spec/<kind>/<id>.json always matches.
@@ -244,7 +258,7 @@ export function App() {
     setDirty(false);
     setConflict(null);
     const next = await open(root, true);
-    setBase(snapshot(next?.elements.find((e) => e.file === file)?.spec));
+    setBase(snapshot(next ? specAt(next, file) : undefined));
     if (next && !next.issues.some((i) => i.severity === "error")) await generate(root);
   }, [root, selected, draft, conflict, open, generate]);
 
@@ -335,7 +349,8 @@ export function App() {
     <div className="app">
       <header className="toolbar">
         <strong className="project-name">{loaded.project.name}</strong>
-        <span className="muted">{loaded.project.modId} · Minecraft {loaded.project.profile}</span>
+        <span className="muted">{loaded.project.modId} {loaded.project.version} · Minecraft {loaded.project.profile}</span>
+        <button className={selected === PROJECT_FILE ? "active" : ""} onClick={() => select(PROJECT_FILE, loaded.project)}>Settings</button>
         <span className="spacer" />
         <button onClick={async () => { if (!discardOk()) return; const dir = await api().pickProject(); if (dir) open(dir); }}>Open</button>
         <button onClick={() => { if (!discardOk()) return; storage(LAST_PROJECT, null); setLoaded(null); setSelected(null); setDraft(null); setDirty(false); setConflict(null); }}>Close</button>
@@ -392,12 +407,12 @@ export function App() {
             <div className="editor-head">
               <span className="muted">{selected}</span>
               <span className="spacer" />
-              {duplicating ? (
+              {selected !== PROJECT_FILE && (duplicating ? (
                 <NewId placeholder="id for the copy" label="Duplicate" onCancel={() => setDuplicating(false)} onSubmit={duplicate} />
               ) : (
                 <button onClick={() => setDuplicating(true)}>Duplicate</button>
-              )}
-              <button onClick={remove}>Delete</button>
+              ))}
+              {selected !== PROJECT_FILE && <button onClick={remove}>Delete</button>}
               <button onClick={() => api().openPath(loaded.root, selected)}>Open file</button>
               <button className="primary" disabled={!dirty} onClick={save}>{dirty ? "Save (Ctrl+S)" : "Saved"}</button>
             </div>
@@ -415,7 +430,8 @@ export function App() {
             )}
             <div className="editor-body">
               <div className={`form${draft.kind === "recipe" ? " wide" : ""}`}>
-                {draft.kind in EDITORS && (() => {
+                {selected === PROJECT_FILE && <ProjectEditor draft={draft} errors={errors} onChange={(d) => { setDraft(d); setDirty(true); }} />}
+                {selected !== PROJECT_FILE && draft.kind in EDITORS && (() => {
                   const Editor = EDITORS[draft.kind as keyof typeof EDITORS];
                   return <Editor draft={draft} errors={errors} onChange={(d) => { setDraft(d); setDirty(true); }} />;
                 })()}
@@ -448,7 +464,7 @@ export function App() {
           <ul className="problems">
             {issues.length === 0 && <li className="muted">No problems.</li>}
             {issues.map((i, n) => (
-              <li key={n} className={i.severity} onClick={() => { const el = loaded.elements.find((e) => e.file === i.file); if (el) select(el.file, el.spec); }}>
+              <li key={n} className={i.severity} onClick={() => { const spec = specAt(loaded, i.file); if (spec !== undefined) select(i.file, spec); }}>
                 <span className="sev">{i.severity}</span> {i.file}
                 {i.field && <span className="muted"> · {i.field}</span>}: {i.message}
               </li>

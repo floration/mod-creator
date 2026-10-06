@@ -14,6 +14,10 @@
       "types": "./dist/schema.d.ts",
       "default": "./dist/schema.js"
     },
+    "./modrinth": {
+      "types": "./dist/modrinth.d.ts",
+      "default": "./dist/modrinth.js"
+    },
     "./recipe-grid": {
       "types": "./dist/recipeGrid.d.ts",
       "default": "./dist/recipeGrid.js"
