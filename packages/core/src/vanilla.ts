@@ -68,6 +68,13 @@ export class VanillaAssets {
     }
   }
 
+  /** A PNG from the game's assets as a data URL, like `textures/entity/zombie/zombie.png`. Null if it isn't there. */
+  texture(asset: string): string | null {
+    if (!/^textures\/[a-z0-9_/.-]+\.png$/.test(asset)) return null;
+    const png = this.zip.read(`assets/minecraft/${asset}`);
+    return png ? `data:image/png;base64,${png.toString("base64")}` : null;
+  }
+
   /** Every item and item tag in the game, sorted by display name. */
   catalog(): { items: CatalogEntry[]; tags: CatalogEntry[] } {
     if (this.catalogCache) return this.catalogCache;

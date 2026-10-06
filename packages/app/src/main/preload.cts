@@ -21,6 +21,7 @@ const api = {
   loadVanilla: (version: string) => ipcRenderer.invoke("vanilla:load", version),
   pickMinecraftJar: (version: string) => ipcRenderer.invoke("vanilla:pickJar", version),
   vanillaIcon: (id: string) => ipcRenderer.invoke("vanilla:icon", id),
+  vanillaTexture: (asset: string) => ipcRenderer.invoke("vanilla:texture", asset),
   generate: (root: string) => ipcRenderer.invoke("project:generate", root),
   runGradle: (root: string, task: string) => ipcRenderer.invoke("gradle:run", root, task),
   stopGradle: () => ipcRenderer.invoke("gradle:stop"),

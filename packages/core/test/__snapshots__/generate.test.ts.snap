@@ -194,7 +194,7 @@ public final class ModContent {
 
 	/** Grove Lurker (spec/mobs/grove_lurker.json) */
 	public static final EntityType<GroveLurker> GROVE_LURKER = registerEntity("grove_lurker",
-			EntityType.Builder.of(GroveLurker::new, MobCategory.MONSTER).sized(0.9f, 0.9f));
+			EntityType.Builder.of(GroveLurker::new, MobCategory.MONSTER).sized(0.6f, 1.95f));
 	public static final Item GROVE_LURKER_SPAWN_EGG = registerItem("grove_lurker_spawn_egg", SpawnEggItem::new, new Item.Properties().spawnEgg(GROVE_LURKER));
 
 	private ModContent() {
@@ -330,6 +330,8 @@ package com.example.azuregrove.generated.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.AdultAndBabyModelPair;
+import net.minecraft.client.model.animal.pig.BabyPigModel;
+import net.minecraft.client.model.animal.pig.PigModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -337,8 +339,6 @@ import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.resources.Identifier;
-import net.minecraft.client.model.animal.pig.BabyPigModel;
-import net.minecraft.client.model.animal.pig.PigModel;
 
 import com.example.azuregrove.generated.ModContent;
 import com.example.azuregrove.generated.entity.Bluetusk;
@@ -384,47 +384,47 @@ package com.example.azuregrove.generated.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.AdultAndBabyModelPair;
 import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.client.model.monster.zombie.BabyZombieModel;
+import net.minecraft.client.model.monster.zombie.ZombieModel;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
-import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
+import net.minecraft.client.renderer.entity.state.ZombieRenderState;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.resources.Identifier;
-import net.minecraft.client.model.animal.pig.BabyPigModel;
-import net.minecraft.client.model.animal.pig.PigModel;
 
 import com.example.azuregrove.generated.ModContent;
 import com.example.azuregrove.generated.entity.GroveLurker;
 
-/** Draws Grove Lurker with the vanilla pig body (spec/mobs/grove_lurker.json). */
-public class GroveLurkerRenderer extends MobRenderer<GroveLurker, LivingEntityRenderState, PigModel> {
+/** Draws Grove Lurker with the vanilla zombie body (spec/mobs/grove_lurker.json). */
+public class GroveLurkerRenderer extends MobRenderer<GroveLurker, ZombieRenderState, ZombieModel<ZombieRenderState>> {
 	private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(ModContent.MOD_ID, "textures/entity/grove_lurker.png");
 	private static final Identifier BABY_TEXTURE = Identifier.fromNamespaceAndPath(ModContent.MOD_ID, "textures/entity/grove_lurker_baby.png");
 
-	private final AdultAndBabyModelPair<PigModel> models;
+	private final AdultAndBabyModelPair<ZombieModel<ZombieRenderState>> models;
 
 	public GroveLurkerRenderer(EntityRendererProvider.Context context) {
-		this(context, new AdultAndBabyModelPair<>(new PigModel(context.bakeLayer(ModelLayers.PIG)),
-				new BabyPigModel(context.bakeLayer(ModelLayers.PIG_BABY))));
+		this(context, new AdultAndBabyModelPair<>(new ZombieModel<>(context.bakeLayer(ModelLayers.ZOMBIE)),
+				new BabyZombieModel<>(context.bakeLayer(ModelLayers.ZOMBIE_BABY))));
 	}
 
-	private GroveLurkerRenderer(EntityRendererProvider.Context context, AdultAndBabyModelPair<PigModel> models) {
-		super(context, models.adultModel(), 0.7f);
+	private GroveLurkerRenderer(EntityRendererProvider.Context context, AdultAndBabyModelPair<ZombieModel<ZombieRenderState>> models) {
+		super(context, models.adultModel(), 0.5f);
 		this.models = models;
 	}
 
 	@Override
-	public LivingEntityRenderState createRenderState() {
-		return new LivingEntityRenderState();
+	public ZombieRenderState createRenderState() {
+		return new ZombieRenderState();
 	}
 
 	@Override
-	public Identifier getTextureLocation(LivingEntityRenderState state) {
+	public Identifier getTextureLocation(ZombieRenderState state) {
 		return state.isBaby ? BABY_TEXTURE : TEXTURE;
 	}
 
 	@Override
-	public void submit(LivingEntityRenderState state, PoseStack poseStack, SubmitNodeCollector collector, CameraRenderState camera) {
+	public void submit(ZombieRenderState state, PoseStack poseStack, SubmitNodeCollector collector, CameraRenderState camera) {
 		this.model = this.models.getModel(state.isBaby);
 		super.submit(state, poseStack, collector, camera);
 	}
@@ -512,14 +512,18 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
+import net.minecraft.world.entity.ai.goal.MoveTowardsRestrictionGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
@@ -534,27 +538,30 @@ public class GroveLurker extends Monster {
 	@Override
 	protected void registerGoals() {
 		this.goalSelector.addGoal(0, new FloatGoal(this));
+		this.goalSelector.addGoal(1, new AvoidEntityGoal<>(this, Wolf.class, 8.0f, 1.0, 1.3));
 		this.goalSelector.addGoal(2, new MeleeAttackGoal(this, 1.0, false));
-		this.goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 1.0));
-		this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 6.0f));
+		this.goalSelector.addGoal(5, new MoveTowardsRestrictionGoal(this, 1.0));
+		this.goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 0.8));
+		this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8.0f));
 		this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
-		this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
+		this.targetSelector.addGoal(1, new HurtByTargetGoal(this).setAlertOthers());
 		this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
+		this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Villager.class, false));
 	}
 
 	@Override
 	protected SoundEvent getAmbientSound() {
-		return BuiltInRegistries.SOUND_EVENT.getValue(Identifier.parse("minecraft:entity.pig.ambient"));
+		return BuiltInRegistries.SOUND_EVENT.getValue(Identifier.parse("minecraft:entity.zombie.ambient"));
 	}
 
 	@Override
 	protected SoundEvent getHurtSound(DamageSource source) {
-		return BuiltInRegistries.SOUND_EVENT.getValue(Identifier.parse("minecraft:entity.pig.hurt"));
+		return BuiltInRegistries.SOUND_EVENT.getValue(Identifier.parse("minecraft:entity.zombie.hurt"));
 	}
 
 	@Override
 	protected SoundEvent getDeathSound() {
-		return BuiltInRegistries.SOUND_EVENT.getValue(Identifier.parse("minecraft:entity.pig.death"));
+		return BuiltInRegistries.SOUND_EVENT.getValue(Identifier.parse("minecraft:entity.zombie.death"));
 	}
 }
 ",

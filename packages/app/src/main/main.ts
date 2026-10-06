@@ -198,6 +198,8 @@ ipcMain.handle("vanilla:pickJar", async (_e, version: string) => {
 
 ipcMain.handle("vanilla:icon", (_e, id: string) => vanilla?.assets.icon(id) ?? null);
 
+ipcMain.handle("vanilla:texture", (_e, asset: string) => vanilla?.assets.texture(asset) ?? null);
+
 ipcMain.handle("project:generate", async (_e, root: string) => generate(root));
 
 ipcMain.handle("gradle:run", async (_e, root: string, task: string) => {

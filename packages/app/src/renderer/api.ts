@@ -84,6 +84,8 @@ export interface ModCreatorApi {
   loadVanilla(version: string): Promise<VanillaCatalog>;
   pickMinecraftJar(version: string): Promise<VanillaCatalog | null>;
   vanillaIcon(id: string): Promise<ItemIcon | null>;
+  /** A texture from the Minecraft jar as a data URL, once loadVanilla found one. */
+  vanillaTexture(asset: string): Promise<string | null>;
   generate(root: string): Promise<GenerateResult>;
   runGradle(root: string, task: "build" | "runClient" | "clean"): Promise<number>;
   stopGradle(): Promise<void>;

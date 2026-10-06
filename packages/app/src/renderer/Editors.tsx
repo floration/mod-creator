@@ -1,6 +1,6 @@
 import { useContext, useEffect, useMemo, useState } from "react";
 import { EMPTY_SLOTS, listFromSlots, patternFromSlots, sameShape, slotsFromList, slotsFromPattern, type Slots } from "@modcreator/core/recipe-grid";
-import { ARMOR_PIECES, CreativeTab, EquipSound, MobBehavior, MobModel, OreHost, Rarity, SoundType, ToolTier, TreeShape, VANILLA_EFFECTS, shapeBlocks, type ElementSpec } from "@modcreator/core/schema";
+import { ARMOR_PIECES, CreativeTab, EquipSound, MobBehavior, OreHost, Rarity, SoundType, ToolTier, TreeShape, VANILLA_EFFECTS, shapeBlocks, type ElementSpec } from "@modcreator/core/schema";
 import {
   CheckField,
   ColorField,
@@ -20,6 +20,8 @@ import { pickAnimations, type EntityModelDef } from "@modcreator/core/blockbench
 import { api } from "./api";
 import { blockbenchSheetLayout, mobSheetLayout } from "./Preview";
 import { TextureContext, TextureField } from "./TextureField";
+import { GoalsEditor, ModelPicker } from "./MobParts";
+import { VANILLA_MOBS } from "@modcreator/core/vanilla-mobs";
 import { ItemContext, ItemIconView, ItemPicker, acceptsItem, dragItem, droppedItem, itemInfo } from "./items";
 
 interface EditorProps {
@@ -348,7 +350,10 @@ export function MobEditor(p: EditorProps) {
   const custom = model === "blockbench";
   const bb = useBlockbench(custom ? getAt(p.draft, ["mob", "blockbench"]) : undefined);
   const world = useContext(TextureContext);
-  const sheet: [number, number] = bb.model ? [bb.model.textureWidth, bb.model.textureHeight] : [64, 64];
+  const vanilla = custom ? undefined : VANILLA_MOBS.models[model];
+  const sheet: [number, number] = bb.model ? [bb.model.textureWidth, bb.model.textureHeight] : (vanilla?.textureSize ?? [64, 64]);
+  const babySheet: [number, number] = custom ? sheet : (vanilla?.babyTextureSize ?? sheet);
+  const items = useContext(ItemContext);
   const { walk, idle } = bb.model ? pickAnimations(bb.model) : { walk: null, idle: null };
   const behavior: string = getAt(p.draft, ["mob", "behavior"]) ?? "animal";
 
@@ -361,11 +366,22 @@ export function MobEditor(p: EditorProps) {
     p.onChange(setAt(p.draft, ["mob", "texture"], file));
   };
 
+  /** Copy the vanilla mob's own texture into art/ as a starting point to paint over. */
+  const copyVanillaTexture = async (baby: boolean) => {
+    if (!world || !vanilla?.texture) return;
+    const url = await api().vanillaTexture(vanilla.texture);
+    if (!url) return;
+    const file = `art/${getAt(p.draft, ["id"]) || "mob"}${baby ? "_baby" : ""}.png`;
+    await api().saveArt(world.root, file, url);
+    world.saved();
+    p.onChange(setAt(p.draft, ["mob", baby ? "babyTexture" : "texture"], file));
+  };
+
   return (
     <>
       <Common {...p} tab={false} tags="" customClass={false} idHint="Lowercase. The spawn egg is <id>_spawn_egg" />
       <Section title="Look">
-        <SelectField {...f} path={["mob", "model"]} label="Body" options={MobModel.options} hint={custom ? "Your own model, made in Blockbench" : "Borrows this animal's model and animations"} />
+        <ModelPicker value={model} error={p.errors.get("mob.model")} onChange={(m) => p.onChange(setAt(p.draft, ["mob", "model"], m))} />
         {custom && (
           <>
             <TextField {...f} path={["mob", "blockbench"]} placeholder="art/name.bbmodel" label="Blockbench model" hint="A .bbmodel in art/, made with Blockbench's Modded Entity format and Box UV" />
@@ -387,9 +403,17 @@ export function MobEditor(p: EditorProps) {
           guide={custom ? (bb.model ? blockbenchSheetLayout(bb.model) : null) : mobSheetLayout(model)}
           path={["mob", "texture"]}
           label="Texture"
-          hint={custom ? `${sheet[0]}x${sheet[1]} PNG in the model's layout` : `64x64 PNG in the vanilla ${model} layout`}
+          hint={custom ? `${sheet[0]}x${sheet[1]} PNG in the model's layout` : `${sheet[0]}x${sheet[1]} PNG in the vanilla ${model.replaceAll("_", " ")} layout`}
         />
-        <TextureField {...f} size={sheet} path={["mob", "babyTexture"]} label="Baby texture" optional hint={custom ? "Optional. Babies use the same model at half size" : `Optional. In the vanilla baby ${model} layout`} />
+        {vanilla?.texture && items?.vanilla?.jar && (
+          <button type="button" className="link" onClick={() => copyVanillaTexture(false)}>
+            Start from the vanilla {model.replaceAll("_", " ")} texture
+          </button>
+        )}
+        {(custom || vanilla?.babyLayer) && (
+          <TextureField {...f} size={babySheet} path={["mob", "babyTexture"]} label="Baby texture" optional hint={custom ? "Optional. Babies use the same model at half size" : `Optional. ${babySheet[0]}x${babySheet[1]}, in the vanilla baby ${model.replaceAll("_", " ")} layout`} />
+        )}
+        {!custom && <NumberField {...f} path={["mob", "scale"]} label="Size" step={0.1} min={0.05} max={16} hint="Draws the body bigger or smaller. 1 is the vanilla size; set the hitbox to match" />}
         <TextureField {...f} path={["mob", "spawnEgg"]} label="Spawn egg icon" />
       </Section>
       <Section title="Behavior">
@@ -397,7 +421,8 @@ export function MobEditor(p: EditorProps) {
         <NumberField {...f} path={["mob", "speed"]} label="Speed" step={0.05} min={0} max={2} hint="Pig 0.25, cow 0.2" />
         <SelectField {...f} path={["mob", "behavior"]} label="Acts like" options={MobBehavior.options} hint={BEHAVIOR_HINTS[behavior]} />
         <CheckField {...f} path={["mob", "flies"]} label="Flies" hint="Flies around like a parrot instead of walking, and takes no fall damage" />
-        {behavior !== "animal" && (
+        <GoalsEditor {...f} />
+        {(behavior !== "animal" || getAt(p.draft, ["mob", "goals"])) && (
           <NumberField {...f} path={["mob", "attackDamage"]} label="Attack damage" step={0.5} min={0} max={100} hint="Per hit, in half hearts. Zombie 3, wolf 4" />
         )}
         <TextField
@@ -409,6 +434,19 @@ export function MobEditor(p: EditorProps) {
         />
         <NumberField {...f} path={["mob", "width"]} label="Hitbox width" step={0.1} min={0.1} max={16} />
         <NumberField {...f} path={["mob", "height"]} label="Hitbox height" step={0.1} min={0.1} max={16} />
+        {vanilla?.size && (
+          <button
+            type="button"
+            className="link"
+            onClick={() => {
+              const s = getAt(p.draft, ["mob", "scale"]) ?? 1;
+              const round = (n: number) => Math.round(n * s * 100) / 100;
+              p.onChange(setAt(setAt(p.draft, ["mob", "width"], round(vanilla.size![0])), ["mob", "height"], round(vanilla.size![1])));
+            }}
+          >
+            Use the vanilla {model.replaceAll("_", " ")} hitbox ({vanilla.size[0]} x {vanilla.size[1]}{(getAt(p.draft, ["mob", "scale"]) ?? 1) !== 1 ? ", scaled to the size" : ""})
+          </button>
+        )}
       </Section>
       <Section title="Drops">
         <RowsField
@@ -425,11 +463,11 @@ export function MobEditor(p: EditorProps) {
         />
       </Section>
       <Section title="Sounds">
-        <TextField {...f} path={["mob", "sounds", "ambient"]} label="Ambient" optional placeholder={custom ? "minecraft:entity.bee.loop" : `minecraft:entity.${model}.ambient`} />
-        <TextField {...f} path={["mob", "sounds", "hurt"]} label="Hurt" optional placeholder={custom ? "minecraft:entity.bee.hurt" : `minecraft:entity.${model}.hurt`} />
-        <TextField {...f} path={["mob", "sounds", "death"]} label="Death" optional placeholder={custom ? "minecraft:entity.bee.death" : `minecraft:entity.${model}.death`} />
+        <TextField {...f} path={["mob", "sounds", "ambient"]} label="Ambient" optional placeholder={custom ? "minecraft:entity.bee.loop" : (vanilla?.sounds?.ambient ?? "silent")} />
+        <TextField {...f} path={["mob", "sounds", "hurt"]} label="Hurt" optional placeholder={custom ? "minecraft:entity.bee.hurt" : (vanilla?.sounds?.hurt ?? "silent")} />
+        <TextField {...f} path={["mob", "sounds", "death"]} label="Death" optional placeholder={custom ? "minecraft:entity.bee.death" : (vanilla?.sounds?.death ?? "silent")} />
         <span className="field-hint">
-          A sound from this mod by id, or a vanilla one starting with minecraft:. {custom ? "Leave empty for no sound." : `Leave empty to use the ${model}'s own sounds.`}
+          A sound from this mod by id, or a vanilla one starting with minecraft:. {custom || !vanilla?.sounds ? "Leave empty for no sound." : `Leave empty to use the ${model.replaceAll("_", " ")}'s own sounds.`}
         </span>
       </Section>
     </>

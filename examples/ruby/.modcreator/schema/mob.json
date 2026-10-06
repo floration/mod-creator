@@ -24,10 +24,118 @@
           "default": "pig",
           "type": "string",
           "enum": [
-            "pig",
+            "blockbench",
+            "allay",
+            "armadillo",
+            "armor_stand",
+            "armor_stand_small",
+            "axolotl",
+            "bat",
+            "bee",
+            "blaze",
+            "bogged",
+            "bogged_outer",
+            "breeze",
+            "camel",
+            "cat",
+            "cave_spider",
+            "chicken",
+            "cod",
+            "cold_chicken",
+            "cold_cow",
+            "cold_pig",
+            "copper_golem",
             "cow",
-            "blockbench"
+            "creaking",
+            "creeper",
+            "dolphin",
+            "donkey",
+            "drowned",
+            "elder_guardian",
+            "enderman",
+            "endermite",
+            "evoker",
+            "fox",
+            "frog",
+            "ghast",
+            "giant",
+            "glow_squid",
+            "goat",
+            "guardian",
+            "happy_ghast",
+            "hoglin",
+            "horse",
+            "husk",
+            "illusioner",
+            "iron_golem",
+            "llama",
+            "magma_cube",
+            "mooshroom",
+            "mule",
+            "nautilus",
+            "ocelot",
+            "panda",
+            "parched",
+            "parrot",
+            "phantom",
+            "pig",
+            "piglin",
+            "piglin_brute",
+            "pillager",
+            "player",
+            "polar_bear",
+            "pufferfish_big",
+            "pufferfish_medium",
+            "pufferfish_small",
+            "rabbit",
+            "ravager",
+            "salmon",
+            "salmon_large",
+            "salmon_small",
+            "sheep",
+            "shulker",
+            "silverfish",
+            "skeleton",
+            "skeleton_horse",
+            "slime",
+            "sniffer",
+            "snow_golem",
+            "spider",
+            "squid",
+            "stray",
+            "stray_outer",
+            "strider",
+            "sulfur_cube",
+            "sulfur_cube_small",
+            "tadpole",
+            "trader_llama",
+            "tropical_fish_large",
+            "tropical_fish_small",
+            "turtle",
+            "vex",
+            "villager",
+            "vindicator",
+            "wandering_trader",
+            "warden",
+            "warm_cow",
+            "witch",
+            "wither",
+            "wither_skeleton",
+            "wolf",
+            "zoglin",
+            "zombie",
+            "zombie_horse",
+            "zombie_nautilus",
+            "zombie_nautilus_coral",
+            "zombie_villager",
+            "zombified_piglin"
           ]
+        },
+        "scale": {
+          "default": 1,
+          "type": "number",
+          "minimum": 0.05,
+          "maximum": 16
         },
         "blockbench": {
           "type": "string"
@@ -71,6 +179,149 @@
             "tameable",
             "hostile"
           ]
+        },
+        "goals": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "goal": {
+                "type": "string",
+                "enum": [
+                  "avoid_entity",
+                  "beg",
+                  "break_door",
+                  "breath_air",
+                  "breed",
+                  "cat_lie_on_block",
+                  "cat_sit_on_block",
+                  "climb_on_top_of_powder_snow",
+                  "defend_village_target",
+                  "dolphin_jump",
+                  "eat_block",
+                  "flee_sun",
+                  "float",
+                  "follow_flock_leader",
+                  "follow_mob",
+                  "follow_owner",
+                  "follow_parent",
+                  "follow_player_ridden_entity",
+                  "golem_random_stroll_in_village",
+                  "hurt_by_target",
+                  "interact",
+                  "land_on_owners_shoulder",
+                  "leap_at_target",
+                  "llama_follow_caravan",
+                  "look_at_player",
+                  "look_at_trading_player",
+                  "melee_attack",
+                  "move_back_to_village",
+                  "move_through_village",
+                  "move_towards_restriction",
+                  "move_towards_target",
+                  "nearest_attackable_target",
+                  "nearest_attackable_witch_target",
+                  "nearest_healable_raider_target",
+                  "non_tame_random_target",
+                  "ocelot_attack",
+                  "offer_flower",
+                  "open_door",
+                  "owner_hurt_by_target",
+                  "owner_hurt_target",
+                  "panic",
+                  "pathfind_to_raid",
+                  "random_look_around",
+                  "random_stand",
+                  "random_stroll",
+                  "random_swimming",
+                  "ranged_attack",
+                  "ranged_bow_attack",
+                  "ranged_crossbow_attack",
+                  "remove_block",
+                  "reset_universal_anger_target",
+                  "restrict_sun",
+                  "run_around_like_crazy",
+                  "sit_when_ordered_to",
+                  "skeleton_trap",
+                  "spear_use",
+                  "stroll_through_village",
+                  "swell",
+                  "tempt",
+                  "trade_with_player",
+                  "try_find_liquid",
+                  "use_item",
+                  "water_avoiding_random_flying",
+                  "water_avoiding_random_stroll",
+                  "zombie_attack"
+                ]
+              },
+              "priority": {
+                "default": 5,
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "args": {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string"
+                },
+                "additionalProperties": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  ]
+                }
+              },
+              "calls": {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string"
+                },
+                "additionalProperties": {
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string"
+                  },
+                  "additionalProperties": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            "required": [
+              "goal"
+            ]
+          }
         },
         "flies": {
           "default": false,

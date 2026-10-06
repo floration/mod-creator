@@ -53,6 +53,11 @@ jobs:
       - name: gradlew build
         working-directory: examples/${{ matrix.example }}
         run: ./gradlew build --no-daemon --stacktrace
+      # Loom has now downloaded the game jar and its libraries, so check the mob models and goals the
+      # editor offers still match what that jar has.
+      - name: Vanilla mob data matches the jar
+        if: matrix.example == 'azuregrove'
+        run: node scripts/extract-vanilla.mjs --check
       - name: Jar metadata matches modcreator.json
         working-directory: examples/${{ matrix.example }}
         run: |

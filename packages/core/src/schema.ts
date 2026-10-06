@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { VANILLA_GOAL_IDS, VANILLA_MODEL_IDS } from "./vanillaMobs.js";
 
 /** Lowercase id usable as a registry path: `ruby_ore`. */
 export const LocalId = z
@@ -285,12 +286,28 @@ export const PlantSpecSchema = z.object({
 export type PlantSpec = z.infer<typeof PlantSpecSchema>;
 
 /**
- * The mob's body: a vanilla shape to borrow (its texture uses the same layout as the vanilla mob's), or
- * `blockbench` for your own model from a `.bbmodel` file.
+ * The mob's body: any vanilla mob's model to borrow (its texture uses the same layout as the vanilla mob's), or
+ * `blockbench` for your own model from a `.bbmodel` file. The list is read from the Minecraft jar.
  */
-export const MobModel = z.enum(["pig", "cow", "blockbench"]);
+export const MobModel = z.enum(["blockbench", ...VANILLA_MODEL_IDS] as [string, ...string[]]);
 
 export const MobBehavior = z.enum(["animal", "neutral", "tameable", "hostile"]);
+
+/** A goal argument: a number, true/false, an id (`minecraft:player`, `#minecraft:water`), or a list of ids. */
+export const GoalArg = z.union([z.number(), z.boolean(), z.string(), z.array(z.string())]);
+
+/**
+ * One AI goal: any vanilla goal, by name (`panic`, `avoid_entity`, `nearest_attackable_target`...). Arguments are
+ * the goal constructor's parameters by name; Mod Creator picks the constructor they fit. Lower priorities win.
+ */
+export const MobGoal = z.object({
+  goal: z.enum(VANILLA_GOAL_IDS as [string, ...string[]]),
+  priority: z.number().int().min(0).max(100).default(5),
+  args: z.record(z.string(), GoalArg).optional(),
+  /** Builder methods to call on it, like `setAlertOthers` on `hurt_by_target`, with their arguments. */
+  calls: z.record(z.string(), z.record(z.string(), GoalArg)).optional(),
+});
+export type MobGoal = z.infer<typeof MobGoal>;
 
 export const MobSpecSchema = z.object({
   kind: z.literal("mob"),
@@ -299,12 +316,14 @@ export const MobSpecSchema = z.object({
   name: z.string().min(1),
   mob: z.object({
     model: MobModel.default("pig"),
+    /** Draws the body this much bigger or smaller; the hitbox is set separately. */
+    scale: z.number().min(0.05).max(16).default(1),
     /**
      * With model `blockbench`: the `.bbmodel` file, in Blockbench's Modded Entity format with Box UV. Animations
      * whose names contain "walk" and "idle" play while it moves and all the time.
      */
     blockbench: z.string().optional(),
-    /** PNG in the vanilla layout of the model (64x64 for pig or cow), or the Blockbench model's own layout. */
+    /** PNG in the vanilla layout of the model (64x64 for a pig or zombie), or the Blockbench model's own layout. */
     texture: z.string(),
     /** Texture for babies, in the vanilla baby layout. Defaults to `texture`. */
     babyTexture: z.string().optional(),
@@ -319,6 +338,11 @@ export const MobSpecSchema = z.object({
      * by feeding it, then sits and follows its owner; `hostile` hunts players in the dark and doesn't breed.
      */
     behavior: MobBehavior.default("animal"),
+    /**
+     * Its AI goals, replacing the ones `behavior` gives it. Behavior still picks the Java class it extends, so it
+     * decides which goals fit (a tameable mob can follow its owner) and whether it breeds and tames.
+     */
+    goals: z.array(MobGoal).optional(),
     /** Flies around like a parrot or bee instead of walking, and takes no fall damage. */
     flies: z.boolean().default(false),
     /** Damage per hit, for mobs that fight. A zombie does 3, a wolf 4. */
