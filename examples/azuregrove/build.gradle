@@ -1,0 +1,74 @@
+plugins {
+	id 'net.fabricmc.fabric-loom' version "${loom_version}"
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+	archivesName = project.archives_base_name
+}
+
+repositories {
+	exclusiveContent {
+		forRepository {
+			maven {
+				name = 'Modrinth'
+				url = 'https://api.modrinth.com/maven'
+			}
+		}
+		filter {
+			includeGroup 'maven.modrinth'
+		}
+	}
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+
+	// Modrinth dependencies from modcreator.json
+	implementation "maven.modrinth:biolith:K3CS4Akl"
+}
+
+// Mod Creator writes generated code and assets here. Hand-written files stay in src/main.
+sourceSets {
+	main {
+		java.srcDir 'src/generated/java'
+		resources.srcDir 'src/generated/resources'
+	}
+}
+
+def modcreatorCli = providers.gradleProperty('modcreator_cli')
+def generateModContent = tasks.register('generateModContent', Exec) {
+	group = 'mod creator'
+	description = 'Regenerates src/generated from spec/ with the Mod Creator CLI.'
+	onlyIf { modcreatorCli.isPresent() }
+	inputs.file('modcreator.json')
+	inputs.files(fileTree('spec'), fileTree('art'))
+	outputs.dir('src/generated')
+	commandLine 'node', file(modcreatorCli.getOrElse('.')).absolutePath, 'generate', projectDir.absolutePath
+}
+
+tasks.named('compileJava') { dependsOn generateModContent }
+tasks.named('processResources') { dependsOn generateModContent }
+tasks.matching { it.name == 'sourcesJar' }.configureEach { dependsOn generateModContent }
+
+processResources {
+	inputs.property 'version', project.version
+
+	filesMatching('fabric.mod.json') {
+		expand 'version': inputs.properties.version
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 25
+}
+
+java {
+	withSourcesJar()
+	sourceCompatibility = JavaVersion.VERSION_25
+	targetCompatibility = JavaVersion.VERSION_25
+}

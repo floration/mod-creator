@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "kind": {
+      "type": "string",
+      "const": "mob"
+    },
+    "$schema": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mob": {
+      "type": "object",
+      "properties": {
+        "model": {
+          "default": "pig",
+          "type": "string",
+          "enum": [
+            "pig",
+            "cow"
+          ]
+        },
+        "texture": {
+          "type": "string"
+        },
+        "babyTexture": {
+          "type": "string"
+        },
+        "health": {
+          "default": 10,
+          "type": "number",
+          "minimum": 1,
+          "maximum": 1024
+        },
+        "speed": {
+          "default": 0.25,
+          "type": "number",
+          "minimum": 0,
+          "maximum": 2
+        },
+        "width": {
+          "default": 0.9,
+          "type": "number",
+          "minimum": 0.1,
+          "maximum": 16
+        },
+        "height": {
+          "default": 0.9,
+          "type": "number",
+          "minimum": 0.1,
+          "maximum": 16
+        },
+        "food": {
+          "type": "string",
+          "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+        },
+        "sounds": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "ambient": {
+              "type": "string",
+              "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+            },
+            "hurt": {
+              "type": "string",
+              "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+            },
+            "death": {
+              "type": "string",
+              "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+            }
+          }
+        },
+        "drops": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "item": {
+                "type": "string",
+                "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+              },
+              "min": {
+                "default": 1,
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "max": {
+                "default": 1,
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "item"
+            ]
+          }
+        },
+        "spawnEgg": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "texture",
+        "food",
+        "spawnEgg"
+      ]
+    }
+  },
+  "required": [
+    "kind",
+    "id",
+    "name",
+    "mob"
+  ]
+}

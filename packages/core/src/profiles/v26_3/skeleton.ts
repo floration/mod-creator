@@ -147,7 +147,7 @@ export function fabricModJson(project: Project): string {
         authors: project.authors,
         license: "All-Rights-Reserved",
         environment: "*",
-        entrypoints: { main: [entrypointClass(project)] },
+        entrypoints: { main: [entrypointClass(project)], client: [`${project.package}.generated.ModContentClient`] },
         depends,
       },
       null,

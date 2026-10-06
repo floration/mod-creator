@@ -1,0 +1,169 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "kind": {
+      "type": "string",
+      "const": "armor"
+    },
+    "$schema": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "tags": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+      }
+    },
+    "creativeTab": {
+      "type": "string",
+      "enum": [
+        "building_blocks",
+        "colored_blocks",
+        "natural_blocks",
+        "functional_blocks",
+        "redstone_blocks",
+        "tools_and_utilities",
+        "combat",
+        "food_and_drinks",
+        "ingredients",
+        "spawn_eggs"
+      ]
+    },
+    "armor": {
+      "type": "object",
+      "properties": {
+        "pieces": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "enum": [
+              "helmet",
+              "chestplate",
+              "leggings",
+              "boots"
+            ]
+          },
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "layer1": {
+          "type": "string"
+        },
+        "layer2": {
+          "type": "string"
+        },
+        "durability": {
+          "default": 15,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 200
+        },
+        "defense": {
+          "default": {
+            "helmet": 2,
+            "chestplate": 6,
+            "leggings": 5,
+            "boots": 2
+          },
+          "type": "object",
+          "properties": {
+            "helmet": {
+              "default": 2,
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 30
+            },
+            "chestplate": {
+              "default": 6,
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 30
+            },
+            "leggings": {
+              "default": 5,
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 30
+            },
+            "boots": {
+              "default": 2,
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 30
+            }
+          }
+        },
+        "toughness": {
+          "default": 0,
+          "type": "number",
+          "minimum": 0,
+          "maximum": 20
+        },
+        "knockbackResistance": {
+          "default": 0,
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "enchantability": {
+          "default": 9,
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 50
+        },
+        "equipSound": {
+          "default": "iron",
+          "type": "string",
+          "enum": [
+            "generic",
+            "leather",
+            "chain",
+            "copper",
+            "iron",
+            "gold",
+            "diamond",
+            "netherite",
+            "turtle"
+          ]
+        },
+        "repairItem": {
+          "type": "string",
+          "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+        },
+        "rarity": {
+          "default": "common",
+          "type": "string",
+          "enum": [
+            "common",
+            "uncommon",
+            "rare",
+            "epic"
+          ]
+        }
+      },
+      "required": [
+        "pieces",
+        "layer1",
+        "layer2"
+      ]
+    }
+  },
+  "required": [
+    "kind",
+    "id",
+    "name",
+    "armor"
+  ]
+}

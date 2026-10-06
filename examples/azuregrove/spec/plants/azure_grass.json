@@ -1,0 +1,12 @@
+{
+  "$schema": "../../.modcreator/schema/plant.json",
+  "kind": "plant",
+  "id": "azure_grass",
+  "name": "Azure Grass",
+  "creativeTab": "natural_blocks",
+  "tags": ["minecraft:replaceable_by_trees", "minecraft:sword_efficient"],
+  "plant": {
+    "texture": "art/azure_grass.png",
+    "drops": { "item": "minecraft:wheat_seeds", "chance": 0.125 }
+  }
+}

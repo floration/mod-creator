@@ -1,19 +1,28 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { SCHEMAS } from "@modcreator/core/schema";
 import { api, type ElementSpec, type Issue, type LoadedProject, type VanillaCatalog } from "./api";
-import { BlockEditor, ItemEditor, OreEditor, RecipeEditor, newSpec } from "./Editors";
+import { ArmorEditor, BiomeEditor, BlockEditor, ItemEditor, MobEditor, OreEditor, PlantEditor, RecipeEditor, ToolEditor, TreeEditor, newSpec, type Kind } from "./Editors";
+import { BiomePreview } from "./BiomePreview";
 import type { Draft, Errors } from "./forms";
 import { ItemContext, type ItemWorld } from "./items";
 import { OrePreview } from "./OrePreview";
 import { Preview } from "./Preview";
 
-type Kind = "block" | "item" | "recipe" | "ore";
 const KINDS: { kind: Kind; folder: string; title: string }[] = [
   { kind: "block", folder: "blocks", title: "Blocks" },
   { kind: "item", folder: "items", title: "Items" },
+  { kind: "tool", folder: "tools", title: "Tools and weapons" },
+  { kind: "armor", folder: "armor", title: "Armor" },
   { kind: "recipe", folder: "recipes", title: "Recipes" },
   { kind: "ore", folder: "worldgen", title: "Ore veins" },
+  { kind: "tree", folder: "trees", title: "Trees" },
+  { kind: "plant", folder: "plants", title: "Plants" },
+  { kind: "mob", folder: "mobs", title: "Mobs" },
+  { kind: "biome", folder: "biomes", title: "Biomes" },
 ];
+
+const EDITORS = { block: BlockEditor, item: ItemEditor, ore: OreEditor, tool: ToolEditor, armor: ArmorEditor, tree: TreeEditor, plant: PlantEditor, mob: MobEditor, biome: BiomeEditor };
+const PREVIEWED = new Set(["block", "item", "tool", "armor", "tree", "plant", "mob"]);
 const LAST_PROJECT = "modcreator.lastProject";
 
 function storage(key: string, value?: string | null): string | null {
@@ -247,21 +256,23 @@ export function App() {
             </div>
             <div className="editor-body">
               <div className={`form${draft.kind === "recipe" ? " wide" : ""}`}>
-                {draft.kind === "block" && <BlockEditor draft={draft} errors={errors} onChange={(d) => { setDraft(d); setDirty(true); }} />}
-                {draft.kind === "item" && <ItemEditor draft={draft} errors={errors} onChange={(d) => { setDraft(d); setDirty(true); }} />}
-                {draft.kind === "ore" && <OreEditor draft={draft} errors={errors} onChange={(d) => { setDraft(d); setDirty(true); }} />}
+                {draft.kind in EDITORS && (() => {
+                  const Editor = EDITORS[draft.kind as keyof typeof EDITORS];
+                  return <Editor draft={draft} errors={errors} onChange={(d) => { setDraft(d); setDirty(true); }} />;
+                })()}
                 {draft.kind === "recipe" && (
                   <ItemContext.Provider value={world}>
                     <RecipeEditor key={selected} draft={draft} errors={errors} onChange={(d) => { setDraft(d); setDirty(true); }} />
                   </ItemContext.Provider>
                 )}
               </div>
-              {(draft.kind === "block" || draft.kind === "item") && errors.size === 0 && <Preview root={loaded.root} spec={draft as ElementSpec} version={version} />}
+              {PREVIEWED.has(draft.kind) && errors.size === 0 && <Preview root={loaded.root} spec={draft as ElementSpec} version={version} />}
               {draft.kind === "ore" && <OrePreview draft={draft} />}
+              {draft.kind === "biome" && <BiomePreview draft={draft} />}
             </div>
           </>
         ) : (
-          <div className="empty">Pick a block, item, recipe or ore vein on the left, or add one with +.</div>
+          <div className="empty">Pick something on the left, or add one with +.</div>
         )}
       </main>
 

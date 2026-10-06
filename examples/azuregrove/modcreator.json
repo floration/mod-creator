@@ -1,0 +1,19 @@
+{
+  "$schema": ".modcreator/schema/project.json",
+  "modId": "azuregrove",
+  "name": "Azure Grove",
+  "version": "0.1.0",
+  "description": "Mod Creator example: one of each content type, around a blue Azure Grove biome.",
+  "authors": [
+    "Mod Creator"
+  ],
+  "package": "com.example.azuregrove",
+  "profile": "26.3",
+  "dependencies": [
+    {
+      "slug": "biolith",
+      "version": "K3CS4Akl",
+      "required": true
+    }
+  ]
+}

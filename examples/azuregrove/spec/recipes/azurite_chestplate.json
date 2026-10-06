@@ -1,0 +1,19 @@
+{
+  "$schema": "../../.modcreator/schema/recipe.json",
+  "kind": "recipe",
+  "id": "azurite_chestplate",
+  "recipe": {
+    "type": "shaped",
+    "pattern": [
+      "A A",
+      "AAA",
+      "AAA"
+    ],
+    "key": {
+      "A": "azurite"
+    },
+    "result": {
+      "item": "azurite_chestplate"
+    }
+  }
+}

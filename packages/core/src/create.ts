@@ -3,7 +3,7 @@ import { chmod, cp, mkdir, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { PROJECT_FILE } from "./project.js";
-import { ProjectSchema, type Project } from "./schema.js";
+import { KIND_FOLDERS, ProjectSchema, type Project } from "./schema.js";
 import { writeSchemas } from "./generate.js";
 import {
   MOD_GITIGNORE,
@@ -59,10 +59,7 @@ export async function createProject(dir: string, options: CreateOptions): Promis
     ".gitignore": MOD_GITIGNORE,
     "src/main/resources/fabric.mod.json": fabricModJson(project),
     [`src/main/java/${entrypointClass(project).replaceAll(".", "/")}.java`]: entrypointJava(project),
-    "spec/blocks/.gitkeep": "",
-    "spec/items/.gitkeep": "",
-    "spec/recipes/.gitkeep": "",
-    "spec/worldgen/.gitkeep": "",
+    ...Object.fromEntries(Object.values(KIND_FOLDERS).map((folder) => [`spec/${folder}/.gitkeep`, ""])),
     "art/.gitkeep": "",
   };
   for (const [rel, content] of Object.entries(files)) {

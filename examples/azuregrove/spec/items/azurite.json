@@ -1,0 +1,11 @@
+{
+  "$schema": "../../.modcreator/schema/item.json",
+  "kind": "item",
+  "id": "azurite",
+  "name": "Azurite",
+  "creativeTab": "ingredients",
+  "item": {
+    "texture": "art/azurite.png",
+    "rarity": "uncommon"
+  }
+}

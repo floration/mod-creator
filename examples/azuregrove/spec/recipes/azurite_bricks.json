@@ -1,0 +1,11 @@
+{
+  "$schema": "../../.modcreator/schema/recipe.json",
+  "kind": "recipe",
+  "id": "azurite_bricks",
+  "recipe": {
+    "type": "shaped",
+    "pattern": ["SA", "AS"],
+    "key": { "S": "minecraft:stone_bricks", "A": "azurite" },
+    "result": { "item": "azurite_bricks", "count": 4 }
+  }
+}

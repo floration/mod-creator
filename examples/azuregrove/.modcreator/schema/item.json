@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "kind": {
+      "type": "string",
+      "const": "item"
+    },
+    "$schema": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "tags": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+      }
+    },
+    "creativeTab": {
+      "type": "string",
+      "enum": [
+        "building_blocks",
+        "colored_blocks",
+        "natural_blocks",
+        "functional_blocks",
+        "redstone_blocks",
+        "tools_and_utilities",
+        "combat",
+        "food_and_drinks",
+        "ingredients",
+        "spawn_eggs"
+      ]
+    },
+    "customClass": {
+      "default": null,
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "item": {
+      "type": "object",
+      "properties": {
+        "texture": {
+          "type": "string"
+        },
+        "maxStackSize": {
+          "default": 64,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 99
+        },
+        "rarity": {
+          "default": "common",
+          "type": "string",
+          "enum": [
+            "common",
+            "uncommon",
+            "rare",
+            "epic"
+          ]
+        },
+        "food": {
+          "type": "object",
+          "properties": {
+            "nutrition": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 20
+            },
+            "saturation": {
+              "default": 0.3,
+              "type": "number",
+              "minimum": 0,
+              "maximum": 2
+            },
+            "alwaysEdible": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "nutrition"
+          ]
+        }
+      },
+      "required": [
+        "texture"
+      ]
+    }
+  },
+  "required": [
+    "kind",
+    "id",
+    "name",
+    "item"
+  ]
+}

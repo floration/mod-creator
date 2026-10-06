@@ -105,6 +105,20 @@ button.icon { padding: 0 8px; line-height: 20px; }
 .field.has-error input, .field.has-error select { border-color: var(--error); }
 .field-check { flex-direction: row; align-items: center; flex-wrap: wrap; }
 .field-check input { width: auto; }
+.color-field { display: flex; gap: 6px; }
+.color-field input[type="color"] { width: 40px; padding: 0 2px; }
+.rows-field button.link { align-self: flex-start; }
+table.rows { border-collapse: collapse; width: 100%; }
+table.rows th { font-weight: normal; font-size: 12px; color: var(--muted); text-align: left; padding: 0 4px 2px 0; }
+table.rows td { padding: 0 4px 4px 0; }
+table.rows td input { width: 100%; box-sizing: border-box; }
+table.rows td.has-error input { border-color: var(--error); }
+
+.biome-preview { flex: 1; overflow: auto; padding: 16px; }
+.biome-scene { width: 100%; max-width: 520px; border-radius: 8px; display: block; }
+.swatches { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.swatch { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+.swatch i { width: 18px; height: 18px; border-radius: 4px; border: 1px solid var(--border); display: inline-block; }
 
 .form.wide { width: 560px; }
 .crafting { display: flex; align-items: center; gap: 16px; margin-top: 8px; }

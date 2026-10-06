@@ -68,6 +68,29 @@
             "rare",
             "epic"
           ]
+        },
+        "food": {
+          "type": "object",
+          "properties": {
+            "nutrition": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 20
+            },
+            "saturation": {
+              "default": 0.3,
+              "type": "number",
+              "minimum": 0,
+              "maximum": 2
+            },
+            "alwaysEdible": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "nutrition"
+          ]
         }
       },
       "required": [

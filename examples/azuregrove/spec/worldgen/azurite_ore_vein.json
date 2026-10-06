@@ -1,0 +1,15 @@
+{
+  "$schema": "../../.modcreator/schema/ore.json",
+  "kind": "ore",
+  "id": "azurite_ore_vein",
+  "name": "Azurite ore vein",
+  "ore": {
+    "block": "azurite_ore",
+    "replaces": "stone",
+    "veinSize": 7,
+    "veinsPerChunk": 4,
+    "minY": 0,
+    "maxY": 72,
+    "distribution": "triangle"
+  }
+}

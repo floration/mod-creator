@@ -2,7 +2,7 @@ import { existsSync } from "node:fs";
 import { copyFile, mkdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { loadProject, type Issue, type LoadedProject } from "./project.js";
-import { modContentJava, starterClassJava } from "./profiles/v26_3/java.js";
+import { extraJavaFiles, modContentJava, starterClassJava } from "./profiles/v26_3/java.js";
 import { resourceFiles } from "./profiles/v26_3/resources.js";
 import { jsonSchemas } from "./schema.js";
 
@@ -27,6 +27,7 @@ export function plan(loaded: LoadedProject): Map<string, string | { copy: string
   const files = new Map<string, string | { copy: string }>();
   const javaDir = `${GENERATED_DIR}/java/${project.package.replaceAll(".", "/")}/generated`;
   files.set(`${javaDir}/ModContent.java`, modContentJava(project, specs));
+  for (const [p, content] of extraJavaFiles(project, specs)) files.set(`${javaDir}/${p}`, content);
   for (const [p, content] of resourceFiles(project, specs)) files.set(`${GENERATED_DIR}/resources/${p}`, content);
   return files;
 }
@@ -64,11 +65,11 @@ export async function generate(root: string): Promise<GenerateResult> {
   }
 
   for (const { spec } of loaded.elements) {
-    if ((spec.kind === "block" || spec.kind === "item") && spec.customClass) {
+    if ((spec.kind === "block" || spec.kind === "item" || spec.kind === "tool" || spec.kind === "plant") && spec.customClass) {
       const file = path.join(root, "src/main/java", ...spec.customClass.split(".")) + ".java";
       if (existsSync(file)) continue;
       await mkdir(path.dirname(file), { recursive: true });
-      await writeFile(file, starterClassJava(spec.customClass, spec.kind));
+      await writeFile(file, starterClassJava(spec.customClass, spec.kind === "tool" ? "item" : spec.kind));
       result.created.push(path.relative(root, file).split(path.sep).join("/"));
     }
   }

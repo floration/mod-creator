@@ -1,0 +1,19 @@
+{
+  "$schema": "../../.modcreator/schema/tree.json",
+  "kind": "tree",
+  "id": "azurewood",
+  "name": "Azurewood",
+  "creativeTab": "natural_blocks",
+  "tree": {
+    "logSide": "art/azurewood_log.png",
+    "logEnd": "art/azurewood_log_top.png",
+    "planks": "art/azurewood_planks.png",
+    "leaves": "art/azurewood_leaves.png",
+    "sapling": "art/azurewood_sapling.png",
+    "shape": "fancy_oak",
+    "trunkHeight": 4,
+    "trunkHeightRandom": 6,
+    "saplingChance": 0.05,
+    "fruit": { "item": "azure_plum", "chance": 0.03 }
+  }
+}

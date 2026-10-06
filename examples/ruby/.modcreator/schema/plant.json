@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "kind": {
+      "type": "string",
+      "const": "plant"
+    },
+    "$schema": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "tags": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+      }
+    },
+    "creativeTab": {
+      "type": "string",
+      "enum": [
+        "building_blocks",
+        "colored_blocks",
+        "natural_blocks",
+        "functional_blocks",
+        "redstone_blocks",
+        "tools_and_utilities",
+        "combat",
+        "food_and_drinks",
+        "ingredients",
+        "spawn_eggs"
+      ]
+    },
+    "customClass": {
+      "default": null,
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "plant": {
+      "type": "object",
+      "properties": {
+        "texture": {
+          "type": "string"
+        },
+        "drops": {
+          "default": "nothing",
+          "anyOf": [
+            {
+              "type": "string",
+              "const": "nothing"
+            },
+            {
+              "type": "string",
+              "const": "self"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "item": {
+                  "type": "string",
+                  "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+                },
+                "chance": {
+                  "default": 0.125,
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                }
+              },
+              "required": [
+                "item"
+              ]
+            }
+          ]
+        },
+        "offset": {
+          "default": true,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "texture"
+      ]
+    }
+  },
+  "required": [
+    "kind",
+    "id",
+    "name",
+    "plant"
+  ]
+}

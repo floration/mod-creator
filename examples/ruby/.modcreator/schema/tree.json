@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "kind": {
+      "type": "string",
+      "const": "tree"
+    },
+    "$schema": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "creativeTab": {
+      "default": "natural_blocks",
+      "type": "string",
+      "enum": [
+        "building_blocks",
+        "colored_blocks",
+        "natural_blocks",
+        "functional_blocks",
+        "redstone_blocks",
+        "tools_and_utilities",
+        "combat",
+        "food_and_drinks",
+        "ingredients",
+        "spawn_eggs"
+      ]
+    },
+    "tree": {
+      "type": "object",
+      "properties": {
+        "logSide": {
+          "type": "string"
+        },
+        "logEnd": {
+          "type": "string"
+        },
+        "planks": {
+          "type": "string"
+        },
+        "leaves": {
+          "type": "string"
+        },
+        "sapling": {
+          "type": "string"
+        },
+        "shape": {
+          "default": "oak",
+          "type": "string",
+          "enum": [
+            "oak",
+            "fancy_oak",
+            "birch",
+            "spruce",
+            "acacia",
+            "cherry"
+          ]
+        },
+        "trunkHeight": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32
+        },
+        "trunkHeightRandom": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 24
+        },
+        "leafRadius": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 8
+        },
+        "saplingChance": {
+          "default": 0.05,
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "fruit": {
+          "type": "object",
+          "properties": {
+            "item": {
+              "type": "string",
+              "pattern": "^(#?[a-z0-9_.-]+:)?[a-z0-9_/.-]+$"
+            },
+            "chance": {
+              "default": 0.02,
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          },
+          "required": [
+            "item"
+          ]
+        }
+      },
+      "required": [
+        "logSide",
+        "logEnd",
+        "planks",
+        "leaves",
+        "sapling"
+      ]
+    }
+  },
+  "required": [
+    "kind",
+    "id",
+    "name",
+    "tree"
+  ]
+}
