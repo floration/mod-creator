@@ -195,7 +195,7 @@ async function settings(): Promise<{ minecraftJar?: string }> {
 async function openVanilla(version: string, jar?: string) {
   jar ??= (await settings()).minecraftJar;
   if (!jar || !existsSync(jar)) jar = findMinecraftJar(version) ?? undefined;
-  if (!jar) return { jar: null, items: [], tags: [] };
+  if (!jar) return { jar: null, items: [], tags: [], orePresets: [] };
   if (vanilla?.jar !== jar) vanilla = { jar, assets: await VanillaAssets.open(jar) };
   return { jar, ...vanilla.assets.catalog() };
 }

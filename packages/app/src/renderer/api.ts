@@ -13,11 +13,20 @@ export interface CatalogEntry {
   name: string;
 }
 
+/** Mirrors OrePreset in core/src/vanilla.ts: a vanilla ore, geode or disk as spec fields. */
+export interface OrePreset {
+  id: string;
+  name: string;
+  ore: Record<string, unknown>;
+}
+
 export interface VanillaCatalog {
   /** The Minecraft jar the names and icons come from, or null when none was found. */
   jar: string | null;
   items: CatalogEntry[];
   tags: CatalogEntry[];
+  /** The game's own ores, geodes and disks, read from its worldgen files. */
+  orePresets: OrePreset[];
 }
 
 /** Mirrors TagSources in core/src/tags.ts. Tag ids have no `#`. */

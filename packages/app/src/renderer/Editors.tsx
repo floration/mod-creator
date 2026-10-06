@@ -7,6 +7,7 @@ import {
   ListField,
   NumberField,
   OptionalGroup,
+  Row,
   RowsField,
   Section,
   SelectField,
@@ -735,6 +736,14 @@ export function OreEditor(p: EditorProps) {
     p.onChange(draft);
   };
   const vein = shape === "blob" || shape === "scattered";
+  const presets = useContext(ItemContext)?.vanilla?.orePresets ?? [];
+  const fromVanilla = (id: string) => {
+    const preset = presets.find((x) => x.id === id);
+    if (!preset) return;
+    // Keep this ore's own blocks; take the shape, size, rarity and heights from the game.
+    const ore = getAt(p.draft, ["ore"]) ?? {};
+    p.onChange(setAt(p.draft, ["ore"], { block: ore.block ?? "", ...(ore.deepslateBlock ? { deepslateBlock: ore.deepslateBlock } : {}), ...preset.ore }));
+  };
   return (
     <>
       <Section title="General">
@@ -742,6 +751,18 @@ export function OreEditor(p: EditorProps) {
         <TextField {...f} path={["id"]} label="Id" />
       </Section>
       <Section title="Shape">
+        {presets.length > 0 && (
+          <Row label="Start from vanilla" hint="Copies the shape, size, rarity and heights of one of the game's own ores, read from your Minecraft jar. Your blocks stay">
+            <select value="" onChange={(e) => fromVanilla(e.target.value)}>
+              <option value="">(pick one)</option>
+              {presets.map((x) => (
+                <option key={x.id} value={x.id}>
+                  {x.name}
+                </option>
+              ))}
+            </select>
+          </Row>
+        )}
         <SelectField {...f} onChange={setShape} path={["ore", "shape"]} label="Shape" options={OreShape.options} hint={SHAPE_HINTS[shape]} />
         <TextField {...f} path={["ore", "block"]} label={shape === "geode" ? "Inner layer block" : "Ore block"} hint="A block from this mod, or minecraft:..." />
         {shape !== "disk" && (

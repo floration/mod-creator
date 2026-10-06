@@ -150,6 +150,7 @@ describe("vanilla assets", () => {
         { id: "minecraft:stick", name: "Stick" },
       ],
       tags: [{ id: "#minecraft:planks", name: "Any Planks" }],
+      orePresets: [],
     });
   });
 
