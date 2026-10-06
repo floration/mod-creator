@@ -70,7 +70,7 @@ function vanillaIndex(catalog: VanillaCatalog): Map<string, CatalogEntry> {
 }
 
 /** Where to get the icon for a ref: this mod's art files, or the Minecraft jar. */
-async function iconFor(world: ItemWorld, ref: string): Promise<ItemIcon | null> {
+export async function iconFor(world: ItemWorld, ref: string): Promise<ItemIcon | null> {
   if (ref.startsWith("?")) return null;
   const tag = ref.startsWith("#");
   const bare = tag ? ref.slice(1) : ref;

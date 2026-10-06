@@ -3548,6 +3548,7 @@ public class GroveLurker extends Monster {
   }
 }
 ",
+  "src/generated/resources/data/azuregrove/structure/azure_shrine.nbt": "<copy of art/azure_shrine.nbt>",
   "src/generated/resources/data/azuregrove/tags/block/azurewood_logs.json": "{
   "replace": false,
   "values": [
@@ -3573,6 +3574,13 @@ public class GroveLurker extends Monster {
   "replace": false,
   "values": [
     "azuregrove:azurite"
+  ]
+}
+",
+  "src/generated/resources/data/azuregrove/tags/worldgen/biome/has_structure/azure_shrine.json": "{
+  "replace": false,
+  "values": [
+    "azuregrove:azure_grove"
   ]
 }
 ",
@@ -3932,6 +3940,54 @@ public class GroveLurker extends Monster {
       "type": "minecraft:biome"
     }
   ]
+}
+",
+  "src/generated/resources/data/azuregrove/worldgen/structure/azure_shrine.json": "{
+  "type": "minecraft:jigsaw",
+  "biomes": "#azuregrove:has_structure/azure_shrine",
+  "max_distance_from_center": 80,
+  "project_start_to_heightmap": "WORLD_SURFACE_WG",
+  "size": 1,
+  "spawn_overrides": {},
+  "start_height": {
+    "absolute": 0
+  },
+  "start_pool": "azuregrove:azure_shrine/start",
+  "step": "surface_structures",
+  "terrain_adaptation": "beard_thin",
+  "use_expansion_hack": false
+}
+",
+  "src/generated/resources/data/azuregrove/worldgen/structure_set/azure_shrine.json": "{
+  "placement": {
+    "type": "minecraft:random_spread",
+    "salt": 1634266092,
+    "separation": 4,
+    "spacing": 12
+  },
+  "structures": [
+    {
+      "structure": "azuregrove:azure_shrine",
+      "weight": 1
+    }
+  ]
+}
+",
+  "src/generated/resources/data/azuregrove/worldgen/template_pool/azure_shrine/start.json": "{
+  "elements": [
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "azuregrove:azure_shrine",
+        "processors": {
+          "processors": []
+        },
+        "projection": "rigid"
+      },
+      "weight": 1
+    }
+  ],
+  "fallback": "minecraft:empty"
 }
 ",
   "src/generated/resources/data/minecraft/tags/block/buttons.json": "{

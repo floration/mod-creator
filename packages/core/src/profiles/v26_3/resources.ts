@@ -1,6 +1,7 @@
 import {
   ARMOR_PIECES,
   type AdvancementSpec,
+  type StructureSpec,
   type Criterion,
   TREE_PARTS,
   registeredItems,
@@ -769,6 +770,50 @@ function advancementFiles(out: Output, a: AdvancementSpec) {
   });
 }
 
+// ---- Structures ----
+
+/** A stable salt from the structure's full id, so two structures don't share spawn spots. */
+export function structureSalt(id: string): number {
+  let h = 0x811c9dc5;
+  for (const ch of id) h = Math.imul(h ^ ch.charCodeAt(0), 0x01000193);
+  return (h >>> 0) % 2147483647;
+}
+
+/**
+ * One `.nbt` placed as a one-piece jigsaw structure, the way 26.3's abandoned camps are: the template, a start pool
+ * holding it, the structure, its spawn spacing and a biome tag listing where it may start.
+ */
+function structureFiles(out: Output, st: StructureSpec) {
+  const modId = out.modId;
+  const s = st.structure;
+  const id = `${modId}:${st.id}`;
+  out.copy(s.file, `data/${modId}/structure/${st.id}.nbt`);
+  out.set(`data/${modId}/worldgen/template_pool/${st.id}/start.json`, {
+    elements: [{ element: { element_type: "minecraft:single_pool_element", location: id, processors: { processors: [] }, projection: "rigid" }, weight: 1 }],
+    fallback: "minecraft:empty",
+  });
+  const tag = `${modId}:has_structure/${st.id}`;
+  for (const b of s.biomes) out.tag("worldgen/biome", tag, resolveRef(modId, b));
+  const surface = s.placement === "surface";
+  out.set(`data/${modId}/worldgen/structure/${st.id}.json`, {
+    type: "minecraft:jigsaw",
+    biomes: `#${tag}`,
+    max_distance_from_center: 80,
+    ...(surface ? { project_start_to_heightmap: "WORLD_SURFACE_WG" } : {}),
+    size: 1,
+    spawn_overrides: {},
+    start_height: { absolute: s.y },
+    start_pool: `${modId}:${st.id}/start`,
+    step: surface ? "surface_structures" : "underground_structures",
+    terrain_adaptation: s.terrain,
+    use_expansion_hack: false,
+  });
+  out.set(`data/${modId}/worldgen/structure_set/${st.id}.json`, {
+    placement: { type: "minecraft:random_spread", salt: structureSalt(id), separation: s.separation, spacing: s.spacing },
+    structures: [{ structure: id, weight: 1 }],
+  });
+}
+
 /** Every generated resource file for the project. */
 export function resourceFiles(project: Project, elements: ElementSpec[]): ResourceFiles {
   const out = new Output(project.modId);
@@ -785,6 +830,7 @@ export function resourceFiles(project: Project, elements: ElementSpec[]): Resour
       case "biome": biomeFiles(out, e, hostiles); break;
       case "ore": oreFiles(out, e); break;
       case "advancement": advancementFiles(out, e); break;
+      case "structure": structureFiles(out, e); break;
       case "recipe": out.set(`data/${project.modId}/recipe/${e.id}.json`, recipeJson(project.modId, e)); break;
     }
   }

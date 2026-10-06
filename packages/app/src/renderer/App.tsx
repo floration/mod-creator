@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AdvancementSpecSchema, ProjectSchema, SCHEMAS } from "@modcreator/core/schema";
 import { AdvancementEditor, QuestLine, type QuestNode } from "./AdvancementEditor";
+import { StructureEditor, StructurePreview } from "./StructureEditor";
 import { api, type ElementSpec, type Issue, type LoadedProject, type VanillaCatalog } from "./api";
 import { ArmorEditor, BiomeEditor, BlockEditor, ItemEditor, MobEditor, OreEditor, PlantEditor, RecipeEditor, ToolEditor, TreeEditor, newSpec, type Kind } from "./Editors";
 import { BiomePreview } from "./BiomePreview";
-import type { Draft, Errors } from "./forms";
+import { getAt, type Draft, type Errors } from "./forms";
 import { ItemContext, type ItemWorld } from "./items";
 import { OrePreview } from "./OrePreview";
 import { Preview } from "./Preview";
@@ -22,10 +23,11 @@ const KINDS: { kind: Kind; folder: string; title: string }[] = [
   { kind: "plant", folder: "plants", title: "Plants" },
   { kind: "mob", folder: "mobs", title: "Mobs" },
   { kind: "biome", folder: "biomes", title: "Biomes" },
+  { kind: "structure", folder: "structures", title: "Structures" },
   { kind: "advancement", folder: "advancements", title: "Quests" },
 ];
 
-const EDITORS = { block: BlockEditor, item: ItemEditor, ore: OreEditor, tool: ToolEditor, armor: ArmorEditor, tree: TreeEditor, plant: PlantEditor, mob: MobEditor, biome: BiomeEditor };
+const EDITORS = { block: BlockEditor, item: ItemEditor, ore: OreEditor, tool: ToolEditor, armor: ArmorEditor, tree: TreeEditor, plant: PlantEditor, mob: MobEditor, biome: BiomeEditor, structure: StructureEditor };
 const PREVIEWED = new Set(["block", "item", "tool", "armor", "tree", "plant", "mob"]);
 const LAST_PROJECT = "modcreator.lastProject";
 /** The project settings page edits this file like any spec. */
@@ -465,6 +467,11 @@ export function App() {
               {PREVIEWED.has(draft.kind) && errors.size === 0 && <Preview root={loaded.root} spec={draft as ElementSpec} version={version} />}
               {draft.kind === "ore" && <OrePreview draft={draft} />}
               {draft.kind === "biome" && <BiomePreview draft={draft} />}
+              {draft.kind === "structure" && (
+                <ItemContext.Provider value={world}>
+                  <StructurePreview file={getAt(draft, ["structure", "file"]) ?? ""} version={version} />
+                </ItemContext.Provider>
+              )}
               {draft.kind === "advancement" && (
                 <ItemContext.Provider value={world}>
                   <QuestLine nodes={questNodes(loaded, selected, draft)} current={selected} onOpen={(file) => select(file, specAt(loaded, file))} />

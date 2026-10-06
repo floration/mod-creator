@@ -486,6 +486,37 @@ export const AdvancementSpecSchema = z.object({
 });
 export type AdvancementSpec = z.infer<typeof AdvancementSpecSchema>;
 
+/** How a structure meets the ground around it, as vanilla names it. */
+export const TerrainAdaptation = z.enum(["none", "beard_thin", "beard_box", "bury", "encapsulate"]);
+
+/**
+ * A building or ruin saved with a structure block, placed in the world as it generates. One `.nbt` file makes one
+ * structure; it spawns in the listed biomes about every `spacing` chunks.
+ */
+export const StructureSpecSchema = z.object({
+  kind: z.literal("structure"),
+  $schema: z.string().optional(),
+  id: LocalId,
+  name: z.string().min(1),
+  structure: z.object({
+    /** The `.nbt` file a structure block saved, copied into the project. */
+    file: z.string(),
+    /** Biomes it can start in: ids from this mod, vanilla ids or biome tags like `#minecraft:is_forest`. */
+    biomes: z.array(Ref).min(1),
+    /** Average distance between two of them, in chunks. Villages use 34, igloos 32. */
+    spacing: z.number().int().min(2).max(4096).default(32),
+    /** Smallest distance between two of them, in chunks. Must be less than spacing. */
+    separation: z.number().int().min(0).max(4095).default(8),
+    /** `surface` sits on the ground, `fixed` at an exact height (for something buried or in the sky). */
+    placement: z.enum(["surface", "fixed"]).default("surface"),
+    /** Blocks up or down from the ground for `surface`, or the Y level for `fixed`. */
+    y: z.number().int().min(-64).max(320).default(0),
+    /** `beard_thin` fills in under it and clears above like a village house; `bury` sinks it into terrain. */
+    terrain: TerrainAdaptation.default("beard_thin"),
+  }),
+});
+export type StructureSpec = z.infer<typeof StructureSpecSchema>;
+
 export const ElementSpecSchema = z.discriminatedUnion("kind", [
   BlockSpecSchema,
   ItemSpecSchema,
@@ -498,6 +529,7 @@ export const ElementSpecSchema = z.discriminatedUnion("kind", [
   RecipeSpecSchema,
   OreSpecSchema,
   AdvancementSpecSchema,
+  StructureSpecSchema,
 ]);
 export type ElementSpec = z.infer<typeof ElementSpecSchema>;
 export type ElementKind = ElementSpec["kind"];
@@ -515,6 +547,7 @@ export const KIND_FOLDERS: Record<ElementKind, string> = {
   recipe: "recipes",
   ore: "worldgen",
   advancement: "advancements",
+  structure: "structures",
 };
 
 export const SCHEMAS = {
@@ -530,6 +563,7 @@ export const SCHEMAS = {
   recipe: RecipeSpecSchema,
   ore: OreSpecSchema,
   advancement: AdvancementSpecSchema,
+  structure: StructureSpecSchema,
 } as const;
 
 /** JSON Schema for each spec kind, written to `.modcreator/schema/` for editor autocomplete. */

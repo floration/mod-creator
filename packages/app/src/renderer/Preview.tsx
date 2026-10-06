@@ -16,7 +16,7 @@ function cubeFaces(spec: ElementSpec): string[] | null {
   return null;
 }
 
-function pixelTexture(url: string): Promise<THREE.Texture> {
+export function pixelTexture(url: string): Promise<THREE.Texture> {
   return new THREE.TextureLoader().loadAsync(url).then((t) => {
     t.magFilter = THREE.NearestFilter;
     t.minFilter = THREE.NearestFilter;
@@ -41,7 +41,7 @@ function shaded(tex: THREE.Texture | null, shade = 1): THREE.Material {
   return new THREE.MeshBasicMaterial({ map: tex, color: new THREE.Color(shade, shade, shade), transparent: true, alphaTest: 0.1, side: THREE.DoubleSide });
 }
 
-const CUBE_SHADES = [SHADE.eastWest, SHADE.eastWest, SHADE.top, SHADE.bottom, SHADE.northSouth, SHADE.northSouth];
+export const CUBE_SHADES = [SHADE.eastWest, SHADE.eastWest, SHADE.top, SHADE.bottom, SHADE.northSouth, SHADE.northSouth];
 
 /** A one-block cube; faces in BoxGeometry order (+x, -x, +y, -y, +z, -z). */
 async function cube(load: Loader, faces: (string | undefined)[]): Promise<THREE.Mesh> {

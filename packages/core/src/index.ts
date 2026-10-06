@@ -5,6 +5,7 @@ export * from "./blockbench.js";
 export * from "./generate.js";
 export * from "./create.js";
 export * from "./modrinth.js";
+export * from "./nbt.js";
 export { recipeJson } from "./profiles/v26_3/resources.js";
 export { resolveRef } from "./profiles/v26_3/refs.js";
 export { VERSIONS } from "./profiles/v26_3/skeleton.js";

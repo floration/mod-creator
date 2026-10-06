@@ -14,6 +14,7 @@ import {
   type Project,
 } from "./schema.js";
 import { parseBlockbench, type EntityModelDef } from "./blockbench.js";
+import { parseStructure } from "./nbt.js";
 import { GRADLE_READS_PROJECT } from "./profiles/v26_3/skeleton.js";
 
 export interface Issue {
@@ -104,6 +105,7 @@ export async function loadProject(root: string): Promise<LoadedProject> {
   issues.push(...checkReferences(root, elements));
   issues.push(...(await checkSetup(root, parsed.data, elements)));
   const models = await loadModels(root, elements, issues);
+  issues.push(...(await checkStructures(root, parsed.data.modId, elements)));
   return { root, project: parsed.data, elements, issues, models };
 }
 
@@ -125,6 +127,31 @@ async function loadModels(root: string, elements: LoadedElement[], issues: Issue
     }
   }
   return models;
+}
+
+/** The world version of Minecraft 26.3; structure files saved by a newer game may not load. */
+export const DATA_VERSION = 5023;
+
+/** Read each structure's `.nbt`: it has to be a structure file, and the blocks it uses from this mod have to exist. */
+async function checkStructures(root: string, modId: string, elements: LoadedElement[]): Promise<Issue[]> {
+  const issues: Issue[] = [];
+  const blocks = new Set(elements.flatMap((e) => registeredBlocks(e.spec)));
+  for (const { spec, file } of elements) {
+    if (spec.kind !== "structure") continue;
+    const nbt = path.join(root, spec.structure.file);
+    if (!spec.structure.file.endsWith(".nbt") || !existsSync(nbt)) continue; // reported with the art
+    const at = (severity: Issue["severity"], message: string) => issues.push({ severity, file, field: "structure.file", message });
+    try {
+      const t = parseStructure(await readFile(nbt));
+      if (t.blocks.length === 0) at("error", `${spec.structure.file} has no blocks in it`);
+      if (t.dataVersion > DATA_VERSION) at("warning", `${spec.structure.file} was saved by a newer Minecraft (data version ${t.dataVersion}) than 26.3 (${DATA_VERSION}) and may not load`);
+      const missing = [...new Set(t.palette.map((p) => p.name))].filter((n) => n.startsWith(`${modId}:`) && !blocks.has(n.slice(modId.length + 1)));
+      if (missing.length) at("error", `${spec.structure.file} uses ${missing.join(", ")}, which this mod doesn't have`);
+    } catch (e) {
+      at("error", `${spec.structure.file} can't be read: ${(e as Error).message}`);
+    }
+  }
+  return issues;
 }
 
 /** Broken references, id clashes and missing art across a set of elements. */
@@ -284,6 +311,12 @@ export function checkReferences(root: string, elements: LoadedElement[]): Issue[
       if (spec.ore.maxY < spec.ore.minY) err(file, "ore.maxY", "maxY must be at least minY");
     } else if (spec.kind === "advancement") {
       checkAdvancement(file, spec);
+    } else if (spec.kind === "structure") {
+      const st = spec.structure;
+      if (!st.file.endsWith(".nbt")) err(file, "structure.file", "Pick the .nbt file a structure block saved");
+      else checkArt(file, "structure.file", st.file);
+      st.biomes.forEach((b, i) => { if (!b.startsWith("#")) checkLocal(file, `structure.biomes.${i}`, b, biomes, "biome"); });
+      if (st.separation >= st.spacing) err(file, "structure.separation", "Separation has to be less than spacing");
     } else {
       const r = spec.recipe;
       checkItem(file, "recipe.result.item", r.result.item, false);
