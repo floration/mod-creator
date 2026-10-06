@@ -66,6 +66,8 @@ export function App() {
   const [panel, setPanel] = useState<"problems" | "log">("problems");
   const [running, setRunning] = useState<string | null>(null);
   const [adding, setAdding] = useState<Kind | null>(null);
+  const [duplicating, setDuplicating] = useState(false);
+  const [search, setSearch] = useState("");
   const [version, setVersion] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [vanilla, setVanilla] = useState<VanillaCatalog | null>(null);
@@ -226,8 +228,14 @@ export function App() {
     if (kind && typeof draft.id === "string" && /^[a-z0-9_]+$/.test(draft.id)) {
       const wanted = `spec/${kind.folder}/${draft.id}.json`;
       if (wanted !== selected) {
+        // Other specs that point at the old id follow it to the new one.
+        const edits = await api().renameEdits(root, selected, draft as ElementSpec);
         await api().saveSpec(root, wanted, draft);
         await api().deleteSpec(root, selected);
+        for (const edit of edits) await api().saveSpec(root, edit.file, edit.spec);
+        if (edits.length > 0) {
+          setLog((l) => l + [`Renamed ${selected} to ${wanted}. Updated references in:`, ...edits.map((e) => `  ${e.file} (${e.fields.join(", ")})`)].join("\n") + "\n");
+        }
         file = wanted;
       }
     }
@@ -250,6 +258,41 @@ export function App() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [save]);
+
+  /** Delete the open element after saying which other specs point at it. */
+  const remove = async () => {
+    if (!root || !selected || !draft) return;
+    const label = "name" in draft && typeof draft.name === "string" ? draft.name : selected;
+    const broken = await api().dependents(root, selected);
+    const message = broken.length
+      ? `Delete ${label}? These still point at it and will show errors until you change them:\n\n${broken.map((i) => `${i.file} (${i.field})`).join("\n")}`
+      : `Delete ${label}?${dirty ? " Your unsaved changes are lost too." : ""}`;
+    if (!confirm(message)) return;
+    await api().deleteSpec(root, selected);
+    setLog((l) => l + `Deleted ${selected}.\n`);
+    await open(root);
+  };
+
+  /** Copy the open element, as saved, under a new id. */
+  const duplicate = async (id: string) => {
+    if (!root || !selected || !loaded || !/^[a-z0-9_]+$/.test(id) || !discardOk()) return;
+    const source = loaded.elements.find((e) => e.file === selected);
+    const kind = source && KINDS.find((k) => k.kind === source.spec.kind);
+    if (!source || !kind) return;
+    const file = `spec/${kind.folder}/${id}.json`;
+    if (loaded.elements.some((e) => e.file === file) && !confirm(`${file} already exists. Replace it?`)) return;
+    const spec = { ...structuredClone(source.spec), id } as ElementSpec;
+    if ("name" in spec && typeof spec.name === "string") spec.name = `${spec.name} copy`;
+    await api().saveSpec(root, file, spec);
+    setDuplicating(false);
+    const next = await open(root, true);
+    const copy = next?.elements.find((e) => e.file === file)?.spec ?? spec;
+    setSelected(file);
+    setDraft(copy as Draft);
+    setDirty(false);
+    setBase(snapshot(copy));
+    setConflict(null);
+  };
 
   const runGradle = async (task: "build" | "runClient") => {
     if (!root) return;
@@ -284,6 +327,9 @@ export function App() {
 
   const issues = loaded.issues;
   const errorCount = issues.filter((i) => i.severity === "error").length;
+  const query = search.trim().toLowerCase();
+  const matches = (e: LoadedProject["elements"][number]) =>
+    !query || [e.spec.id, "name" in e.spec ? e.spec.name : "", e.file].some((t) => t.toLowerCase().includes(query));
 
   return (
     <div className="app">
@@ -300,15 +346,28 @@ export function App() {
       </header>
 
       <nav className="sidebar">
-        {KINDS.map(({ kind, title }) => (
+        <input
+          className="search"
+          type="search"
+          placeholder="Search by name or id"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          onKeyDown={(e) => e.key === "Escape" && setSearch("")}
+        />
+        {KINDS.map(({ kind, title }) => {
+          const all = loaded.elements.filter((e) => e.spec.kind === kind);
+          const shown = all.filter(matches);
+          if (query && shown.length === 0) return null;
+          return (
           <div key={kind} className="group">
             <div className="group-title">
               <span>{title}</span>
+              {all.length > 0 && <span className="count">{query ? `${shown.length}/${all.length}` : all.length}</span>}
+              <span className="spacer" />
               <button className="icon" title={`New ${kind}`} onClick={() => setAdding(kind)}>+</button>
             </div>
             {adding === kind && <NewId onCancel={() => setAdding(null)} onSubmit={(id) => add(kind, id)} />}
-            {loaded.elements
-              .filter((e) => e.spec.kind === kind)
+            {shown
               .map((e) => {
                 const bad = issues.some((i) => i.file === e.file && i.severity === "error");
                 return (
@@ -319,7 +378,9 @@ export function App() {
                 );
               })}
           </div>
-        ))}
+          );
+        })}
+        {query && !loaded.elements.some(matches) && <div className="muted search-empty">Nothing matches "{search.trim()}".</div>}
         {issues.filter((i) => !loaded.elements.some((e) => e.file === i.file)).length > 0 && (
           <div className="group-title bad">Some spec files could not be read. See Problems.</div>
         )}
@@ -331,6 +392,12 @@ export function App() {
             <div className="editor-head">
               <span className="muted">{selected}</span>
               <span className="spacer" />
+              {duplicating ? (
+                <NewId placeholder="id for the copy" label="Duplicate" onCancel={() => setDuplicating(false)} onSubmit={duplicate} />
+              ) : (
+                <button onClick={() => setDuplicating(true)}>Duplicate</button>
+              )}
+              <button onClick={remove}>Delete</button>
               <button onClick={() => api().openPath(loaded.root, selected)}>Open file</button>
               <button className="primary" disabled={!dirty} onClick={save}>{dirty ? "Save (Ctrl+S)" : "Saved"}</button>
             </div>
@@ -395,13 +462,13 @@ export function App() {
   );
 }
 
-function NewId({ onSubmit, onCancel }: { onSubmit: (id: string) => void; onCancel: () => void }) {
+function NewId({ onSubmit, onCancel, placeholder = "id, like ruby_ore", label = "Add" }: { onSubmit: (id: string) => void; onCancel: () => void; placeholder?: string; label?: string }) {
   const [id, setId] = useState("");
   const valid = /^[a-z0-9_]+$/.test(id);
   return (
     <form className="new-id" onSubmit={(e) => { e.preventDefault(); if (valid) onSubmit(id); }}>
-      <input autoFocus placeholder="id, like ruby_ore" value={id} onChange={(e) => setId(e.target.value.toLowerCase().replaceAll(" ", "_"))} onKeyDown={(e) => e.key === "Escape" && onCancel()} />
-      <button disabled={!valid}>Add</button>
+      <input autoFocus placeholder={placeholder} value={id} onChange={(e) => setId(e.target.value.toLowerCase().replaceAll(" ", "_"))} onKeyDown={(e) => e.key === "Escape" && onCancel()} />
+      <button disabled={!valid}>{label}</button>
     </form>
   );
 }

@@ -100,7 +100,8 @@ export async function loadProject(root: string): Promise<LoadedProject> {
   return { root, project: parsed.data, elements, issues };
 }
 
-function checkReferences(root: string, elements: LoadedElement[]): Issue[] {
+/** Broken references, id clashes and missing art across a set of elements. */
+export function checkReferences(root: string, elements: LoadedElement[]): Issue[] {
   const issues: Issue[] = [];
   const specs = elements.map((e) => e.spec);
   const items = new Set(specs.flatMap((s) => registeredItems(s).map(([id]) => id)));

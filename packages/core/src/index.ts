@@ -1,5 +1,6 @@
 export * from "./schema.js";
 export * from "./project.js";
+export * from "./edit.js";
 export * from "./generate.js";
 export * from "./create.js";
 export { recipeJson } from "./profiles/v26_3/resources.js";

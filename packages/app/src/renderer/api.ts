@@ -30,6 +30,12 @@ export interface LoadedProject {
   issues: Issue[];
 }
 
+export interface SpecEdit {
+  file: string;
+  spec: ElementSpec;
+  fields: string[];
+}
+
 export interface GenerateResult {
   ok: boolean;
   issues: Issue[];
@@ -54,6 +60,10 @@ export interface ModCreatorApi {
   loadProject(root: string): Promise<LoadedProject>;
   saveSpec(root: string, rel: string, value: unknown): Promise<void>;
   deleteSpec(root: string, rel: string): Promise<void>;
+  /** Problems deleting `rel` would cause: other specs' fields that point at it. */
+  dependents(root: string, rel: string): Promise<Issue[]>;
+  /** Other specs rewritten to follow `rel`'s element to its new id. */
+  renameEdits(root: string, rel: string, renamed: ElementSpec): Promise<SpecEdit[]>;
   dataUrl(root: string, rel: string): Promise<string | null>;
   /** Write a PNG, given as a data: URL, to a project-relative path. */
   saveArt(root: string, rel: string, dataUrl: string): Promise<void>;
