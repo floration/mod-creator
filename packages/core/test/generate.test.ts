@@ -131,6 +131,21 @@ describe("Azure Grove example", () => {
     const warnings = (await loadProject(dir)).issues.filter((i) => i.severity === "warning");
     expect(warnings.some((i) => /biolith/i.test(i.message))).toBe(true);
   });
+
+  it("warns when an older build.gradle doesn't list a dependency from modcreator.json", async () => {
+    const dir = await copyOf(AZUREGROVE);
+    expect((await loadProject(dir)).issues.filter((i) => i.file === "build.gradle")).toEqual([]);
+    // A build.gradle written before it read modcreator.json, with no Biolith line.
+    const old = (await readFile(path.join(dir, "build.gradle"), "utf8"))
+      .split("\n")
+      .filter((line) => !line.includes("MODCREATOR_PROJECT"))
+      .join("\n");
+    await writeFile(path.join(dir, "build.gradle"), old);
+    const issues = (await loadProject(dir)).issues.filter((i) => i.file === "build.gradle");
+    expect(issues.map((i) => i.message)).toEqual([expect.stringContaining('maven.modrinth:biolith:K3CS4Akl')]);
+    await writeFile(path.join(dir, "build.gradle"), old.replace("dependencies {", 'dependencies {\n\timplementation "maven.modrinth:biolith:K3CS4Akl"'));
+    expect((await loadProject(dir)).issues.filter((i) => i.file === "build.gradle")).toEqual([]);
+  });
 });
 
 describe("generate", () => {
@@ -239,7 +254,12 @@ describe("createProject", () => {
     }
     const mod = JSON.parse(await readFile(path.join(dir, "src/main/resources/fabric.mod.json"), "utf8"));
     expect(mod.entrypoints.main).toEqual(["dev.q.gems.GemsMod"]);
-    expect(await readFile(path.join(dir, "build.gradle"), "utf8")).toContain("net.fabricmc.fabric-loom");
+    const gradle = await readFile(path.join(dir, "build.gradle"), "utf8");
+    expect(gradle).toContain("net.fabricmc.fabric-loom");
+    // Version and dependencies come from modcreator.json at build time, not from a copy.
+    expect(gradle).toContain("JsonSlurper().parse(file('modcreator.json'))");
+    expect(gradle).toContain('implementation "maven.modrinth:${it.slug}:${it.version}"');
+    expect(await readFile(path.join(dir, "gradle.properties"), "utf8")).not.toContain("mod_version");
   });
 
   it("refuses a folder that is not empty", async () => {

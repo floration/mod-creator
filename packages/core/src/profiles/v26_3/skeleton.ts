@@ -24,7 +24,6 @@ loader_version=${VERSIONS.loader}
 loom_version=${VERSIONS.loom}
 fabric_api_version=${VERSIONS.fabricApi}
 
-mod_version=${project.version}
 maven_group=${project.package}
 archives_base_name=${project.modId}
 
@@ -50,15 +49,19 @@ rootProject.name = '${project.modId}'
 `;
 }
 
-export function buildGradle(project: Project): string {
-  const deps = project.dependencies
-    .map((d) => `\timplementation "maven.modrinth:${d.slug}:${d.version}"`)
-    .join("\n");
+/** Marker that tells checkSetup a build.gradle reads modcreator.json itself. */
+export const GRADLE_READS_PROJECT = "MODCREATOR_PROJECT";
+
+export function buildGradle(_project: Project): string {
   return `plugins {
 \tid 'net.fabricmc.fabric-loom' version "\${loom_version}"
 }
 
-version = project.mod_version
+// modcreator.json is read on every build, so the version and Modrinth dependencies set there
+// (in the Mod Creator app or by hand) apply without editing this file.
+def ${GRADLE_READS_PROJECT} = new groovy.json.JsonSlurper().parse(file('modcreator.json'))
+
+version = ${GRADLE_READS_PROJECT}.version
 group = project.maven_group
 
 base {
@@ -83,7 +86,10 @@ dependencies {
 \tminecraft "com.mojang:minecraft:\${project.minecraft_version}"
 \timplementation "net.fabricmc:fabric-loader:\${project.loader_version}"
 \timplementation "net.fabricmc.fabric-api:fabric-api:\${project.fabric_api_version}"
-${deps ? `\n\t// Modrinth dependencies from modcreator.json\n${deps}\n` : ""}}
+
+\t// Modrinth dependencies from modcreator.json
+\t${GRADLE_READS_PROJECT}.dependencies?.each { implementation "maven.modrinth:\${it.slug}:\${it.version}" }
+}
 
 // Mod Creator writes generated code and assets here. Hand-written files stay in src/main.
 sourceSets {
@@ -108,11 +114,22 @@ tasks.named('compileJava') { dependsOn generateModContent }
 tasks.named('processResources') { dependsOn generateModContent }
 tasks.matching { it.name == 'sourcesJar' }.configureEach { dependsOn generateModContent }
 
+def requiredMods = (${GRADLE_READS_PROJECT}.dependencies ?: []).findAll { it.required != false }*.slug
 processResources {
 \tinputs.property 'version', project.version
+\tinputs.property 'requiredMods', requiredMods
 
 \tfilesMatching('fabric.mod.json') {
 \t\texpand 'version': inputs.properties.version
+\t}
+\t// Required dependencies from modcreator.json are added to "depends" in the built jar.
+\tdoLast {
+\t\tdef modJson = file("\${destinationDir}/fabric.mod.json")
+\t\tif (!modJson.exists()) return
+\t\tdef meta = new groovy.json.JsonSlurper().parse(modJson)
+\t\tmeta.depends = meta.depends ?: [:]
+\t\trequiredMods.each { if (!meta.depends.containsKey(it)) meta.depends[it] = '*' }
+\t\tmodJson.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(meta)) + '\\n'
 \t}
 }
 

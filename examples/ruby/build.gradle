@@ -2,7 +2,11 @@ plugins {
 	id 'net.fabricmc.fabric-loom' version "${loom_version}"
 }
 
-version = project.mod_version
+// modcreator.json is read on every build, so the version and Modrinth dependencies set there
+// (in the Mod Creator app or by hand) apply without editing this file.
+def MODCREATOR_PROJECT = new groovy.json.JsonSlurper().parse(file('modcreator.json'))
+
+version = MODCREATOR_PROJECT.version
 group = project.maven_group
 
 base {
@@ -27,6 +31,9 @@ dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+
+	// Modrinth dependencies from modcreator.json
+	MODCREATOR_PROJECT.dependencies?.each { implementation "maven.modrinth:${it.slug}:${it.version}" }
 }
 
 // Mod Creator writes generated code and assets here. Hand-written files stay in src/main.
@@ -52,11 +59,22 @@ tasks.named('compileJava') { dependsOn generateModContent }
 tasks.named('processResources') { dependsOn generateModContent }
 tasks.matching { it.name == 'sourcesJar' }.configureEach { dependsOn generateModContent }
 
+def requiredMods = (MODCREATOR_PROJECT.dependencies ?: []).findAll { it.required != false }*.slug
 processResources {
 	inputs.property 'version', project.version
+	inputs.property 'requiredMods', requiredMods
 
 	filesMatching('fabric.mod.json') {
 		expand 'version': inputs.properties.version
+	}
+	// Required dependencies from modcreator.json are added to "depends" in the built jar.
+	doLast {
+		def modJson = file("${destinationDir}/fabric.mod.json")
+		if (!modJson.exists()) return
+		def meta = new groovy.json.JsonSlurper().parse(modJson)
+		meta.depends = meta.depends ?: [:]
+		requiredMods.each { if (!meta.depends.containsKey(it)) meta.depends[it] = '*' }
+		modJson.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(meta)) + '\n'
 	}
 }
 

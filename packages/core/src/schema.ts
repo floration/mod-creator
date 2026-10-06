@@ -39,7 +39,7 @@ export const ProjectSchema = z.object({
   package: z.string().regex(/^[a-z_][a-z0-9_]*(\.[a-z_][a-z0-9_]*)*$/, "Use a Java package name like com.example.mymod"),
   /** Version profile: which Minecraft release the templates target. */
   profile: z.literal("26.3").default("26.3"),
-  /** Extra Modrinth dependencies, added to build.gradle as `maven.modrinth:<slug>:<version>`. */
+  /** Extra Modrinth dependencies. build.gradle reads them on every build as `maven.modrinth:<slug>:<version>`. */
   dependencies: z
     .array(z.object({ slug: z.string(), version: z.string(), required: z.boolean().default(true) }))
     .default([]),

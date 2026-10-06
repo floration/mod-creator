@@ -10,6 +10,7 @@ import {
   type ElementSpec,
   type Project,
 } from "./schema.js";
+import { GRADLE_READS_PROJECT } from "./profiles/v26_3/skeleton.js";
 
 export interface Issue {
   severity: "error" | "warning";
@@ -226,8 +227,25 @@ async function checkSetup(root: string, project: Project, elements: LoadedElemen
       severity: "warning",
       file: PROJECT_FILE,
       field: "dependencies",
-      message: `Biomes are placed in the world by the Biolith library. Add { "slug": "biolith", "version": "${BIOLITH_VERSION}" } to dependencies and to build.gradle, or the biome won't generate.`,
+      message: `Biomes are placed in the world by the Biolith library. Add { "slug": "biolith", "version": "${BIOLITH_VERSION}" } to dependencies, or the biome won't generate.`,
     });
+  }
+  // Projects created before build.gradle read modcreator.json list dependencies by hand.
+  const gradleFile = path.join(root, "build.gradle");
+  if (existsSync(gradleFile)) {
+    const gradle = await readFile(gradleFile, "utf8");
+    if (!gradle.includes(GRADLE_READS_PROJECT)) {
+      for (const d of project.dependencies) {
+        const coords = `maven.modrinth:${d.slug}:${d.version}`;
+        if (!gradle.includes(coords)) {
+          issues.push({
+            severity: "warning",
+            file: "build.gradle",
+            message: `build.gradle is missing the ${d.slug} dependency. Add implementation "${coords}" inside dependencies { }, or replace build.gradle with a new project's copy, which reads dependencies from modcreator.json.`,
+          });
+        }
+      }
+    }
   }
   const mob = elements.find((e) => e.spec.kind === "mob");
   const modJson = path.join(root, "src/main/resources/fabric.mod.json");

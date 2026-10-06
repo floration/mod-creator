@@ -53,6 +53,20 @@ jobs:
       - name: gradlew build
         working-directory: examples/${{ matrix.example }}
         run: ./gradlew build --no-daemon --stacktrace
+      - name: Jar metadata matches modcreator.json
+        working-directory: examples/${{ matrix.example }}
+        run: |
+          jar=$(ls build/libs/*.jar | grep -v -- '-sources.jar$')
+          unzip -p "$jar" fabric.mod.json > "$RUNNER_TEMP/fabric.mod.json"
+          node -e '
+            const fs = require("fs");
+            const project = JSON.parse(fs.readFileSync("modcreator.json", "utf8"));
+            const mod = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+            if (mod.version !== project.version) throw new Error(`jar version ${mod.version}, modcreator.json ${project.version}`);
+            for (const d of project.dependencies ?? []) {
+              if (d.required !== false && !(d.slug in mod.depends)) throw new Error(`jar does not depend on ${d.slug}`);
+            }
+          ' "$RUNNER_TEMP/fabric.mod.json"
       - name: Upload mod jar
         uses: actions/upload-artifact@v4
         with:
