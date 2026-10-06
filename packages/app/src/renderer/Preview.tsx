@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { pickAnimations, sampleChannel, type EntityModelDef, type ModelAnimation, type ModelPartDef } from "@modcreator/core/blockbench";
+import { VANILLA_MOBS, textureId } from "@modcreator/core/vanilla-mobs";
+import { VANILLA_MODELS, type PartPose, type VanillaGeometry, type VanillaPart } from "@modcreator/core/vanilla-models";
 import { previewTree, type TreeBlock } from "@modcreator/core/trees";
 import type { TreeSpec } from "@modcreator/core/schema";
 import { api, type ElementSpec } from "./api";
@@ -117,8 +119,22 @@ async function tree(load: Loader, t: TreeOptions, seed: number): Promise<THREE.G
  * net starts at (u, v), top and bottom first, then the four sides. Coordinates are model pixels (y down, front
  * towards -z).
  */
-function modelBox(material: THREE.Material, u: number, v: number, [x, y, z, w, h, d]: number[], sheet: [number, number] = [64, 64], mirror = false): THREE.Mesh {
-  const geometry = new THREE.BoxGeometry(w, h, d);
+function modelBox(
+  material: THREE.Material,
+  u: number,
+  v: number,
+  box: number[],
+  sheet: [number, number] = [64, 64],
+  mirror = false,
+  /** Vanilla outer layers: the box grows, its texture net keeps the box's own size. */
+  grow: number[] = [0, 0, 0],
+  uvScale: number[] = [1, 1],
+  /** Faces to draw, by Minecraft direction; all when absent. */
+  faces?: string[],
+): THREE.Mesh {
+  const [x, y, z, w, h, d] = box;
+  const [gx, gy, gz] = grow;
+  const geometry = new THREE.BoxGeometry(w + 2 * gx, h + 2 * gy, d + 2 * gz);
   geometry.translate(x + w / 2, y + h / 2, z + d / 2);
   // Rectangles on the sheet (left, top, width, height) for BoxGeometry's faces: +x, -x, +y, -y, +z, -z.
   // Model y points down, so +y is the underside and -y the top.
@@ -136,6 +152,14 @@ function modelBox(material: THREE.Material, u: number, v: number, [x, y, z, w, h
     rect[2] = Math.floor(rect[2]);
     rect[3] = Math.floor(rect[3]);
   });
+  if (uvScale[0] !== 1 || uvScale[1] !== 1) {
+    for (const rect of rects) {
+      rect[0] = u + (rect[0] - u) * uvScale[0];
+      rect[1] = v + (rect[1] - v) * uvScale[1];
+      rect[2] *= uvScale[0];
+      rect[3] *= uvScale[1];
+    }
+  }
   if (mirror) {
     // A mirrored box swaps its east and west faces and flips every face left to right.
     [rects[0], rects[1]] = [rects[1], rects[0]];
@@ -152,33 +176,29 @@ function modelBox(material: THREE.Material, u: number, v: number, [x, y, z, w, h
     const corners = face === 2 || face === 3 ? [[l, t], [r, t], [l, b], [r, b]] : [[l, b], [r, b], [l, t], [r, t]];
     corners.forEach(([cu, cv], i) => uv.setXY(face * 4 + i, cu, cv));
   });
+  if (faces) {
+    // BoxGeometry's face order in Minecraft's directions.
+    const order = ["east", "west", "up", "down", "south", "north"];
+    const hidden = new THREE.MeshBasicMaterial({ visible: false });
+    return new THREE.Mesh(geometry, order.map((f) => (faces.includes(f) ? material : hidden)));
+  }
   return new THREE.Mesh(geometry, material);
 }
 
-/** Boxes of the vanilla pig and cow models: texture offset, box, and the part's pivot and x rotation. */
-const MOB_MODELS: Record<string, { uv: [number, number]; box: number[]; at: [number, number, number]; rotX?: number }[]> = {
-  pig: [
-    { uv: [0, 0], box: [-4, -4, -8, 8, 8, 8], at: [0, 12, -6] },
-    { uv: [16, 16], box: [-2, 0, -9, 4, 3, 1], at: [0, 12, -6] },
-    { uv: [28, 8], box: [-5, -10, -7, 10, 16, 8], at: [0, 11, 2], rotX: Math.PI / 2 },
-    ...[[-3, 7], [3, 7], [-3, -5], [3, -5]].map(([x, z]) => ({ uv: [0, 16] as [number, number], box: [-2, 0, -2, 4, 6, 4], at: [x, 18, z] as [number, number, number] })),
-  ],
-  cow: [
-    { uv: [0, 0], box: [-4, -4, -6, 8, 8, 6], at: [0, 4, -8] },
-    { uv: [1, 33], box: [-3, 1, -7, 6, 3, 1], at: [0, 4, -8] },
-    { uv: [22, 0], box: [-5, -5, -5, 1, 3, 1], at: [0, 4, -8] },
-    { uv: [22, 0], box: [4, -5, -5, 1, 3, 1], at: [0, 4, -8] },
-    { uv: [18, 4], box: [-6, -10, -7, 12, 18, 10], at: [0, 5, 2], rotX: Math.PI / 2 },
-    { uv: [52, 0], box: [-2, 2, -8, 4, 6, 1], at: [0, 5, 2], rotX: Math.PI / 2 },
-    ...[[-4, 7], [4, 7], [-4, -6], [4, -6]].map(([x, z]) => ({ uv: [0, 16] as [number, number], box: [-2, 0, -2, 4, 12, 4], at: [x, 12, z] as [number, number, number] })),
-  ],
-};
-
-/** The faces of each box of a mob model on its 64x64 sheet, as [left, top, width, height], for the texture editor's guide. */
+/** The faces of each box of a vanilla mob body on its sheet, as [left, top, width, height], for the texture editor's guide. */
 export function mobSheetLayout(model: string): [number, number, number, number][] | null {
-  const parts = MOB_MODELS[model];
-  if (!parts) return null;
-  return sheetLayout(parts.map(({ uv, box }) => ({ uv, box })));
+  const geometry = VANILLA_MODELS[model]?.adult;
+  if (!geometry) return null;
+  const boxes: { uv: [number, number]; box: number[] }[] = [];
+  const walk = (part: VanillaPart) => {
+    for (const c of part.cubes ?? []) {
+      const [su, sv] = c.uvScale ?? [1, 1];
+      boxes.push({ uv: c.uv, box: [0, 0, 0, c.box[3] * su, c.box[4] * sv, c.box[5] * su] });
+    }
+    part.children?.forEach(walk);
+  };
+  walk(geometry.root);
+  return sheetLayout(boxes);
 }
 
 /** The same guide for a Blockbench model's boxes. */
@@ -202,22 +222,78 @@ function sheetLayout(boxes: { uv: [number, number]; box: number[] }[]): [number,
   });
 }
 
-async function mob(load: Loader, model: string, texture: string): Promise<THREE.Group> {
-  const material = shaded(await load(texture));
-  const parts = new THREE.Group();
-  for (const part of MOB_MODELS[model] ?? MOB_MODELS.pig) {
-    const pivot = new THREE.Group();
-    pivot.position.set(...part.at);
-    pivot.rotation.x = part.rotX ?? 0;
-    pivot.add(modelBox(material, part.uv[0], part.uv[1], part.box));
-    parts.add(pivot);
+/** Sets a part to a pose: position, ZYX rotation, scale and visibility, as Minecraft's ModelPart applies them. */
+function applyPose(part: THREE.Object3D, pose: PartPose | number[]): void {
+  part.position.set(pose[0], pose[1], pose[2]);
+  part.rotation.set(pose[3], pose[4], pose[5], "ZYX");
+  part.scale.set(pose[6] ?? 1, pose[7] ?? 1, pose[8] ?? 1);
+  part.visible = (pose[9] ?? 1) !== 0;
+}
+
+/**
+ * A vanilla mob body from the shapes read out of the jar, with a tick that plays the vanilla walk cycle, posed by
+ * running the game's own animation code when the data was extracted.
+ */
+async function vanillaMob(load: Loader, model: string, texture: string, scale: number): Promise<THREE.Group | null> {
+  const geometry: VanillaGeometry | undefined = VANILLA_MODELS[model]?.adult;
+  if (!geometry) return null;
+  let tex = await load(texture);
+  // No texture yet: show the vanilla one from the player's Minecraft jar, if the app found it.
+  const fallback = VANILLA_MOBS.models[model]?.texture;
+  if (!tex && fallback) {
+    const url = await api().vanillaTexture(textureId(fallback)).catch(() => null);
+    if (url) tex = await pixelTexture(url);
   }
+  const material = shaded(tex);
+  const byPath = new Map<string, THREE.Object3D>();
+  const build = (part: VanillaPart, path: string): THREE.Object3D => {
+    const pivot = new THREE.Group();
+    applyPose(pivot, part.pose);
+    for (const c of part.cubes ?? []) {
+      pivot.add(modelBox(material, c.uv[0], c.uv[1], c.box, geometry.textureSize, c.mirror, c.grow, c.uvScale, c.faces));
+    }
+    for (const child of part.children ?? []) {
+      const childPath = path ? `${path}/${child.name}` : child.name;
+      const built = build(child, childPath);
+      byPath.set(childPath, built);
+      pivot.add(built);
+    }
+    return pivot;
+  };
+  const root = build(geometry.root, "");
+  for (const [path, pose] of Object.entries(geometry.rest)) {
+    const part = byPath.get(path);
+    if (part) applyPose(part, pose);
+  }
+  const parts = new THREE.Group();
+  parts.add(root);
   // Model space is in pixels with y pointing down from 24 pixels above the feet; flip it into the scene.
-  parts.scale.set(-1 / 16, -1 / 16, 1 / 16);
-  parts.position.y = 24 / 16;
+  parts.scale.set(-scale / 16, -scale / 16, scale / 16);
+  parts.position.y = (24 * scale) / 16;
   parts.rotation.y = Math.PI;
   const group = new THREE.Group();
   group.add(parts);
+  const walk = geometry.walk;
+  if (walk) {
+    group.userData.tick = (seconds: number, walking: boolean) => {
+      // One walk cycle a second, blending between the 12 sampled frames.
+      const t = walking ? (seconds % 1) * walk.length : 0;
+      const i = Math.floor(t);
+      const a = walk[i % walk.length];
+      const b = walk[(i + 1) % walk.length];
+      for (const [path, part] of byPath) {
+        const rest = geometry.rest[path];
+        if (!rest) continue;
+        if (!walking) {
+          applyPose(part, rest);
+          continue;
+        }
+        const from = a[path] ?? rest;
+        const to = b[path] ?? rest;
+        applyPose(part, from.map((v, k) => v + (to[k] - v) * (t - i)));
+      }
+    };
+  }
   return group;
 }
 
@@ -308,7 +384,7 @@ async function buildObject(root: string, spec: ElementSpec, seed: number): Promi
     case "tree":
       return tree(load, spec.tree, seed);
     case "mob": {
-      if (spec.mob.model !== "blockbench") return mob(load, spec.mob.model, spec.mob.texture);
+      if (spec.mob.model !== "blockbench") return vanillaMob(load, spec.mob.model, spec.mob.texture, spec.mob.scale ?? 1);
       if (!spec.mob.blockbench) return null;
       const { model } = await api().loadBlockbench(root, spec.mob.blockbench);
       return model ? blockbenchMob(load, model, spec.mob.texture) : null;
@@ -331,7 +407,7 @@ async function buildObject(root: string, spec: ElementSpec, seed: number): Promi
 /** 3D view of a spec: blocks, items, tools, armor, plants, trees and mobs. Reloads whenever the spec changes. */
 export function Preview({ root, spec, version }: { root: string; spec: ElementSpec; version: number }) {
   const host = useRef<HTMLDivElement>(null);
-  const scene = useRef<{ scene: THREE.Scene; object: THREE.Object3D | null } | null>(null);
+  const scene = useRef<{ scene: THREE.Scene; object: THREE.Object3D | null; camera: THREE.PerspectiveCamera; controls: OrbitControls } | null>(null);
   const [failed, setFailed] = useState(false);
   const [animated, setAnimated] = useState(false);
   const [walking, setWalking] = useState(false);
@@ -359,7 +435,7 @@ export function Preview({ root, spec, version }: { root: string; spec: ElementSp
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.target.set(0, 0.5, 0);
     controls.enableDamping = true;
-    scene.current = { scene: s, object: null };
+    scene.current = { scene: s, object: null, camera, controls };
 
     const resize = () => {
       const { clientWidth: w, clientHeight: h } = el;
@@ -391,7 +467,15 @@ export function Preview({ root, spec, version }: { root: string; spec: ElementSp
       if (cancelled || !s) return;
       if (s.object) s.scene.remove(s.object);
       s.object = object;
-      if (object) s.scene.add(object);
+      if (object) {
+        s.scene.add(object);
+        // Frame big things (a ghast, a giant) the way a one-block thing is framed.
+        const size = new THREE.Box3().setFromObject(object).getSize(new THREE.Vector3());
+        const fit = Math.max(1, size.x, size.y, size.z);
+        s.controls.target.set(0, Math.max(0.5, size.y / 2), 0);
+        s.camera.position.set(1.8, 1.6, 2.2).multiplyScalar(fit).setY(Math.max(1.6, size.y * 0.8 + 0.8 * fit));
+        s.controls.update();
+      }
       setAnimated(!!object?.userData.tick);
     });
     return () => {

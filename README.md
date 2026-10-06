@@ -70,7 +70,7 @@ gems/
     worldgen/<id>.json     ore veins, scattered ores, disks and geodes
     trees/<id>.json        a wood type: log, planks, leaves, sapling and the tree it grows
     plants/<id>.json       grass-like plants
-    mobs/<id>.json         animals on the vanilla pig or cow body, or a Blockbench model
+    mobs/<id>.json         mobs on any vanilla body, or a Blockbench model
     biomes/<id>.json       Overworld biomes
     structures/<id>.json   buildings saved with a structure block, and where they spawn
     sounds/<id>.json       sound events made from .ogg files
@@ -94,7 +94,7 @@ Rules the generator follows:
 Two example mods show every supported field:
 
 - [`examples/ruby`](examples/ruby): an ore that drops gems with Fortune, a storage block, a lamp with a custom Java class, a gem item, shaped, shapeless and smelting recipes, a ruby ore vein that generates between Y -16 and 48, the Glowmoth, a tameable flying mob with its own Blockbench model whose wings flap, and a two-step quest tab (find a ruby, then tame a Glowmoth).
-- [`examples/azuregrove`](examples/azuregrove): one of each of the other kinds. Azurite ore and bricks (with brick stairs, slab and wall), the Azure Plum food, a full set of Azurite tools (sword, pickaxe, axe, shovel and hoe) and armor, an azurite geode, the Azurewood tree (fancy oak shape, its leaves drop plums) and its full wood set, the Sky Willow (a weeping willow built by hand as a custom tree shape), Azure Grass, the Bluetusk (a blue pig that eats plums, fights back and grunts with its own sound), the Grove Lurker (a hostile one that comes out at night), the Azure Grove biome, which takes over part of Plains and Forest and grows all of them, an Azure Grove quest tab with seven quests that use every kind of criterion and reward, and the Azure Shrine, a small azurite brick structure that spawns in the biome.
+- [`examples/azuregrove`](examples/azuregrove): one of each of the other kinds. Azurite ore and bricks (with brick stairs, slab and wall), the Azure Plum food, a full set of Azurite tools (sword, pickaxe, axe, shovel and hoe) and armor, an azurite geode, the Azurewood tree (fancy oak shape, its leaves drop plums) and its full wood set, the Sky Willow (a weeping willow built by hand as a custom tree shape), Azure Grass, the Bluetusk (a blue pig that eats plums, fights back and grunts with its own sound), the Grove Lurker (a hostile bark creature on the zombie body with its own AI goals), the Azure Grove biome, which takes over part of Plains and Forest and grows all of them, an Azure Grove quest tab with seven quests that use every kind of criterion and reward, and the Azure Shrine, a small azurite brick structure that spawns in the biome.
 
 ### Tree shapes
 
@@ -114,7 +114,7 @@ Biomes are placed with the [Biolith](https://modrinth.com/mod/biolith) library, 
 
 ### Mobs
 
-A mob either borrows the vanilla pig or cow model and animations, with your own 64x64 texture in the same layout as the vanilla one, or uses its own model from [Blockbench](https://www.blockbench.net/). Every mob has a spawn egg, and **Acts like** picks its behavior:
+A mob either borrows the model and animations of any vanilla mob (all 104 bodies in 26.3, from the axolotl to the warden), with your own texture in the same layout as the vanilla one, or uses its own model from [Blockbench](https://www.blockbench.net/). **Body** has a filter box, and the hint below it gives the texture size and which vanilla mobs use that body. **Start from the vanilla texture** copies the game's texture into `art/` as a starting point, **Use the vanilla hitbox** copies its size, and **Size** draws the body bigger or smaller. The 3D preview shows the body with your texture and plays its walk. Every mob has a spawn egg, and **Acts like** picks its behavior:
 
 - `animal` wanders, runs when hurt, follows players holding its food and breeds with that food.
 - `neutral` acts like an animal but fights back when hurt, and its herd joins in.
@@ -122,6 +122,10 @@ A mob either borrows the vanilla pig or cow model and animations, with your own 
 - `hostile` spawns in the dark like a zombie, hunts players and doesn't breed, so it needs no food. A biome lists it with its other spawns and the generator files it under monsters.
 
 **Flies** makes any of them fly around like a parrot and skip fall damage. **Attack damage** sets how hard the fighting ones hit. The Bluetusk in `examples/azuregrove` is neutral, the Grove Lurker there is hostile, and the Glowmoth in `examples/ruby` is a tameable flyer.
+
+**AI goals** lists what the behavior gives the mob. **Customize goals** copies that list into the spec, where any of Minecraft's 65 goals can be added, removed or tuned: avoiding wolves, breaking doors, eating grass, panicking near fire, following a leader and so on. Lower priorities win when two goals want to run, and target goals (marked in the list) pick what the mob attacks, by entity id, vanilla or from this mod. Goals written for one vanilla mob, like the wolf's begging or the creeper's swelling, show in the list but can't be picked, and the hint says what they need. The Grove Lurker uses the zombie body and its own goals: it hunts players and villagers, calls for help when hit, and runs from wolves.
+
+The bodies and goals are read from the Minecraft jar, not typed in by hand. After a version bump, `npm run extract-vanilla` regenerates `packages/core/src/profiles/<version>/vanilla/` from the jar Loom downloaded (it needs Java 25 and one example mod built once), and CI fails if the files don't match the jar. The ender dragon is left out because it isn't a normal mob, and mobs whose vanilla AI is a brain rather than goals (villagers, piglins, axolotls) lend their body but not that AI.
 
 For a Blockbench body, set **Body** to `blockbench` and point **Blockbench model** at a `.bbmodel` in `art/`. Make the model with Blockbench's **Modded Entity** format and **Box UV** (Minecraft entity models can't use per-face UV or meshes). Groups become the model's parts, rotated cubes get a part of their own, and the texture size comes from the project's resolution. An animation whose name contains `walk` plays while the mob moves and one containing `idle` loops all the time; keyframes must be plain numbers, not Molang. A part named `head` turns to look around. **Use the texture saved in the model** copies the texture embedded in the `.bbmodel` into `art/`, the pixel editor outlines every box on the sheet, and the 3D preview plays the animations (tick **Walking** to see the walk). The Glowmoth in `examples/ruby` is one. Its renderer is registered by the generated `ModContentClient`, so `fabric.mod.json` lists that class as the `client` entrypoint (new projects already do).
 

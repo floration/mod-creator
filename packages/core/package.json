@@ -30,6 +30,14 @@
       "types": "./dist/nbt.d.ts",
       "default": "./dist/nbt.js"
     },
+    "./vanilla-mobs": {
+      "types": "./dist/vanillaMobs.d.ts",
+      "default": "./dist/vanillaMobs.js"
+    },
+    "./vanilla-models": {
+      "types": "./dist/vanillaModels.d.ts",
+      "default": "./dist/vanillaModels.js"
+    },
     "./trees": {
       "types": "./dist/trees.d.ts",
       "default": "./dist/trees.js"

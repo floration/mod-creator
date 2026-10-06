@@ -19,6 +19,7 @@ import {
 import { parseBlockbench, type EntityModelDef } from "./blockbench.js";
 import { parseStructure } from "./nbt.js";
 import { GRADLE_READS_PROJECT } from "./profiles/v26_3/skeleton.js";
+import { baseOf, goalProblem, pickConstructor, simpleName, specParams, usableConstructors, VANILLA_MOBS, vanillaGoal, type GoalArgValue, type GoalParam } from "./vanillaMobs.js";
 
 export interface Issue {
   severity: "error" | "warning";
@@ -222,6 +223,7 @@ export function checkReferences(root: string, elements: LoadedElement[]): Issue[
   const advancements = idsOf("advancement");
   const recipes = new Set(specs.flatMap(recipeIds));
   const err = (file: string, field: string, message: string) => issues.push({ severity: "error", file, field, message });
+  const mobSpecs = new Map(specs.filter((s): s is MobSpec => s.kind === "mob").map((s) => [s.id, s]));
 
   const checkBlock = (file: string, field: string, ref: string) => {
     if (ref.startsWith("#")) err(file, field, "Use a block id here, not a tag");
@@ -247,6 +249,59 @@ export function checkReferences(root: string, elements: LoadedElement[]): Issue[
   const brewed = new Map<string, string>();
   const checkArt = (file: string, field: string, art: string) => {
     if (!existsSync(path.join(root, art))) err(file, field, `Missing file ${art}`);
+  };
+
+  /** One argument of a mob goal against the kind of value its parameter takes. */
+  const checkGoalArg = (file: string, field: string, behavior: string, p: GoalParam, v: GoalArgValue | undefined) => {
+    const isNumber = p.type === "double" || p.type === "float" || p.type === "int";
+    if (v === undefined) {
+      if (p.type === "itemTest" && behavior === "hostile") err(file, field, "Hostile mobs have no food to fall back on; name an item or tag");
+      return;
+    }
+    if (isNumber && typeof v !== "number") err(file, field, "Use a number");
+    else if (p.type === "int" && !Number.isInteger(v)) err(file, field, "Use a whole number");
+    else if (p.type === "boolean" && typeof v !== "boolean") err(file, field, "Use true or false");
+    else if (p.type === "entityClasses" && !Array.isArray(v)) err(file, field, "Use a list of mob ids, like [\"minecraft:creeper\"]");
+    else if (!isNumber && p.type !== "boolean" && p.type !== "entityClasses" && typeof v !== "string") err(file, field, "Use an id");
+    const entity = (ref: string, at: string) => {
+      if (ref.includes(".") && !ref.includes(":")) return; // a Java class name, for those who know one
+      const own = ref.startsWith("minecraft:") ? undefined : mobSpecs.get(ref.slice(ref.indexOf(":") + 1));
+      const chain = own ? VANILLA_MOBS.bases[baseOf(own.mob.behavior)] : VANILLA_MOBS.entities[ref];
+      if (!chain) {
+        if (ref.includes(":")) err(file, at, `Minecraft has no living entity "${ref}"`);
+        else checkLocal(file, at, ref, mobs, "mob");
+      } else if (p.bound && !chain.includes(p.bound)) {
+        err(file, at, `Needs a kind of ${simpleName(p.bound)}, which ${ref} isn't`);
+      }
+    };
+    if (p.type === "entityClass" && typeof v === "string") entity(v, field);
+    if (p.type === "entityClasses" && Array.isArray(v)) v.forEach((r, i) => entity(r, `${field}.${i}`));
+    if ((p.type === "itemTest" || p.type === "itemStack") && typeof v === "string" && v) checkItem(file, field, v, p.type === "itemTest");
+    if (p.type === "block" && typeof v === "string") checkBlock(file, field, v);
+    if (p.type === "sound" && typeof v === "string" && !v.includes(":")) checkLocal(file, field, v, sounds, "sound");
+    if ((p.type === "fluidTag" || p.type === "damageTag") && typeof v === "string" && !v.startsWith("#")) err(file, field, "Use a tag, like #minecraft:water");
+  };
+  const checkGoal = (file: string, at: string, behavior: string, g: { goal: string; args?: Record<string, GoalArgValue>; calls?: Record<string, Record<string, GoalArgValue>> }) => {
+    const goal = vanillaGoal(g.goal);
+    if (!goal) return err(file, `${at}.goal`, `Minecraft has no goal "${g.goal}"`);
+    const problem = goalProblem(goal, behavior);
+    if (problem) return err(file, `${at}.goal`, `${problem}, so it can't drive a mob that acts like ${behavior}`);
+    const args = g.args ?? {};
+    const ctor = pickConstructor(goal, behavior, args);
+    if (!ctor) {
+      const forms = usableConstructors(goal, behavior).map((c) => specParams(c).map((p) => p.name).join(", ") || "nothing");
+      return err(file, `${at}.args`, `These arguments don't fit ${g.goal}. It takes: ${forms.join(" | ")}`);
+    }
+    for (const p of specParams(ctor)) checkGoalArg(file, `${at}.args.${p.name}`, behavior, p, args[p.name]);
+    for (const [method, margs] of Object.entries(g.calls ?? {})) {
+      const setter = goal.setters?.find((s) => s.name === method);
+      if (!setter) {
+        err(file, `${at}.calls.${method}`, `${g.goal} has no ${method}${goal.setters?.length ? `; it has ${goal.setters.map((s) => s.name).join(", ")}` : ""}`);
+        continue;
+      }
+      for (const name of Object.keys(margs)) if (!setter.params.some((p) => p.name === name)) err(file, `${at}.calls.${method}.${name}`, `${method} takes no ${name}`);
+      for (const p of setter.params) checkGoalArg(file, `${at}.calls.${method}.${p.name}`, behavior, p, margs[p.name]);
+    }
   };
 
   const checkAdvancement = (file: string, spec: AdvancementSpec) => {
@@ -355,6 +410,7 @@ export function checkReferences(root: string, elements: LoadedElement[]): Issue[
       for (const [k, ref] of Object.entries(m.sounds)) {
         if (ref && !ref.includes(":") && !sounds.has(ref)) err(file, `mob.sounds.${k}`, `No sound named "${ref}" in this project. Vanilla sounds start with minecraft:`);
       }
+      m.goals?.forEach((g, i) => checkGoal(file, `mob.goals.${i}`, m.behavior, g));
       m.drops.forEach((d, i) => {
         checkItem(file, `mob.drops.${i}.item`, d.item, false);
         if (d.max < d.min) err(file, `mob.drops.${i}.max`, "max must be at least min");

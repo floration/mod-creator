@@ -1,0 +1,5564 @@
+{
+  "version": "26.3",
+  "models": {
+    "allay": {
+      "layer": "ALLAY",
+      "model": "net.minecraft.client.model.animal.allay.AllayModel",
+      "state": "net.minecraft.client.renderer.entity.state.AllayRenderState",
+      "entities": [
+        "minecraft:allay"
+      ],
+      "sounds": {
+        "hurt": "minecraft:entity.allay.hurt",
+        "death": "minecraft:entity.allay.death"
+      },
+      "size": [
+        0.35,
+        0.6
+      ],
+      "shadow": 0.4,
+      "texture": "textures/entity/allay/allay.png",
+      "textureSize": [
+        32,
+        32
+      ]
+    },
+    "armadillo": {
+      "layer": "ARMADILLO",
+      "model": "net.minecraft.client.model.animal.armadillo.AdultArmadilloModel",
+      "state": "net.minecraft.client.renderer.entity.state.ArmadilloRenderState",
+      "entities": [
+        "minecraft:armadillo"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.armadillo.ambient",
+        "hurt": "minecraft:entity.armadillo.hurt",
+        "death": "minecraft:entity.armadillo.death"
+      },
+      "size": [
+        0.7,
+        0.65
+      ],
+      "shadow": 0.4,
+      "babyLayer": "ARMADILLO_BABY",
+      "babyModel": "net.minecraft.client.model.animal.armadillo.BabyArmadilloModel",
+      "modelType": "net.minecraft.client.model.animal.armadillo.ArmadilloModel",
+      "texture": "textures/entity/armadillo/armadillo.png",
+      "textureSize": [
+        64,
+        64
+      ],
+      "babyTextureSize": [
+        64,
+        64
+      ]
+    },
+    "armor_stand": {
+      "layer": "ARMOR_STAND",
+      "model": "net.minecraft.client.model.object.armorstand.ArmorStandModel",
+      "state": "net.minecraft.client.renderer.entity.state.ArmorStandRenderState",
+      "entities": [
+        "minecraft:armor_stand"
+      ],
+      "size": [
+        0.5,
+        1.975
+      ],
+      "shadow": 0,
+      "texture": "textures/entity/armorstand/armorstand.png",
+      "textureSize": [
+        64,
+        64
+      ]
+    },
+    "armor_stand_small": {
+      "layer": "ARMOR_STAND_SMALL",
+      "model": "net.minecraft.client.model.object.armorstand.ArmorStandModel",
+      "state": "net.minecraft.client.renderer.entity.state.ArmorStandRenderState",
+      "entities": [
+        "minecraft:armor_stand"
+      ],
+      "size": [
+        0.5,
+        1.975
+      ],
+      "shadow": 0,
+      "texture": "textures/entity/armorstand/armorstand.png",
+      "textureSize": [
+        64,
+        64
+      ]
+    },
+    "axolotl": {
+      "layer": "AXOLOTL",
+      "model": "net.minecraft.client.model.animal.axolotl.AdultAxolotlModel",
+      "state": "net.minecraft.client.renderer.entity.state.AxolotlRenderState",
+      "entities": [
+        "minecraft:axolotl"
+      ],
+      "sounds": {
+        "hurt": "minecraft:entity.axolotl.hurt",
+        "death": "minecraft:entity.axolotl.death"
+      },
+      "size": [
+        0.75,
+        0.42
+      ],
+      "shadow": 0.5,
+      "babyLayer": "AXOLOTL_BABY",
+      "babyModel": "net.minecraft.client.model.animal.axolotl.BabyAxolotlModel",
+      "modelType": "net.minecraft.client.model.EntityModel",
+      "modelTypeGeneric": true,
+      "texture": "textures/entity/axolotl/axolotl_blue.png",
+      "textureSize": [
+        64,
+        64
+      ],
+      "babyTextureSize": [
+        32,
+        32
+      ]
+    },
+    "bat": {
+      "layer": "BAT",
+      "model": "net.minecraft.client.model.ambient.BatModel",
+      "state": "net.minecraft.client.renderer.entity.state.BatRenderState",
+      "entities": [
+        "minecraft:bat"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.bat.ambient",
+        "hurt": "minecraft:entity.bat.hurt",
+        "death": "minecraft:entity.bat.death"
+      },
+      "size": [
+        0.5,
+        0.9
+      ],
+      "shadow": 0.25,
+      "texture": "textures/entity/bat/bat.png",
+      "textureSize": [
+        32,
+        32
+      ]
+    },
+    "bee": {
+      "layer": "BEE",
+      "model": "net.minecraft.client.model.animal.bee.AdultBeeModel",
+      "state": "net.minecraft.client.renderer.entity.state.BeeRenderState",
+      "entities": [
+        "minecraft:bee"
+      ],
+      "sounds": {
+        "hurt": "minecraft:entity.bee.hurt",
+        "death": "minecraft:entity.bee.death"
+      },
+      "size": [
+        0.55,
+        0.5
+      ],
+      "shadow": 0.4,
+      "babyLayer": "BEE_BABY",
+      "babyModel": "net.minecraft.client.model.animal.bee.BabyBeeModel",
+      "modelType": "net.minecraft.client.model.animal.bee.BeeModel",
+      "texture": "textures/entity/bee/bee_angry.png",
+      "textureSize": [
+        64,
+        64
+      ],
+      "babyTextureSize": [
+        32,
+        32
+      ]
+    },
+    "blaze": {
+      "layer": "BLAZE",
+      "model": "net.minecraft.client.model.monster.blaze.BlazeModel",
+      "state": "net.minecraft.client.renderer.entity.state.LivingEntityRenderState",
+      "entities": [
+        "minecraft:blaze"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.blaze.ambient",
+        "hurt": "minecraft:entity.blaze.hurt",
+        "death": "minecraft:entity.blaze.death"
+      },
+      "size": [
+        0.6,
+        1.8
+      ],
+      "shadow": 0.5,
+      "texture": "textures/entity/blaze/blaze.png",
+      "textureSize": [
+        64,
+        32
+      ]
+    },
+    "bogged": {
+      "layer": "BOGGED",
+      "model": "net.minecraft.client.model.monster.skeleton.BoggedModel",
+      "state": "net.minecraft.client.renderer.entity.state.BoggedRenderState",
+      "entities": [
+        "minecraft:bogged"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.bogged.ambient",
+        "hurt": "minecraft:entity.bogged.hurt",
+        "death": "minecraft:entity.bogged.death"
+      },
+      "size": [
+        0.6,
+        1.99
+      ],
+      "texture": "textures/entity/skeleton/bogged.png",
+      "textureSize": [
+        64,
+        32
+      ]
+    },
+    "bogged_outer": {
+      "layer": "BOGGED_OUTER_LAYER",
+      "model": "net.minecraft.client.model.monster.skeleton.SkeletonModel",
+      "generic": true,
+      "state": "net.minecraft.client.renderer.entity.state.SkeletonRenderState",
+      "entities": [
+        "minecraft:bogged"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.bogged.ambient",
+        "hurt": "minecraft:entity.bogged.hurt",
+        "death": "minecraft:entity.bogged.death"
+      },
+      "size": [
+        0.6,
+        1.99
+      ],
+      "texture": "textures/entity/skeleton/bogged.png",
+      "textureSize": [
+        64,
+        32
+      ]
+    },
+    "breeze": {
+      "layer": "BREEZE",
+      "model": "net.minecraft.client.model.monster.breeze.BreezeModel",
+      "state": "net.minecraft.client.renderer.entity.state.BreezeRenderState",
+      "entities": [
+        "minecraft:breeze"
+      ],
+      "sounds": {
+        "hurt": "minecraft:entity.breeze.hurt",
+        "death": "minecraft:entity.breeze.death"
+      },
+      "size": [
+        0.6,
+        1.77
+      ],
+      "shadow": 0.5,
+      "texture": "textures/entity/breeze/breeze.png",
+      "textureSize": [
+        32,
+        32
+      ]
+    },
+    "camel": {
+      "layer": "CAMEL",
+      "model": "net.minecraft.client.model.animal.camel.AdultCamelModel",
+      "state": "net.minecraft.client.renderer.entity.state.CamelRenderState",
+      "entities": [
+        "minecraft:camel_husk",
+        "minecraft:camel"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.camel_husk.ambient",
+        "hurt": "minecraft:entity.camel_husk.hurt",
+        "death": "minecraft:entity.camel_husk.death"
+      },
+      "size": [
+        1.7,
+        2.375
+      ],
+      "shadow": 0.7,
+      "babyLayer": "CAMEL_BABY",
+      "babyModel": "net.minecraft.client.model.animal.camel.BabyCamelModel",
+      "modelType": "net.minecraft.client.model.animal.camel.CamelModel",
+      "texture": "textures/entity/camel/camel_husk.png",
+      "textureSize": [
+        128,
+        128
+      ],
+      "babyTextureSize": [
+        64,
+        64
+      ]
+    },
+    "cat": {
+      "layer": "CAT",
+      "model": "net.minecraft.client.model.animal.feline.AdultCatModel",
+      "state": "net.minecraft.client.renderer.entity.state.CatRenderState",
+      "entities": [
+        "minecraft:cat"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.cat.ambient",
+        "hurt": "minecraft:entity.cat.hurt",
+        "death": "minecraft:entity.cat.death"
+      },
+      "size": [
+        0.6,
+        0.7
+      ],
+      "shadow": 0.4,
+      "babyLayer": "CAT_BABY",
+      "babyModel": "net.minecraft.client.model.animal.feline.BabyCatModel",
+      "modelType": "net.minecraft.client.model.animal.feline.AbstractFelineModel",
+      "modelTypeGeneric": true,
+      "texture": "textures/entity/cat/ocelot.png",
+      "textureSize": [
+        64,
+        32
+      ],
+      "babyTextureSize": [
+        32,
+        32
+      ]
+    },
+    "cave_spider": {
+      "layer": "CAVE_SPIDER",
+      "model": "net.minecraft.client.model.monster.spider.SpiderModel",
+      "state": "net.minecraft.client.renderer.entity.state.LivingEntityRenderState",
+      "entities": [
+        "minecraft:cave_spider"
+      ],
+      "size": [
+        0.7,
+        0.5
+      ],
+      "texture": "textures/entity/spider/cave_spider.png",
+      "textureSize": [
+        64,
+        32
+      ]
+    },
+    "chicken": {
+      "layer": "CHICKEN",
+      "model": "net.minecraft.client.model.animal.chicken.AdultChickenModel",
+      "state": "net.minecraft.client.renderer.entity.state.ChickenRenderState",
+      "entities": [
+        "minecraft:chicken"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.chicken.ambient",
+        "hurt": "minecraft:entity.chicken.hurt",
+        "death": "minecraft:entity.chicken.death"
+      },
+      "size": [
+        0.4,
+        0.7
+      ],
+      "shadow": 0.3,
+      "babyLayer": "CHICKEN_BABY",
+      "babyModel": "net.minecraft.client.model.animal.chicken.BabyChickenModel",
+      "modelType": "net.minecraft.client.model.animal.chicken.ChickenModel",
+      "texture": "textures/entity/chicken/chicken_temperate.png",
+      "textureSize": [
+        64,
+        32
+      ],
+      "babyTextureSize": [
+        16,
+        16
+      ]
+    },
+    "cod": {
+      "layer": "COD",
+      "model": "net.minecraft.client.model.animal.fish.CodModel",
+      "state": "net.minecraft.client.renderer.entity.state.LivingEntityRenderState",
+      "entities": [
+        "minecraft:cod"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.cod.ambient",
+        "hurt": "minecraft:entity.cod.hurt",
+        "death": "minecraft:entity.cod.death"
+      },
+      "size": [
+        0.5,
+        0.3
+      ],
+      "shadow": 0.3,
+      "texture": "textures/entity/fish/cod.png",
+      "textureSize": [
+        32,
+        32
+      ]
+    },
+    "cold_chicken": {
+      "layer": "COLD_CHICKEN",
+      "model": "net.minecraft.client.model.animal.chicken.ColdChickenModel",
+      "state": "net.minecraft.client.renderer.entity.state.ChickenRenderState",
+      "entities": [
+        "minecraft:chicken"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.chicken.ambient",
+        "hurt": "minecraft:entity.chicken.hurt",
+        "death": "minecraft:entity.chicken.death"
+      },
+      "size": [
+        0.4,
+        0.7
+      ],
+      "shadow": 0.3,
+      "texture": "textures/entity/chicken/chicken_temperate.png",
+      "textureSize": [
+        64,
+        32
+      ]
+    },
+    "cold_cow": {
+      "layer": "COLD_COW",
+      "model": "net.minecraft.client.model.animal.cow.CowModel",
+      "state": "net.minecraft.client.renderer.entity.state.LivingEntityRenderState",
+      "entities": [
+        "minecraft:cow"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.cow.ambient",
+        "hurt": "minecraft:entity.cow.hurt",
+        "death": "minecraft:entity.cow.death"
+      },
+      "size": [
+        0.9,
+        1.4
+      ],
+      "shadow": 0.7,
+      "babyLayer": "COLD_COW_BABY",
+      "babyModel": "net.minecraft.client.model.animal.cow.CowModel",
+      "modelType": "net.minecraft.client.model.animal.cow.CowModel",
+      "texture": "textures/entity/cow/cow_temperate.png",
+      "textureSize": [
+        64,
+        64
+      ],
+      "babyTextureSize": [
+        64,
+        64
+      ]
+    },
+    "cold_pig": {
+      "layer": "COLD_PIG",
+      "model": "net.minecraft.client.model.animal.pig.ColdPigModel",
+      "state": "net.minecraft.client.renderer.entity.state.LivingEntityRenderState",
+      "entities": [
+        "minecraft:pig"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.pig.ambient",
+        "hurt": "minecraft:entity.pig.hurt",
+        "death": "minecraft:entity.pig.death"
+      },
+      "size": [
+        0.9,
+        0.9
+      ],
+      "shadow": 0.7,
+      "texture": "textures/entity/pig/pig_temperate.png",
+      "textureSize": [
+        64,
+        64
+      ]
+    },
+    "copper_golem": {
+      "layer": "COPPER_GOLEM",
+      "model": "net.minecraft.client.model.animal.golem.CopperGolemModel",
+      "state": "net.minecraft.client.renderer.entity.state.CopperGolemRenderState",
+      "entities": [
+        "minecraft:copper_golem"
+      ],
+      "sounds": {
+        "hurt": "minecraft:entity.copper_golem.hurt",
+        "death": "minecraft:entity.copper_golem.death"
+      },
+      "size": [
+        0.49,
+        0.98
+      ],
+      "shadow": 0.5,
+      "texture": "textures/entity/copper_golem/copper_golem.png",
+      "textureSize": [
+        64,
+        64
+      ]
+    },
+    "cow": {
+      "layer": "COW",
+      "model": "net.minecraft.client.model.animal.cow.CowModel",
+      "state": "net.minecraft.client.renderer.entity.state.LivingEntityRenderState",
+      "entities": [
+        "minecraft:cow"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.cow.ambient",
+        "hurt": "minecraft:entity.cow.hurt",
+        "death": "minecraft:entity.cow.death"
+      },
+      "size": [
+        0.9,
+        1.4
+      ],
+      "shadow": 0.7,
+      "babyLayer": "COW_BABY",
+      "babyModel": "net.minecraft.client.model.animal.cow.CowModel",
+      "modelType": "net.minecraft.client.model.animal.cow.CowModel",
+      "texture": "textures/entity/cow/cow_temperate.png",
+      "textureSize": [
+        64,
+        64
+      ],
+      "babyTextureSize": [
+        64,
+        64
+      ]
+    },
+    "creaking": {
+      "layer": "CREAKING",
+      "model": "net.minecraft.client.model.monster.creaking.CreakingModel",
+      "state": "net.minecraft.client.renderer.entity.state.CreakingRenderState",
+      "entities": [
+        "minecraft:creaking"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.creaking.ambient",
+        "death": "minecraft:entity.creaking.death"
+      },
+      "size": [
+        0.9,
+        2.7
+      ],
+      "shadow": 0.6,
+      "texture": "textures/entity/creaking/creaking.png",
+      "textureSize": [
+        64,
+        64
+      ]
+    },
+    "creeper": {
+      "layer": "CREEPER",
+      "model": "net.minecraft.client.model.monster.creeper.CreeperModel",
+      "state": "net.minecraft.client.renderer.entity.state.CreeperRenderState",
+      "entities": [
+        "minecraft:creeper"
+      ],
+      "sounds": {
+        "hurt": "minecraft:entity.creeper.hurt",
+        "death": "minecraft:entity.creeper.death"
+      },
+      "size": [
+        0.6,
+        1.7
+      ],
+      "shadow": 0.5,
+      "texture": "textures/entity/creeper/creeper.png",
+      "textureSize": [
+        64,
+        32
+      ]
+    },
+    "dolphin": {
+      "layer": "DOLPHIN",
+      "model": "net.minecraft.client.model.animal.dolphin.DolphinModel",
+      "state": "net.minecraft.client.renderer.entity.state.DolphinRenderState",
+      "entities": [
+        "minecraft:dolphin"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.dolphin.ambient",
+        "hurt": "minecraft:entity.dolphin.hurt",
+        "death": "minecraft:entity.dolphin.death"
+      },
+      "size": [
+        0.9,
+        0.6
+      ],
+      "shadow": 0.7,
+      "babyLayer": "DOLPHIN_BABY",
+      "babyModel": "net.minecraft.client.model.animal.dolphin.DolphinModel",
+      "modelType": "net.minecraft.client.model.animal.dolphin.DolphinModel",
+      "texture": "textures/entity/dolphin/dolphin.png",
+      "textureSize": [
+        64,
+        64
+      ],
+      "babyTextureSize": [
+        64,
+        64
+      ]
+    },
+    "donkey": {
+      "layer": "DONKEY",
+      "model": "net.minecraft.client.model.animal.equine.DonkeyModel",
+      "state": "net.minecraft.client.renderer.entity.state.DonkeyRenderState",
+      "entities": [
+        "minecraft:donkey",
+        "minecraft:mule"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.donkey.ambient",
+        "hurt": "minecraft:entity.donkey.hurt",
+        "death": "minecraft:entity.donkey.death"
+      },
+      "size": [
+        1.3965,
+        1.5
+      ],
+      "babyLayer": "DONKEY_BABY",
+      "babyModel": "net.minecraft.client.model.animal.equine.BabyDonkeyModel",
+      "modelType": "net.minecraft.client.model.animal.equine.DonkeyModel",
+      "texture": "textures/entity/horse/donkey.png",
+      "textureSize": [
+        64,
+        64
+      ],
+      "babyTextureSize": [
+        64,
+        64
+      ]
+    },
+    "drowned": {
+      "layer": "DROWNED",
+      "model": "net.minecraft.client.model.monster.zombie.DrownedModel",
+      "state": "net.minecraft.client.renderer.entity.state.ZombieRenderState",
+      "entities": [
+        "minecraft:drowned"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.drowned.ambient",
+        "hurt": "minecraft:entity.drowned.hurt",
+        "death": "minecraft:entity.drowned.death"
+      },
+      "size": [
+        0.6,
+        1.95
+      ],
+      "babyLayer": "DROWNED_BABY",
+      "babyModel": "net.minecraft.client.model.monster.zombie.BabyDrownedModel",
+      "modelType": "net.minecraft.client.model.monster.zombie.DrownedModel",
+      "texture": "textures/entity/zombie/drowned.png",
+      "textureSize": [
+        64,
+        64
+      ],
+      "babyTextureSize": [
+        64,
+        64
+      ]
+    },
+    "elder_guardian": {
+      "layer": "ELDER_GUARDIAN",
+      "model": "net.minecraft.client.model.monster.guardian.GuardianModel",
+      "state": "net.minecraft.client.renderer.entity.state.GuardianRenderState",
+      "entities": [
+        "minecraft:elder_guardian"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.elder_guardian.ambient",
+        "hurt": "minecraft:entity.elder_guardian.hurt",
+        "death": "minecraft:entity.elder_guardian.death"
+      },
+      "size": [
+        1.9975,
+        1.9975
+      ],
+      "shadow": 1.2,
+      "texture": "textures/entity/guardian/guardian_elder.png",
+      "textureSize": [
+        64,
+        64
+      ]
+    },
+    "enderman": {
+      "layer": "ENDERMAN",
+      "model": "net.minecraft.client.model.monster.enderman.EndermanModel",
+      "generic": true,
+      "state": "net.minecraft.client.renderer.entity.state.EndermanRenderState",
+      "entities": [
+        "minecraft:enderman"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.enderman.ambient",
+        "hurt": "minecraft:entity.enderman.hurt",
+        "death": "minecraft:entity.enderman.death"
+      },
+      "size": [
+        0.6,
+        2.9
+      ],
+      "shadow": 0.5,
+      "texture": "textures/entity/enderman/enderman.png",
+      "textureSize": [
+        64,
+        32
+      ]
+    },
+    "endermite": {
+      "layer": "ENDERMITE",
+      "model": "net.minecraft.client.model.monster.endermite.EndermiteModel",
+      "state": "net.minecraft.client.renderer.entity.state.LivingEntityRenderState",
+      "entities": [
+        "minecraft:endermite"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.endermite.ambient",
+        "hurt": "minecraft:entity.endermite.hurt",
+        "death": "minecraft:entity.endermite.death"
+      },
+      "size": [
+        0.4,
+        0.3
+      ],
+      "shadow": 0.3,
+      "texture": "textures/entity/endermite/endermite.png",
+      "textureSize": [
+        64,
+        32
+      ]
+    },
+    "evoker": {
+      "layer": "EVOKER",
+      "model": "net.minecraft.client.model.monster.illager.IllagerModel",
+      "generic": true,
+      "state": "net.minecraft.client.renderer.entity.state.IllagerRenderState",
+      "entities": [
+        "minecraft:evoker"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.evoker.ambient",
+        "hurt": "minecraft:entity.evoker.hurt",
+        "death": "minecraft:entity.evoker.death"
+      },
+      "size": [
+        0.6,
+        1.95
+      ],
+      "shadow": 0.5,
+      "texture": "textures/entity/illager/evoker.png",
+      "textureSize": [
+        64,
+        64
+      ]
+    },
+    "fox": {
+      "layer": "FOX",
+      "model": "net.minecraft.client.model.animal.fox.AdultFoxModel",
+      "state": "net.minecraft.client.renderer.entity.state.FoxRenderState",
+      "entities": [
+        "minecraft:fox"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.fox.ambient",
+        "hurt": "minecraft:entity.fox.hurt",
+        "death": "minecraft:entity.fox.death"
+      },
+      "size": [
+        0.6,
+        0.7
+      ],
+      "shadow": 0.4,
+      "babyLayer": "FOX_BABY",
+      "babyModel": "net.minecraft.client.model.animal.fox.BabyFoxModel",
+      "modelType": "net.minecraft.client.model.animal.fox.FoxModel",
+      "texture": "textures/entity/fox/fox.png",
+      "textureSize": [
+        48,
+        32
+      ],
+      "babyTextureSize": [
+        32,
+        32
+      ]
+    },
+    "frog": {
+      "layer": "FROG",
+      "model": "net.minecraft.client.model.animal.frog.FrogModel",
+      "state": "net.minecraft.client.renderer.entity.state.FrogRenderState",
+      "entities": [
+        "minecraft:frog"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.frog.ambient",
+        "hurt": "minecraft:entity.frog.hurt",
+        "death": "minecraft:entity.frog.death"
+      },
+      "size": [
+        0.5,
+        0.5
+      ],
+      "shadow": 0.3,
+      "texture": "textures/entity/frog/frog_temperate.png",
+      "textureSize": [
+        48,
+        48
+      ]
+    },
+    "ghast": {
+      "layer": "GHAST",
+      "model": "net.minecraft.client.model.monster.ghast.GhastModel",
+      "state": "net.minecraft.client.renderer.entity.state.GhastRenderState",
+      "entities": [
+        "minecraft:ghast"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.ghast.ambient",
+        "hurt": "minecraft:entity.ghast.hurt",
+        "death": "minecraft:entity.ghast.death"
+      },
+      "size": [
+        4,
+        4
+      ],
+      "shadow": 1.5,
+      "texture": "textures/entity/ghast/ghast.png",
+      "textureSize": [
+        64,
+        32
+      ]
+    },
+    "giant": {
+      "layer": "GIANT",
+      "model": "net.minecraft.client.model.monster.zombie.GiantZombieModel",
+      "state": "net.minecraft.client.renderer.entity.state.ZombieRenderState",
+      "entities": [
+        "minecraft:giant"
+      ],
+      "size": [
+        3.6,
+        12
+      ],
+      "shadow": 0.5,
+      "texture": "textures/entity/zombie/zombie.png",
+      "textureSize": [
+        64,
+        64
+      ]
+    },
+    "glow_squid": {
+      "layer": "GLOW_SQUID",
+      "model": "net.minecraft.client.model.animal.squid.SquidModel",
+      "state": "net.minecraft.client.renderer.entity.state.SquidRenderState",
+      "entities": [
+        "minecraft:glow_squid"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.glow_squid.ambient",
+        "hurt": "minecraft:entity.glow_squid.hurt",
+        "death": "minecraft:entity.glow_squid.death"
+      },
+      "size": [
+        0.8,
+        0.8
+      ],
+      "babyLayer": "GLOW_SQUID_BABY",
+      "babyModel": "net.minecraft.client.model.animal.squid.SquidModel",
+      "modelType": "net.minecraft.client.model.animal.squid.SquidModel",
+      "texture": "textures/entity/squid/glow_squid.png",
+      "textureSize": [
+        64,
+        32
+      ],
+      "babyTextureSize": [
+        32,
+        32
+      ]
+    },
+    "goat": {
+      "layer": "GOAT",
+      "model": "net.minecraft.client.model.animal.goat.GoatModel",
+      "state": "net.minecraft.client.renderer.entity.state.GoatRenderState",
+      "entities": [
+        "minecraft:goat"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.goat.ambient",
+        "hurt": "minecraft:entity.goat.hurt",
+        "death": "minecraft:entity.goat.death"
+      },
+      "size": [
+        0.9,
+        1.3
+      ],
+      "shadow": 0.7,
+      "babyLayer": "GOAT_BABY",
+      "babyModel": "net.minecraft.client.model.animal.goat.BabyGoatModel",
+      "modelType": "net.minecraft.client.model.animal.goat.GoatModel",
+      "texture": "textures/entity/goat/goat.png",
+      "textureSize": [
+        64,
+        64
+      ],
+      "babyTextureSize": [
+        64,
+        64
+      ]
+    },
+    "guardian": {
+      "layer": "GUARDIAN",
+      "model": "net.minecraft.client.model.monster.guardian.GuardianModel",
+      "state": "net.minecraft.client.renderer.entity.state.GuardianRenderState",
+      "entities": [
+        "minecraft:guardian"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.guardian.ambient",
+        "hurt": "minecraft:entity.guardian.hurt",
+        "death": "minecraft:entity.guardian.death"
+      },
+      "size": [
+        0.85,
+        0.85
+      ],
+      "texture": "textures/entity/guardian/guardian.png",
+      "textureSize": [
+        64,
+        64
+      ]
+    },
+    "happy_ghast": {
+      "layer": "HAPPY_GHAST",
+      "model": "net.minecraft.client.model.animal.ghast.HappyGhastModel",
+      "state": "net.minecraft.client.renderer.entity.state.HappyGhastRenderState",
+      "entities": [
+        "minecraft:happy_ghast"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.happy_ghast.ambient",
+        "hurt": "minecraft:entity.happy_ghast.hurt",
+        "death": "minecraft:entity.happy_ghast.death"
+      },
+      "size": [
+        4,
+        4
+      ],
+      "shadow": 2,
+      "babyLayer": "HAPPY_GHAST_BABY",
+      "babyModel": "net.minecraft.client.model.animal.ghast.HappyGhastModel",
+      "modelType": "net.minecraft.client.model.animal.ghast.HappyGhastModel",
+      "texture": "textures/entity/ghast/happy_ghast.png",
+      "textureSize": [
+        64,
+        64
+      ],
+      "babyTextureSize": [
+        64,
+        64
+      ]
+    },
+    "hoglin": {
+      "layer": "HOGLIN",
+      "model": "net.minecraft.client.model.monster.hoglin.HoglinModel",
+      "state": "net.minecraft.client.renderer.entity.state.HoglinRenderState",
+      "entities": [
+        "minecraft:hoglin"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.hoglin.ambient",
+        "hurt": "minecraft:entity.hoglin.hurt",
+        "death": "minecraft:entity.hoglin.death"
+      },
+      "size": [
+        1.3965,
+        1.4
+      ],
+      "shadow": 0.7,
+      "babyLayer": "HOGLIN_BABY",
+      "babyModel": "net.minecraft.client.model.monster.hoglin.BabyHoglinModel",
+      "modelType": "net.minecraft.client.model.monster.hoglin.HoglinModel",
+      "texture": "textures/entity/hoglin/hoglin.png",
+      "textureSize": [
+        128,
+        64
+      ],
+      "babyTextureSize": [
+        64,
+        64
+      ]
+    },
+    "horse": {
+      "layer": "HORSE",
+      "model": "net.minecraft.client.model.animal.equine.HorseModel",
+      "state": "net.minecraft.client.renderer.entity.state.EquineRenderState",
+      "entities": [
+        "minecraft:horse"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.horse.ambient",
+        "hurt": "minecraft:entity.horse.hurt",
+        "death": "minecraft:entity.horse.death"
+      },
+      "size": [
+        1.3965,
+        1.6
+      ],
+      "babyLayer": "HORSE_BABY",
+      "babyModel": "net.minecraft.client.model.animal.equine.BabyHorseModel",
+      "modelType": "net.minecraft.client.model.animal.equine.HorseModel",
+      "texture": "textures/entity/horse/horse_white.png",
+      "textureSize": [
+        64,
+        64
+      ],
+      "babyTextureSize": [
+        64,
+        64
+      ]
+    },
+    "husk": {
+      "layer": "HUSK",
+      "model": "net.minecraft.client.model.monster.zombie.ZombieModel",
+      "generic": true,
+      "state": "net.minecraft.client.renderer.entity.state.ZombieRenderState",
+      "entities": [
+        "minecraft:husk"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.husk.ambient",
+        "hurt": "minecraft:entity.husk.hurt",
+        "death": "minecraft:entity.husk.death"
+      },
+      "size": [
+        0.6,
+        1.95
+      ],
+      "babyLayer": "HUSK_BABY",
+      "babyModel": "net.minecraft.client.model.monster.zombie.BabyZombieModel",
+      "modelType": "net.minecraft.client.model.monster.zombie.ZombieModel",
+      "babyGeneric": true,
+      "modelTypeGeneric": true,
+      "texture": "textures/entity/zombie/husk.png",
+      "textureSize": [
+        64,
+        64
+      ],
+      "babyTextureSize": [
+        64,
+        64
+      ]
+    },
+    "illusioner": {
+      "layer": "ILLUSIONER",
+      "model": "net.minecraft.client.model.monster.illager.IllagerModel",
+      "generic": true,
+      "state": "net.minecraft.client.renderer.entity.state.IllagerRenderState",
+      "entities": [
+        "minecraft:illusioner"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.illusioner.ambient",
+        "hurt": "minecraft:entity.illusioner.hurt",
+        "death": "minecraft:entity.illusioner.death"
+      },
+      "size": [
+        0.6,
+        1.95
+      ],
+      "shadow": 0.5,
+      "texture": "textures/entity/illager/illusioner.png",
+      "textureSize": [
+        64,
+        64
+      ]
+    },
+    "iron_golem": {
+      "layer": "IRON_GOLEM",
+      "model": "net.minecraft.client.model.animal.golem.IronGolemModel",
+      "state": "net.minecraft.client.renderer.entity.state.IronGolemRenderState",
+      "entities": [
+        "minecraft:iron_golem"
+      ],
+      "sounds": {
+        "hurt": "minecraft:entity.iron_golem.hurt",
+        "death": "minecraft:entity.iron_golem.death"
+      },
+      "size": [
+        1.4,
+        2.7
+      ],
+      "shadow": 0.7,
+      "texture": "textures/entity/iron_golem/iron_golem.png",
+      "textureSize": [
+        128,
+        128
+      ]
+    },
+    "llama": {
+      "layer": "LLAMA",
+      "model": "net.minecraft.client.model.animal.llama.LlamaModel",
+      "state": "net.minecraft.client.renderer.entity.state.LlamaRenderState",
+      "entities": [
+        "minecraft:llama",
+        "minecraft:trader_llama"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.llama.ambient",
+        "hurt": "minecraft:entity.llama.hurt",
+        "death": "minecraft:entity.llama.death"
+      },
+      "size": [
+        0.9,
+        1.87
+      ],
+      "shadow": 0.7,
+      "babyLayer": "LLAMA_BABY",
+      "babyModel": "net.minecraft.client.model.animal.llama.BabyLlamaModel",
+      "modelType": "net.minecraft.client.model.animal.llama.LlamaModel",
+      "texture": "textures/entity/llama/llama_creamy.png",
+      "textureSize": [
+        128,
+        64
+      ],
+      "babyTextureSize": [
+        64,
+        64
+      ]
+    },
+    "magma_cube": {
+      "layer": "MAGMA_CUBE",
+      "model": "net.minecraft.client.model.monster.slime.MagmaCubeModel",
+      "state": "net.minecraft.client.renderer.entity.state.SlimeRenderState",
+      "entities": [
+        "minecraft:magma_cube"
+      ],
+      "sounds": {
+        "hurt": "minecraft:entity.magma_cube.hurt",
+        "death": "minecraft:entity.magma_cube.death"
+      },
+      "size": [
+        0.52,
+        0.52
+      ],
+      "texture": "textures/entity/slime/magmacube.png",
+      "textureSize": [
+        64,
+        64
+      ]
+    },
+    "mooshroom": {
+      "layer": "MOOSHROOM",
+      "model": "net.minecraft.client.model.animal.cow.CowModel",
+      "state": "net.minecraft.client.renderer.entity.state.LivingEntityRenderState",
+      "entities": [
+        "minecraft:mooshroom"
+      ],
+      "size": [
+        0.9,
+        1.4
+      ],
+      "shadow": 0.7,
+      "babyLayer": "MOOSHROOM_BABY",
+      "babyModel": "net.minecraft.client.model.animal.cow.BabyCowModel",
+      "modelType": "net.minecraft.client.model.animal.cow.CowModel",
+      "texture": "textures/entity/cow/mooshroom_brown.png",
+      "textureSize": [
+        64,
+        64
+      ],
+      "babyTextureSize": [
+        64,
+        64
+      ]
+    },
+    "mule": {
+      "layer": "MULE",
+      "model": "net.minecraft.client.model.animal.equine.DonkeyModel",
+      "state": "net.minecraft.client.renderer.entity.state.DonkeyRenderState",
+      "entities": [
+        "minecraft:donkey",
+        "minecraft:mule"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.donkey.ambient",
+        "hurt": "minecraft:entity.donkey.hurt",
+        "death": "minecraft:entity.donkey.death"
+      },
+      "size": [
+        1.3965,
+        1.5
+      ],
+      "babyLayer": "MULE_BABY",
+      "babyModel": "net.minecraft.client.model.animal.equine.BabyDonkeyModel",
+      "modelType": "net.minecraft.client.model.animal.equine.DonkeyModel",
+      "texture": "textures/entity/horse/donkey.png",
+      "textureSize": [
+        64,
+        64
+      ],
+      "babyTextureSize": [
+        64,
+        64
+      ]
+    },
+    "nautilus": {
+      "layer": "NAUTILUS",
+      "model": "net.minecraft.client.model.animal.nautilus.NautilusModel",
+      "state": "net.minecraft.client.renderer.entity.state.NautilusRenderState",
+      "entities": [
+        "minecraft:nautilus"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.nautilus.ambient",
+        "hurt": "minecraft:entity.nautilus.hurt",
+        "death": "minecraft:entity.nautilus.death"
+      },
+      "size": [
+        0.875,
+        0.95
+      ],
+      "shadow": 0.7,
+      "babyLayer": "NAUTILUS_BABY",
+      "babyModel": "net.minecraft.client.model.animal.nautilus.NautilusModel",
+      "modelType": "net.minecraft.client.model.animal.nautilus.NautilusModel",
+      "texture": "textures/entity/nautilus/nautilus.png",
+      "textureSize": [
+        128,
+        128
+      ],
+      "babyTextureSize": [
+        64,
+        64
+      ]
+    },
+    "ocelot": {
+      "layer": "OCELOT",
+      "model": "net.minecraft.client.model.animal.feline.AdultOcelotModel",
+      "state": "net.minecraft.client.renderer.entity.state.FelineRenderState",
+      "entities": [
+        "minecraft:ocelot"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.ocelot.ambient",
+        "hurt": "minecraft:entity.ocelot.hurt",
+        "death": "minecraft:entity.ocelot.death"
+      },
+      "size": [
+        0.6,
+        0.7
+      ],
+      "shadow": 0.4,
+      "babyLayer": "OCELOT_BABY",
+      "babyModel": "net.minecraft.client.model.animal.feline.BabyOcelotModel",
+      "modelType": "net.minecraft.client.model.animal.feline.AbstractFelineModel",
+      "modelTypeGeneric": true,
+      "texture": "textures/entity/cat/ocelot.png",
+      "textureSize": [
+        64,
+        32
+      ],
+      "babyTextureSize": [
+        32,
+        32
+      ]
+    },
+    "panda": {
+      "layer": "PANDA",
+      "model": "net.minecraft.client.model.animal.panda.PandaModel",
+      "state": "net.minecraft.client.renderer.entity.state.PandaRenderState",
+      "entities": [
+        "minecraft:panda"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.panda.ambient",
+        "hurt": "minecraft:entity.panda.hurt",
+        "death": "minecraft:entity.panda.death"
+      },
+      "size": [
+        1.3,
+        1.25
+      ],
+      "shadow": 0.9,
+      "babyLayer": "PANDA_BABY",
+      "babyModel": "net.minecraft.client.model.animal.panda.BabyPandaModel",
+      "modelType": "net.minecraft.client.model.animal.panda.PandaModel",
+      "texture": "textures/entity/panda/panda.png",
+      "textureSize": [
+        64,
+        64
+      ],
+      "babyTextureSize": [
+        64,
+        64
+      ]
+    },
+    "parched": {
+      "layer": "PARCHED",
+      "model": "net.minecraft.client.model.monster.skeleton.SkeletonModel",
+      "generic": true,
+      "state": "net.minecraft.client.renderer.entity.state.SkeletonRenderState",
+      "entities": [
+        "minecraft:parched"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.parched.ambient",
+        "hurt": "minecraft:entity.parched.hurt",
+        "death": "minecraft:entity.parched.death"
+      },
+      "size": [
+        0.6,
+        1.99
+      ],
+      "texture": "textures/entity/skeleton/parched.png",
+      "textureSize": [
+        64,
+        64
+      ]
+    },
+    "parrot": {
+      "layer": "PARROT",
+      "model": "net.minecraft.client.model.animal.parrot.ParrotModel",
+      "state": "net.minecraft.client.renderer.entity.state.ParrotRenderState",
+      "entities": [
+        "minecraft:parrot"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.parrot.ambient",
+        "hurt": "minecraft:entity.parrot.hurt",
+        "death": "minecraft:entity.parrot.death"
+      },
+      "size": [
+        0.5,
+        0.9
+      ],
+      "shadow": 0.3,
+      "texture": "textures/entity/parrot/parrot_red_blue.png",
+      "textureSize": [
+        32,
+        32
+      ]
+    },
+    "phantom": {
+      "layer": "PHANTOM",
+      "model": "net.minecraft.client.model.monster.phantom.PhantomModel",
+      "state": "net.minecraft.client.renderer.entity.state.PhantomRenderState",
+      "entities": [
+        "minecraft:phantom"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.phantom.ambient",
+        "hurt": "minecraft:entity.phantom.hurt",
+        "death": "minecraft:entity.phantom.death"
+      },
+      "size": [
+        0.9,
+        0.5
+      ],
+      "shadow": 0.75,
+      "texture": "textures/entity/phantom/phantom.png",
+      "textureSize": [
+        64,
+        64
+      ]
+    },
+    "pig": {
+      "layer": "PIG",
+      "model": "net.minecraft.client.model.animal.pig.PigModel",
+      "state": "net.minecraft.client.renderer.entity.state.LivingEntityRenderState",
+      "entities": [
+        "minecraft:pig"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.pig.ambient",
+        "hurt": "minecraft:entity.pig.hurt",
+        "death": "minecraft:entity.pig.death"
+      },
+      "size": [
+        0.9,
+        0.9
+      ],
+      "shadow": 0.7,
+      "babyLayer": "PIG_BABY",
+      "babyModel": "net.minecraft.client.model.animal.pig.BabyPigModel",
+      "modelType": "net.minecraft.client.model.animal.pig.PigModel",
+      "texture": "textures/entity/pig/pig_temperate.png",
+      "textureSize": [
+        64,
+        64
+      ],
+      "babyTextureSize": [
+        32,
+        32
+      ]
+    },
+    "piglin": {
+      "layer": "PIGLIN",
+      "model": "net.minecraft.client.model.monster.piglin.AdultPiglinModel",
+      "state": "net.minecraft.client.renderer.entity.state.PiglinRenderState",
+      "entities": [
+        "minecraft:piglin",
+        "minecraft:piglin_brute"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.piglin.ambient",
+        "hurt": "minecraft:entity.piglin.hurt",
+        "death": "minecraft:entity.piglin.death"
+      },
+      "size": [
+        0.6,
+        1.95
+      ],
+      "shadow": 0.5,
+      "babyLayer": "PIGLIN_BABY",
+      "babyModel": "net.minecraft.client.model.monster.piglin.BabyPiglinModel",
+      "modelType": "net.minecraft.client.model.monster.piglin.PiglinModel",
+      "texture": "textures/entity/piglin/piglin.png",
+      "textureSize": [
+        64,
+        64
+      ],
+      "babyTextureSize": [
+        64,
+        64
+      ]
+    },
+    "piglin_brute": {
+      "layer": "PIGLIN_BRUTE",
+      "model": "net.minecraft.client.model.monster.piglin.AdultPiglinModel",
+      "state": "net.minecraft.client.renderer.entity.state.PiglinRenderState",
+      "entities": [
+        "minecraft:piglin_brute",
+        "minecraft:piglin"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.piglin_brute.ambient",
+        "hurt": "minecraft:entity.piglin_brute.hurt",
+        "death": "minecraft:entity.piglin_brute.death"
+      },
+      "size": [
+        0.6,
+        1.95
+      ],
+      "shadow": 0.5,
+      "texture": "textures/entity/piglin/piglin.png",
+      "textureSize": [
+        64,
+        64
+      ]
+    },
+    "pillager": {
+      "layer": "PILLAGER",
+      "model": "net.minecraft.client.model.monster.illager.IllagerModel",
+      "generic": true,
+      "state": "net.minecraft.client.renderer.entity.state.IllagerRenderState",
+      "entities": [
+        "minecraft:pillager"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.pillager.ambient",
+        "hurt": "minecraft:entity.pillager.hurt",
+        "death": "minecraft:entity.pillager.death"
+      },
+      "size": [
+        0.6,
+        1.95
+      ],
+      "shadow": 0.5,
+      "texture": "textures/entity/illager/pillager.png",
+      "textureSize": [
+        64,
+        64
+      ]
+    },
+    "player": {
+      "layer": "PLAYER",
+      "model": "net.minecraft.client.model.player.PlayerModel",
+      "flags": 1,
+      "state": "net.minecraft.client.renderer.entity.state.AvatarRenderState",
+      "entities": [],
+      "shadow": 0.5,
+      "texture": "textures/entity/player/slim/ari.png",
+      "textureSize": [
+        64,
+        64
+      ]
+    },
+    "polar_bear": {
+      "layer": "POLAR_BEAR",
+      "model": "net.minecraft.client.model.animal.polarbear.PolarBearModel",
+      "state": "net.minecraft.client.renderer.entity.state.PolarBearRenderState",
+      "entities": [
+        "minecraft:polar_bear"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.polar_bear.ambient",
+        "hurt": "minecraft:entity.polar_bear.hurt",
+        "death": "minecraft:entity.polar_bear.death"
+      },
+      "size": [
+        1.4,
+        1.4
+      ],
+      "shadow": 0.9,
+      "babyLayer": "POLAR_BEAR_BABY",
+      "babyModel": "net.minecraft.client.model.animal.polarbear.PolarBearModel",
+      "modelType": "net.minecraft.client.model.animal.polarbear.PolarBearModel",
+      "texture": "textures/entity/bear/polarbear.png",
+      "textureSize": [
+        128,
+        64
+      ],
+      "babyTextureSize": [
+        64,
+        64
+      ]
+    },
+    "pufferfish_big": {
+      "layer": "PUFFERFISH_BIG",
+      "model": "net.minecraft.client.model.animal.fish.PufferfishBigModel",
+      "state": "net.minecraft.client.renderer.entity.state.LivingEntityRenderState",
+      "entities": [
+        "minecraft:pufferfish"
+      ],
+      "size": [
+        0.7,
+        0.7
+      ],
+      "shadow": 0.2,
+      "texture": "textures/entity/fish/pufferfish.png",
+      "textureSize": [
+        32,
+        32
+      ]
+    },
+    "pufferfish_medium": {
+      "layer": "PUFFERFISH_MEDIUM",
+      "model": "net.minecraft.client.model.animal.fish.PufferfishMidModel",
+      "state": "net.minecraft.client.renderer.entity.state.LivingEntityRenderState",
+      "entities": [
+        "minecraft:pufferfish"
+      ],
+      "size": [
+        0.7,
+        0.7
+      ],
+      "shadow": 0.2,
+      "texture": "textures/entity/fish/pufferfish.png",
+      "textureSize": [
+        32,
+        32
+      ]
+    },
+    "pufferfish_small": {
+      "layer": "PUFFERFISH_SMALL",
+      "model": "net.minecraft.client.model.animal.fish.PufferfishSmallModel",
+      "state": "net.minecraft.client.renderer.entity.state.LivingEntityRenderState",
+      "entities": [
+        "minecraft:pufferfish"
+      ],
+      "size": [
+        0.7,
+        0.7
+      ],
+      "shadow": 0.2,
+      "texture": "textures/entity/fish/pufferfish.png",
+      "textureSize": [
+        32,
+        32
+      ]
+    },
+    "rabbit": {
+      "layer": "RABBIT",
+      "model": "net.minecraft.client.model.animal.rabbit.AdultRabbitModel",
+      "state": "net.minecraft.client.renderer.entity.state.RabbitRenderState",
+      "entities": [
+        "minecraft:rabbit"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.rabbit.ambient",
+        "hurt": "minecraft:entity.rabbit.hurt",
+        "death": "minecraft:entity.rabbit.death"
+      },
+      "size": [
+        0.49,
+        0.6
+      ],
+      "shadow": 0.3,
+      "babyLayer": "RABBIT_BABY",
+      "babyModel": "net.minecraft.client.model.animal.rabbit.BabyRabbitModel",
+      "modelType": "net.minecraft.client.model.animal.rabbit.RabbitModel",
+      "texture": "textures/entity/rabbit/rabbit_toast.png",
+      "textureSize": [
+        64,
+        64
+      ],
+      "babyTextureSize": [
+        32,
+        32
+      ]
+    },
+    "ravager": {
+      "layer": "RAVAGER",
+      "model": "net.minecraft.client.model.monster.ravager.RavagerModel",
+      "state": "net.minecraft.client.renderer.entity.state.RavagerRenderState",
+      "entities": [
+        "minecraft:ravager"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.ravager.ambient",
+        "hurt": "minecraft:entity.ravager.hurt",
+        "death": "minecraft:entity.ravager.death"
+      },
+      "size": [
+        1.95,
+        2.2
+      ],
+      "shadow": 1.1,
+      "texture": "textures/entity/illager/ravager.png",
+      "textureSize": [
+        128,
+        128
+      ]
+    },
+    "salmon": {
+      "layer": "SALMON",
+      "model": "net.minecraft.client.model.animal.fish.SalmonModel",
+      "state": "net.minecraft.client.renderer.entity.state.SalmonRenderState",
+      "entities": [
+        "minecraft:salmon"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.salmon.ambient",
+        "hurt": "minecraft:entity.salmon.hurt",
+        "death": "minecraft:entity.salmon.death"
+      },
+      "size": [
+        0.7,
+        0.4
+      ],
+      "shadow": 0.4,
+      "texture": "textures/entity/fish/salmon.png",
+      "textureSize": [
+        32,
+        32
+      ]
+    },
+    "salmon_large": {
+      "layer": "SALMON_LARGE",
+      "model": "net.minecraft.client.model.animal.fish.SalmonModel",
+      "state": "net.minecraft.client.renderer.entity.state.SalmonRenderState",
+      "entities": [
+        "minecraft:salmon"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.salmon.ambient",
+        "hurt": "minecraft:entity.salmon.hurt",
+        "death": "minecraft:entity.salmon.death"
+      },
+      "size": [
+        0.7,
+        0.4
+      ],
+      "shadow": 0.4,
+      "texture": "textures/entity/fish/salmon.png",
+      "textureSize": [
+        32,
+        32
+      ]
+    },
+    "salmon_small": {
+      "layer": "SALMON_SMALL",
+      "model": "net.minecraft.client.model.animal.fish.SalmonModel",
+      "state": "net.minecraft.client.renderer.entity.state.SalmonRenderState",
+      "entities": [
+        "minecraft:salmon"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.salmon.ambient",
+        "hurt": "minecraft:entity.salmon.hurt",
+        "death": "minecraft:entity.salmon.death"
+      },
+      "size": [
+        0.7,
+        0.4
+      ],
+      "shadow": 0.4,
+      "texture": "textures/entity/fish/salmon.png",
+      "textureSize": [
+        32,
+        32
+      ]
+    },
+    "sheep": {
+      "layer": "SHEEP",
+      "model": "net.minecraft.client.model.animal.sheep.SheepModel",
+      "state": "net.minecraft.client.renderer.entity.state.SheepRenderState",
+      "entities": [
+        "minecraft:sheep"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.sheep.ambient",
+        "hurt": "minecraft:entity.sheep.hurt",
+        "death": "minecraft:entity.sheep.death"
+      },
+      "size": [
+        0.9,
+        1.3
+      ],
+      "shadow": 0.7,
+      "babyLayer": "SHEEP_BABY",
+      "babyModel": "net.minecraft.client.model.animal.sheep.BabySheepModel",
+      "modelType": "net.minecraft.client.model.animal.sheep.SheepModel",
+      "texture": "textures/entity/sheep/sheep.png",
+      "textureSize": [
+        64,
+        32
+      ],
+      "babyTextureSize": [
+        64,
+        32
+      ]
+    },
+    "shulker": {
+      "layer": "SHULKER",
+      "model": "net.minecraft.client.model.monster.shulker.ShulkerModel",
+      "state": "net.minecraft.client.renderer.entity.state.ShulkerRenderState",
+      "entities": [
+        "minecraft:shulker"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.shulker.ambient",
+        "hurt": "minecraft:entity.shulker.hurt",
+        "death": "minecraft:entity.shulker.death"
+      },
+      "size": [
+        1,
+        1
+      ],
+      "shadow": 0,
+      "texture": "textures/entity/shulker/shulker.png",
+      "textureSize": [
+        64,
+        64
+      ]
+    },
+    "silverfish": {
+      "layer": "SILVERFISH",
+      "model": "net.minecraft.client.model.monster.silverfish.SilverfishModel",
+      "state": "net.minecraft.client.renderer.entity.state.LivingEntityRenderState",
+      "entities": [
+        "minecraft:silverfish"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.silverfish.ambient",
+        "hurt": "minecraft:entity.silverfish.hurt",
+        "death": "minecraft:entity.silverfish.death"
+      },
+      "size": [
+        0.4,
+        0.3
+      ],
+      "shadow": 0.3,
+      "texture": "textures/entity/silverfish/silverfish.png",
+      "textureSize": [
+        64,
+        32
+      ]
+    },
+    "skeleton": {
+      "layer": "SKELETON",
+      "model": "net.minecraft.client.model.monster.skeleton.SkeletonModel",
+      "generic": true,
+      "state": "net.minecraft.client.renderer.entity.state.SkeletonRenderState",
+      "entities": [
+        "minecraft:skeleton"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.skeleton.ambient",
+        "hurt": "minecraft:entity.skeleton.hurt",
+        "death": "minecraft:entity.skeleton.death"
+      },
+      "size": [
+        0.6,
+        1.99
+      ],
+      "texture": "textures/entity/skeleton/skeleton.png",
+      "textureSize": [
+        64,
+        32
+      ]
+    },
+    "skeleton_horse": {
+      "layer": "SKELETON_HORSE",
+      "model": "net.minecraft.client.model.animal.equine.HorseModel",
+      "state": "net.minecraft.client.renderer.entity.state.EquineRenderState",
+      "entities": [
+        "minecraft:skeleton_horse",
+        "minecraft:zombie_horse"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.skeleton_horse.ambient",
+        "hurt": "minecraft:entity.skeleton_horse.hurt",
+        "death": "minecraft:entity.skeleton_horse.death"
+      },
+      "size": [
+        1.3965,
+        1.6
+      ],
+      "babyLayer": "SKELETON_HORSE_BABY",
+      "babyModel": "net.minecraft.client.model.animal.equine.BabyHorseModel",
+      "modelType": "net.minecraft.client.model.animal.equine.HorseModel",
+      "texture": "textures/entity/horse/horse_skeleton.png",
+      "textureSize": [
+        64,
+        64
+      ],
+      "babyTextureSize": [
+        64,
+        64
+      ]
+    },
+    "slime": {
+      "layer": "SLIME",
+      "model": "net.minecraft.client.model.monster.slime.SlimeModel",
+      "state": "net.minecraft.client.renderer.entity.state.LivingEntityRenderState",
+      "entities": [
+        "minecraft:slime"
+      ],
+      "sounds": {
+        "hurt": "minecraft:entity.slime.hurt",
+        "death": "minecraft:entity.slime.death"
+      },
+      "size": [
+        0.52,
+        0.52
+      ],
+      "texture": "textures/entity/slime/slime.png",
+      "textureSize": [
+        64,
+        32
+      ]
+    },
+    "sniffer": {
+      "layer": "SNIFFER",
+      "model": "net.minecraft.client.model.animal.sniffer.SnifferModel",
+      "state": "net.minecraft.client.renderer.entity.state.SnifferRenderState",
+      "entities": [
+        "minecraft:sniffer"
+      ],
+      "sounds": {
+        "hurt": "minecraft:entity.sniffer.hurt",
+        "death": "minecraft:entity.sniffer.death"
+      },
+      "size": [
+        1.9,
+        1.75
+      ],
+      "shadow": 1.1,
+      "babyLayer": "SNIFFER_BABY",
+      "babyModel": "net.minecraft.client.model.animal.sniffer.SnifferModel",
+      "modelType": "net.minecraft.client.model.animal.sniffer.SnifferModel",
+      "texture": "textures/entity/sniffer/sniffer.png",
+      "textureSize": [
+        192,
+        192
+      ],
+      "babyTextureSize": [
+        128,
+        128
+      ]
+    },
+    "snow_golem": {
+      "layer": "SNOW_GOLEM",
+      "model": "net.minecraft.client.model.animal.golem.SnowGolemModel",
+      "state": "net.minecraft.client.renderer.entity.state.LivingEntityRenderState",
+      "entities": [
+        "minecraft:snow_golem"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.snow_golem.ambient",
+        "hurt": "minecraft:entity.snow_golem.hurt",
+        "death": "minecraft:entity.snow_golem.death"
+      },
+      "size": [
+        0.7,
+        1.9
+      ],
+      "shadow": 0.5,
+      "texture": "textures/entity/snow_golem/snow_golem.png",
+      "textureSize": [
+        64,
+        64
+      ]
+    },
+    "spider": {
+      "layer": "SPIDER",
+      "model": "net.minecraft.client.model.monster.spider.SpiderModel",
+      "state": "net.minecraft.client.renderer.entity.state.LivingEntityRenderState",
+      "entities": [
+        "minecraft:spider"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.spider.ambient",
+        "hurt": "minecraft:entity.spider.hurt",
+        "death": "minecraft:entity.spider.death"
+      },
+      "size": [
+        1.4,
+        0.9
+      ],
+      "shadow": 0.8,
+      "texture": "textures/entity/spider/spider.png",
+      "textureSize": [
+        64,
+        32
+      ]
+    },
+    "squid": {
+      "layer": "SQUID",
+      "model": "net.minecraft.client.model.animal.squid.SquidModel",
+      "state": "net.minecraft.client.renderer.entity.state.SquidRenderState",
+      "entities": [
+        "minecraft:squid"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.squid.ambient",
+        "hurt": "minecraft:entity.squid.hurt",
+        "death": "minecraft:entity.squid.death"
+      },
+      "size": [
+        0.8,
+        0.8
+      ],
+      "shadow": 0.7,
+      "babyLayer": "SQUID_BABY",
+      "babyModel": "net.minecraft.client.model.animal.squid.SquidModel",
+      "modelType": "net.minecraft.client.model.animal.squid.SquidModel",
+      "texture": "textures/entity/squid/squid.png",
+      "textureSize": [
+        64,
+        32
+      ],
+      "babyTextureSize": [
+        32,
+        32
+      ]
+    },
+    "stray": {
+      "layer": "STRAY",
+      "model": "net.minecraft.client.model.monster.skeleton.SkeletonModel",
+      "generic": true,
+      "state": "net.minecraft.client.renderer.entity.state.SkeletonRenderState",
+      "entities": [
+        "minecraft:stray"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.stray.ambient",
+        "hurt": "minecraft:entity.stray.hurt",
+        "death": "minecraft:entity.stray.death"
+      },
+      "size": [
+        0.6,
+        1.99
+      ],
+      "texture": "textures/entity/skeleton/stray.png",
+      "textureSize": [
+        64,
+        32
+      ]
+    },
+    "stray_outer": {
+      "layer": "STRAY_OUTER_LAYER",
+      "model": "net.minecraft.client.model.monster.skeleton.SkeletonModel",
+      "generic": true,
+      "state": "net.minecraft.client.renderer.entity.state.SkeletonRenderState",
+      "entities": [
+        "minecraft:stray"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.stray.ambient",
+        "hurt": "minecraft:entity.stray.hurt",
+        "death": "minecraft:entity.stray.death"
+      },
+      "size": [
+        0.6,
+        1.99
+      ],
+      "texture": "textures/entity/skeleton/stray.png",
+      "textureSize": [
+        64,
+        32
+      ]
+    },
+    "strider": {
+      "layer": "STRIDER",
+      "model": "net.minecraft.client.model.monster.strider.AdultStriderModel",
+      "state": "net.minecraft.client.renderer.entity.state.StriderRenderState",
+      "entities": [
+        "minecraft:strider"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.strider.ambient",
+        "hurt": "minecraft:entity.strider.hurt",
+        "death": "minecraft:entity.strider.death"
+      },
+      "size": [
+        0.9,
+        1.7
+      ],
+      "shadow": 0.5,
+      "babyLayer": "STRIDER_BABY",
+      "babyModel": "net.minecraft.client.model.monster.strider.BabyStriderModel",
+      "modelType": "net.minecraft.client.model.monster.strider.StriderModel",
+      "texture": "textures/entity/strider/strider.png",
+      "textureSize": [
+        64,
+        128
+      ],
+      "babyTextureSize": [
+        32,
+        32
+      ]
+    },
+    "sulfur_cube": {
+      "layer": "SULFUR_CUBE",
+      "model": "net.minecraft.client.model.monster.slime.SulfurCubeModel",
+      "state": "net.minecraft.client.renderer.entity.state.SulfurCubeRenderState",
+      "entities": [
+        "minecraft:sulfur_cube"
+      ],
+      "sounds": {
+        "hurt": "minecraft:entity.sulfur_cube.hurt",
+        "death": "minecraft:entity.sulfur_cube.death"
+      },
+      "size": [
+        0.49,
+        0.49
+      ],
+      "texture": "textures/entity/sulfur_cube/sulfur_cube_outer.png",
+      "textureSize": [
+        128,
+        128
+      ]
+    },
+    "sulfur_cube_small": {
+      "layer": "SULFUR_CUBE_SMALL",
+      "model": "net.minecraft.client.model.monster.slime.SmallSulfurCubeModel",
+      "state": "net.minecraft.client.renderer.entity.state.SulfurCubeRenderState",
+      "entities": [
+        "minecraft:sulfur_cube"
+      ],
+      "sounds": {
+        "hurt": "minecraft:entity.sulfur_cube.hurt",
+        "death": "minecraft:entity.sulfur_cube.death"
+      },
+      "size": [
+        0.49,
+        0.49
+      ],
+      "texture": "textures/entity/sulfur_cube/sulfur_cube_outer.png",
+      "textureSize": [
+        64,
+        64
+      ]
+    },
+    "tadpole": {
+      "layer": "TADPOLE",
+      "model": "net.minecraft.client.model.animal.frog.TadpoleModel",
+      "state": "net.minecraft.client.renderer.entity.state.LivingEntityRenderState",
+      "entities": [
+        "minecraft:tadpole"
+      ],
+      "sounds": {
+        "hurt": "minecraft:entity.tadpole.hurt",
+        "death": "minecraft:entity.tadpole.death"
+      },
+      "size": [
+        0.4,
+        0.3
+      ],
+      "shadow": 0.14,
+      "texture": "textures/entity/tadpole/tadpole.png",
+      "textureSize": [
+        16,
+        16
+      ]
+    },
+    "trader_llama": {
+      "layer": "TRADER_LLAMA",
+      "model": "net.minecraft.client.model.animal.llama.LlamaModel",
+      "state": "net.minecraft.client.renderer.entity.state.LlamaRenderState",
+      "entities": [
+        "minecraft:trader_llama",
+        "minecraft:llama"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.llama.ambient",
+        "hurt": "minecraft:entity.llama.hurt",
+        "death": "minecraft:entity.llama.death"
+      },
+      "size": [
+        0.9,
+        1.87
+      ],
+      "shadow": 0.7,
+      "babyLayer": "TRADER_LLAMA_BABY",
+      "babyModel": "net.minecraft.client.model.animal.llama.BabyLlamaModel",
+      "modelType": "net.minecraft.client.model.animal.llama.LlamaModel",
+      "texture": "textures/entity/llama/llama_creamy.png",
+      "textureSize": [
+        128,
+        64
+      ],
+      "babyTextureSize": [
+        64,
+        64
+      ]
+    },
+    "tropical_fish_large": {
+      "layer": "TROPICAL_FISH_LARGE",
+      "model": "net.minecraft.client.model.animal.fish.TropicalFishLargeModel",
+      "state": "net.minecraft.client.renderer.entity.state.TropicalFishRenderState",
+      "entities": [
+        "minecraft:tropical_fish"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.tropical_fish.ambient",
+        "hurt": "minecraft:entity.tropical_fish.hurt",
+        "death": "minecraft:entity.tropical_fish.death"
+      },
+      "size": [
+        0.5,
+        0.4
+      ],
+      "shadow": 0.15,
+      "texture": "textures/entity/fish/tropical_a.png",
+      "textureSize": [
+        32,
+        32
+      ]
+    },
+    "tropical_fish_small": {
+      "layer": "TROPICAL_FISH_SMALL",
+      "model": "net.minecraft.client.model.animal.fish.TropicalFishSmallModel",
+      "state": "net.minecraft.client.renderer.entity.state.TropicalFishRenderState",
+      "entities": [
+        "minecraft:tropical_fish"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.tropical_fish.ambient",
+        "hurt": "minecraft:entity.tropical_fish.hurt",
+        "death": "minecraft:entity.tropical_fish.death"
+      },
+      "size": [
+        0.5,
+        0.4
+      ],
+      "shadow": 0.15,
+      "texture": "textures/entity/fish/tropical_a.png",
+      "textureSize": [
+        32,
+        32
+      ]
+    },
+    "turtle": {
+      "layer": "TURTLE",
+      "model": "net.minecraft.client.model.animal.turtle.AdultTurtleModel",
+      "state": "net.minecraft.client.renderer.entity.state.TurtleRenderState",
+      "entities": [
+        "minecraft:turtle"
+      ],
+      "sounds": {
+        "hurt": "minecraft:entity.turtle.hurt",
+        "death": "minecraft:entity.turtle.death"
+      },
+      "size": [
+        1.2,
+        0.4
+      ],
+      "shadow": 0.7,
+      "babyLayer": "TURTLE_BABY",
+      "babyModel": "net.minecraft.client.model.animal.turtle.BabyTurtleModel",
+      "modelType": "net.minecraft.client.model.animal.turtle.TurtleModel",
+      "texture": "textures/entity/turtle/turtle.png",
+      "textureSize": [
+        128,
+        64
+      ],
+      "babyTextureSize": [
+        16,
+        16
+      ]
+    },
+    "vex": {
+      "layer": "VEX",
+      "model": "net.minecraft.client.model.monster.vex.VexModel",
+      "state": "net.minecraft.client.renderer.entity.state.VexRenderState",
+      "entities": [
+        "minecraft:vex"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.vex.ambient",
+        "hurt": "minecraft:entity.vex.hurt",
+        "death": "minecraft:entity.vex.death"
+      },
+      "size": [
+        0.4,
+        0.8
+      ],
+      "shadow": 0.3,
+      "texture": "textures/entity/illager/vex.png",
+      "textureSize": [
+        32,
+        32
+      ]
+    },
+    "villager": {
+      "layer": "VILLAGER",
+      "model": "net.minecraft.client.model.npc.VillagerModel",
+      "state": "net.minecraft.client.renderer.entity.state.VillagerRenderState",
+      "entities": [
+        "minecraft:villager"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.villager.ambient",
+        "hurt": "minecraft:entity.villager.hurt",
+        "death": "minecraft:entity.villager.death"
+      },
+      "size": [
+        0.6,
+        1.95
+      ],
+      "shadow": 0.5,
+      "babyLayer": "VILLAGER_BABY",
+      "babyModel": "net.minecraft.client.model.npc.BabyVillagerModel",
+      "modelType": "net.minecraft.client.model.npc.VillagerModel",
+      "texture": "textures/entity/villager/villager.png",
+      "textureSize": [
+        64,
+        64
+      ],
+      "babyTextureSize": [
+        64,
+        64
+      ]
+    },
+    "vindicator": {
+      "layer": "VINDICATOR",
+      "model": "net.minecraft.client.model.monster.illager.IllagerModel",
+      "generic": true,
+      "state": "net.minecraft.client.renderer.entity.state.IllagerRenderState",
+      "entities": [
+        "minecraft:vindicator"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.vindicator.ambient",
+        "hurt": "minecraft:entity.vindicator.hurt",
+        "death": "minecraft:entity.vindicator.death"
+      },
+      "size": [
+        0.6,
+        1.95
+      ],
+      "shadow": 0.5,
+      "texture": "textures/entity/illager/vindicator.png",
+      "textureSize": [
+        64,
+        64
+      ]
+    },
+    "wandering_trader": {
+      "layer": "WANDERING_TRADER",
+      "model": "net.minecraft.client.model.npc.VillagerModel",
+      "state": "net.minecraft.client.renderer.entity.state.VillagerRenderState",
+      "entities": [
+        "minecraft:wandering_trader"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.wandering_trader.ambient",
+        "hurt": "minecraft:entity.wandering_trader.hurt",
+        "death": "minecraft:entity.wandering_trader.death"
+      },
+      "size": [
+        0.6,
+        1.95
+      ],
+      "shadow": 0.5,
+      "texture": "textures/entity/wandering_trader/wandering_trader.png",
+      "textureSize": [
+        64,
+        64
+      ]
+    },
+    "warden": {
+      "layer": "WARDEN",
+      "model": "net.minecraft.client.model.monster.warden.WardenModel",
+      "state": "net.minecraft.client.renderer.entity.state.WardenRenderState",
+      "entities": [
+        "minecraft:warden"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.warden.ambient",
+        "hurt": "minecraft:entity.warden.hurt",
+        "death": "minecraft:entity.warden.death"
+      },
+      "size": [
+        0.9,
+        2.9
+      ],
+      "shadow": 0.9,
+      "texture": "textures/entity/warden/warden.png",
+      "textureSize": [
+        128,
+        128
+      ]
+    },
+    "warm_cow": {
+      "layer": "WARM_COW",
+      "model": "net.minecraft.client.model.animal.cow.CowModel",
+      "state": "net.minecraft.client.renderer.entity.state.LivingEntityRenderState",
+      "entities": [
+        "minecraft:cow"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.cow.ambient",
+        "hurt": "minecraft:entity.cow.hurt",
+        "death": "minecraft:entity.cow.death"
+      },
+      "size": [
+        0.9,
+        1.4
+      ],
+      "shadow": 0.7,
+      "babyLayer": "WARM_COW_BABY",
+      "babyModel": "net.minecraft.client.model.animal.cow.CowModel",
+      "modelType": "net.minecraft.client.model.animal.cow.CowModel",
+      "texture": "textures/entity/cow/cow_temperate.png",
+      "textureSize": [
+        64,
+        64
+      ],
+      "babyTextureSize": [
+        64,
+        64
+      ]
+    },
+    "witch": {
+      "layer": "WITCH",
+      "model": "net.minecraft.client.model.monster.witch.WitchModel",
+      "state": "net.minecraft.client.renderer.entity.state.WitchRenderState",
+      "entities": [
+        "minecraft:witch"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.witch.ambient",
+        "hurt": "minecraft:entity.witch.hurt",
+        "death": "minecraft:entity.witch.death"
+      },
+      "size": [
+        0.6,
+        1.95
+      ],
+      "shadow": 0.5,
+      "texture": "textures/entity/witch/witch.png",
+      "textureSize": [
+        64,
+        128
+      ]
+    },
+    "wither": {
+      "layer": "WITHER",
+      "model": "net.minecraft.client.model.monster.wither.WitherBossModel",
+      "state": "net.minecraft.client.renderer.entity.state.WitherRenderState",
+      "entities": [
+        "minecraft:wither"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.wither.ambient",
+        "hurt": "minecraft:entity.wither.hurt",
+        "death": "minecraft:entity.wither.death"
+      },
+      "size": [
+        0.9,
+        3.5
+      ],
+      "shadow": 1,
+      "texture": "textures/entity/wither/wither_invulnerable.png",
+      "textureSize": [
+        64,
+        64
+      ]
+    },
+    "wither_skeleton": {
+      "layer": "WITHER_SKELETON",
+      "model": "net.minecraft.client.model.monster.skeleton.SkeletonModel",
+      "generic": true,
+      "state": "net.minecraft.client.renderer.entity.state.SkeletonRenderState",
+      "entities": [
+        "minecraft:wither_skeleton"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.wither_skeleton.ambient",
+        "hurt": "minecraft:entity.wither_skeleton.hurt",
+        "death": "minecraft:entity.wither_skeleton.death"
+      },
+      "size": [
+        0.7,
+        2.4
+      ],
+      "texture": "textures/entity/skeleton/wither_skeleton.png",
+      "textureSize": [
+        64,
+        32
+      ]
+    },
+    "wolf": {
+      "layer": "WOLF",
+      "model": "net.minecraft.client.model.animal.wolf.AdultWolfModel",
+      "state": "net.minecraft.client.renderer.entity.state.WolfRenderState",
+      "entities": [
+        "minecraft:wolf"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.wolf.ambient",
+        "hurt": "minecraft:entity.wolf.hurt",
+        "death": "minecraft:entity.wolf.death"
+      },
+      "size": [
+        0.6,
+        0.85
+      ],
+      "shadow": 0.5,
+      "babyLayer": "WOLF_BABY",
+      "babyModel": "net.minecraft.client.model.animal.wolf.BabyWolfModel",
+      "modelType": "net.minecraft.client.model.animal.wolf.WolfModel",
+      "texture": "textures/entity/wolf/wolf.png",
+      "textureSize": [
+        64,
+        32
+      ],
+      "babyTextureSize": [
+        32,
+        32
+      ]
+    },
+    "zoglin": {
+      "layer": "ZOGLIN",
+      "model": "net.minecraft.client.model.monster.hoglin.HoglinModel",
+      "state": "net.minecraft.client.renderer.entity.state.HoglinRenderState",
+      "entities": [
+        "minecraft:zoglin"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.zoglin.ambient",
+        "hurt": "minecraft:entity.zoglin.hurt",
+        "death": "minecraft:entity.zoglin.death"
+      },
+      "size": [
+        1.3965,
+        1.4
+      ],
+      "shadow": 0.7,
+      "babyLayer": "ZOGLIN_BABY",
+      "babyModel": "net.minecraft.client.model.monster.hoglin.BabyHoglinModel",
+      "modelType": "net.minecraft.client.model.monster.hoglin.HoglinModel",
+      "texture": "textures/entity/hoglin/zoglin.png",
+      "textureSize": [
+        128,
+        64
+      ],
+      "babyTextureSize": [
+        64,
+        64
+      ]
+    },
+    "zombie": {
+      "layer": "ZOMBIE",
+      "model": "net.minecraft.client.model.monster.zombie.ZombieModel",
+      "generic": true,
+      "state": "net.minecraft.client.renderer.entity.state.ZombieRenderState",
+      "entities": [
+        "minecraft:zombie"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.zombie.ambient",
+        "hurt": "minecraft:entity.zombie.hurt",
+        "death": "minecraft:entity.zombie.death"
+      },
+      "size": [
+        0.6,
+        1.95
+      ],
+      "babyLayer": "ZOMBIE_BABY",
+      "babyModel": "net.minecraft.client.model.monster.zombie.BabyZombieModel",
+      "modelType": "net.minecraft.client.model.monster.zombie.ZombieModel",
+      "babyGeneric": true,
+      "modelTypeGeneric": true,
+      "texture": "textures/entity/zombie/zombie.png",
+      "textureSize": [
+        64,
+        64
+      ],
+      "babyTextureSize": [
+        64,
+        64
+      ]
+    },
+    "zombie_horse": {
+      "layer": "ZOMBIE_HORSE",
+      "model": "net.minecraft.client.model.animal.equine.HorseModel",
+      "state": "net.minecraft.client.renderer.entity.state.EquineRenderState",
+      "entities": [
+        "minecraft:skeleton_horse",
+        "minecraft:zombie_horse"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.skeleton_horse.ambient",
+        "hurt": "minecraft:entity.skeleton_horse.hurt",
+        "death": "minecraft:entity.skeleton_horse.death"
+      },
+      "size": [
+        1.3965,
+        1.6
+      ],
+      "babyLayer": "ZOMBIE_HORSE_BABY",
+      "babyModel": "net.minecraft.client.model.animal.equine.BabyHorseModel",
+      "modelType": "net.minecraft.client.model.animal.equine.HorseModel",
+      "texture": "textures/entity/horse/horse_skeleton.png",
+      "textureSize": [
+        64,
+        64
+      ],
+      "babyTextureSize": [
+        64,
+        64
+      ]
+    },
+    "zombie_nautilus": {
+      "layer": "ZOMBIE_NAUTILUS",
+      "model": "net.minecraft.client.model.animal.nautilus.NautilusModel",
+      "state": "net.minecraft.client.renderer.entity.state.NautilusRenderState",
+      "entities": [
+        "minecraft:zombie_nautilus"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.zombie_nautilus.ambient",
+        "hurt": "minecraft:entity.zombie_nautilus.hurt",
+        "death": "minecraft:entity.zombie_nautilus.death"
+      },
+      "size": [
+        0.875,
+        0.95
+      ],
+      "shadow": 0.7,
+      "textureSize": [
+        128,
+        128
+      ]
+    },
+    "zombie_nautilus_coral": {
+      "layer": "ZOMBIE_NAUTILUS_CORAL",
+      "model": "net.minecraft.client.model.monster.nautilus.ZombieNautilusCoralModel",
+      "state": "net.minecraft.client.renderer.entity.state.NautilusRenderState",
+      "entities": [
+        "minecraft:zombie_nautilus"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.zombie_nautilus.ambient",
+        "hurt": "minecraft:entity.zombie_nautilus.hurt",
+        "death": "minecraft:entity.zombie_nautilus.death"
+      },
+      "size": [
+        0.875,
+        0.95
+      ],
+      "shadow": 0.7,
+      "textureSize": [
+        128,
+        128
+      ]
+    },
+    "zombie_villager": {
+      "layer": "ZOMBIE_VILLAGER",
+      "model": "net.minecraft.client.model.monster.zombie.ZombieVillagerModel",
+      "generic": true,
+      "state": "net.minecraft.client.renderer.entity.state.ZombieVillagerRenderState",
+      "entities": [
+        "minecraft:zombie_villager"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.zombie_villager.ambient",
+        "hurt": "minecraft:entity.zombie_villager.hurt",
+        "death": "minecraft:entity.zombie_villager.death"
+      },
+      "size": [
+        0.6,
+        1.95
+      ],
+      "shadow": 0.5,
+      "babyLayer": "ZOMBIE_VILLAGER_BABY",
+      "babyModel": "net.minecraft.client.model.monster.zombie.BabyZombieVillagerModel",
+      "modelType": "net.minecraft.client.model.monster.zombie.ZombieVillagerModel",
+      "babyGeneric": true,
+      "modelTypeGeneric": true,
+      "texture": "textures/entity/zombie_villager/zombie_villager.png",
+      "textureSize": [
+        64,
+        64
+      ],
+      "babyTextureSize": [
+        64,
+        64
+      ]
+    },
+    "zombified_piglin": {
+      "layer": "ZOMBIFIED_PIGLIN",
+      "model": "net.minecraft.client.model.monster.piglin.AdultZombifiedPiglinModel",
+      "state": "net.minecraft.client.renderer.entity.state.ZombifiedPiglinRenderState",
+      "entities": [
+        "minecraft:zombified_piglin"
+      ],
+      "sounds": {
+        "ambient": "minecraft:entity.zombified_piglin.ambient",
+        "hurt": "minecraft:entity.zombified_piglin.hurt",
+        "death": "minecraft:entity.zombified_piglin.death"
+      },
+      "size": [
+        0.6,
+        1.95
+      ],
+      "shadow": 0.5,
+      "babyLayer": "ZOMBIFIED_PIGLIN_BABY",
+      "babyModel": "net.minecraft.client.model.monster.piglin.BabyZombifiedPiglinModel",
+      "modelType": "net.minecraft.client.model.monster.piglin.ZombifiedPiglinModel",
+      "texture": "textures/entity/piglin/zombified_piglin.png",
+      "textureSize": [
+        64,
+        64
+      ],
+      "babyTextureSize": [
+        64,
+        64
+      ]
+    }
+  },
+  "goals": {
+    "AvoidEntityGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.AvoidEntityGoal",
+      "generic": true,
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.PathfinderMob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "avoidClass",
+              "type": "entityClass",
+              "bound": "net.minecraft.world.entity.LivingEntity"
+            },
+            {
+              "name": "maxDist",
+              "type": "float"
+            },
+            {
+              "name": "walkSpeedModifier",
+              "type": "double"
+            },
+            {
+              "name": "sprintSpeedModifier",
+              "type": "double"
+            }
+          ]
+        },
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.PathfinderMob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "avoidClass",
+              "type": "entityClass",
+              "bound": "net.minecraft.world.entity.LivingEntity"
+            },
+            {
+              "name": "maxDist",
+              "type": "float"
+            },
+            {
+              "name": "walkSpeedModifier",
+              "type": "double"
+            },
+            {
+              "name": "sprintSpeedModifier",
+              "type": "double"
+            },
+            {
+              "name": "predicateOnAvoidEntity",
+              "type": "other:java.util.function.Predicate<? super net.minecraft.world.entity.LivingEntity>"
+            }
+          ]
+        },
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.PathfinderMob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "avoidClass",
+              "type": "entityClass",
+              "bound": "net.minecraft.world.entity.LivingEntity"
+            },
+            {
+              "name": "avoidPredicate",
+              "type": "other:java.util.function.Predicate<net.minecraft.world.entity.LivingEntity>"
+            },
+            {
+              "name": "maxDist",
+              "type": "float"
+            },
+            {
+              "name": "walkSpeedModifier",
+              "type": "double"
+            },
+            {
+              "name": "sprintSpeedModifier",
+              "type": "double"
+            },
+            {
+              "name": "predicateOnAvoidEntity",
+              "type": "other:java.util.function.Predicate<? super net.minecraft.world.entity.LivingEntity>"
+            }
+          ]
+        }
+      ]
+    },
+    "BegGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.BegGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.animal.wolf.Wolf"
+          ],
+          "params": [
+            {
+              "name": "wolf",
+              "type": "mob"
+            },
+            {
+              "name": "lookDistance",
+              "type": "float"
+            }
+          ]
+        }
+      ]
+    },
+    "BreakDoorGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.BreakDoorGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.Mob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "doorBreakTime",
+              "type": "int"
+            },
+            {
+              "name": "validDifficulties",
+              "type": "other:java.util.function.Predicate<net.minecraft.world.Difficulty>"
+            }
+          ]
+        },
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.Mob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "validDifficulties",
+              "type": "other:java.util.function.Predicate<net.minecraft.world.Difficulty>"
+            }
+          ]
+        }
+      ]
+    },
+    "BreathAirGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.BreathAirGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.PathfinderMob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            }
+          ]
+        }
+      ]
+    },
+    "BreedGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.BreedGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.animal.Animal"
+          ],
+          "params": [
+            {
+              "name": "animal",
+              "type": "mob"
+            },
+            {
+              "name": "speedModifier",
+              "type": "double"
+            }
+          ]
+        },
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.animal.Animal"
+          ],
+          "params": [
+            {
+              "name": "animal",
+              "type": "mob"
+            },
+            {
+              "name": "speedModifier",
+              "type": "double"
+            },
+            {
+              "name": "partnerClass",
+              "type": "entityClass",
+              "bound": "net.minecraft.world.entity.animal.Animal"
+            }
+          ]
+        }
+      ]
+    },
+    "CatLieOnBlockGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.CatLieOnBlockGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.animal.feline.Cat"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "speedModifier",
+              "type": "double"
+            },
+            {
+              "name": "searchRange",
+              "type": "int"
+            }
+          ]
+        }
+      ]
+    },
+    "CatSitOnBlockGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.CatSitOnBlockGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.animal.feline.Cat"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "speedModifier",
+              "type": "double"
+            }
+          ]
+        }
+      ]
+    },
+    "ClimbOnTopOfPowderSnowGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.ClimbOnTopOfPowderSnowGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.Mob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "level",
+              "type": "level"
+            }
+          ]
+        }
+      ]
+    },
+    "DolphinJumpGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.DolphinJumpGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.animal.dolphin.Dolphin"
+          ],
+          "params": [
+            {
+              "name": "dolphin",
+              "type": "mob"
+            },
+            {
+              "name": "arg1",
+              "type": "int"
+            }
+          ]
+        }
+      ]
+    },
+    "EatBlockGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.EatBlockGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.Mob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            }
+          ]
+        }
+      ]
+    },
+    "FleeSunGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.FleeSunGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.PathfinderMob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "speedModifier",
+              "type": "double"
+            }
+          ]
+        }
+      ]
+    },
+    "FloatGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.FloatGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.Mob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            }
+          ]
+        },
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.Mob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "fluid",
+              "type": "fluidTag"
+            }
+          ]
+        }
+      ]
+    },
+    "FollowFlockLeaderGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.FollowFlockLeaderGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.animal.fish.AbstractSchoolingFish"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            }
+          ]
+        }
+      ]
+    },
+    "FollowMobGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.FollowMobGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.Mob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "speedModifier",
+              "type": "double"
+            },
+            {
+              "name": "stopDistance",
+              "type": "float"
+            },
+            {
+              "name": "areaSize",
+              "type": "float"
+            }
+          ]
+        }
+      ]
+    },
+    "FollowOwnerGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.FollowOwnerGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.TamableAnimal"
+          ],
+          "params": [
+            {
+              "name": "tamable",
+              "type": "mob"
+            },
+            {
+              "name": "speedModifier",
+              "type": "double"
+            },
+            {
+              "name": "startDistance",
+              "type": "float"
+            },
+            {
+              "name": "stopDistance",
+              "type": "float"
+            }
+          ]
+        }
+      ]
+    },
+    "FollowParentGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.FollowParentGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.animal.Animal"
+          ],
+          "params": [
+            {
+              "name": "animal",
+              "type": "mob"
+            },
+            {
+              "name": "speedModifier",
+              "type": "double"
+            }
+          ]
+        }
+      ]
+    },
+    "FollowPlayerRiddenEntityGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.FollowPlayerRiddenEntityGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.PathfinderMob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "entityTypeToFollow",
+              "type": "entityClass",
+              "bound": "net.minecraft.world.entity.Entity"
+            }
+          ]
+        }
+      ]
+    },
+    "GolemRandomStrollInVillageGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.GolemRandomStrollInVillageGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.PathfinderMob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "speedModifier",
+              "type": "double"
+            }
+          ]
+        }
+      ]
+    },
+    "InteractGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.InteractGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.Mob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "lookAtType",
+              "type": "entityClass",
+              "bound": "net.minecraft.world.entity.LivingEntity"
+            },
+            {
+              "name": "lookDistance",
+              "type": "float"
+            }
+          ]
+        },
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.Mob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "lookAtType",
+              "type": "entityClass",
+              "bound": "net.minecraft.world.entity.LivingEntity"
+            },
+            {
+              "name": "lookDistance",
+              "type": "float"
+            },
+            {
+              "name": "probability",
+              "type": "float"
+            }
+          ]
+        }
+      ]
+    },
+    "LandOnOwnersShoulderGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.LandOnOwnersShoulderGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.animal.parrot.ShoulderRidingEntity"
+          ],
+          "params": [
+            {
+              "name": "entity",
+              "type": "mob"
+            }
+          ]
+        }
+      ]
+    },
+    "LeapAtTargetGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.LeapAtTargetGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.Mob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "yd",
+              "type": "float"
+            }
+          ]
+        }
+      ]
+    },
+    "LlamaFollowCaravanGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.LlamaFollowCaravanGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.animal.equine.Llama"
+          ],
+          "params": [
+            {
+              "name": "llama",
+              "type": "mob"
+            },
+            {
+              "name": "speedModifier",
+              "type": "double"
+            }
+          ]
+        }
+      ]
+    },
+    "LookAtPlayerGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.LookAtPlayerGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.Mob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "lookAtType",
+              "type": "entityClass",
+              "bound": "net.minecraft.world.entity.LivingEntity"
+            },
+            {
+              "name": "lookDistance",
+              "type": "float"
+            }
+          ]
+        },
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.Mob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "lookAtType",
+              "type": "entityClass",
+              "bound": "net.minecraft.world.entity.LivingEntity"
+            },
+            {
+              "name": "lookDistance",
+              "type": "float"
+            },
+            {
+              "name": "probability",
+              "type": "float"
+            }
+          ]
+        },
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.Mob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "lookAtType",
+              "type": "entityClass",
+              "bound": "net.minecraft.world.entity.LivingEntity"
+            },
+            {
+              "name": "lookDistance",
+              "type": "float"
+            },
+            {
+              "name": "probability",
+              "type": "float"
+            },
+            {
+              "name": "onlyHorizontal",
+              "type": "boolean"
+            }
+          ]
+        }
+      ]
+    },
+    "LookAtTradingPlayerGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.LookAtTradingPlayerGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.npc.villager.AbstractVillager"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            }
+          ]
+        }
+      ]
+    },
+    "MeleeAttackGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.MeleeAttackGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.PathfinderMob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "speedModifier",
+              "type": "double"
+            },
+            {
+              "name": "followingTargetEvenIfNotSeen",
+              "type": "boolean"
+            }
+          ]
+        }
+      ]
+    },
+    "MoveBackToVillageGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.MoveBackToVillageGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.PathfinderMob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "speedModifier",
+              "type": "double"
+            },
+            {
+              "name": "checkNoActionTime",
+              "type": "boolean"
+            }
+          ]
+        }
+      ]
+    },
+    "MoveThroughVillageGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.MoveThroughVillageGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.PathfinderMob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "speedModifier",
+              "type": "double"
+            },
+            {
+              "name": "onlyAtNight",
+              "type": "boolean"
+            },
+            {
+              "name": "distanceToPoi",
+              "type": "int"
+            },
+            {
+              "name": "canDealWithDoors",
+              "type": "other:java.util.function.BooleanSupplier"
+            }
+          ]
+        }
+      ]
+    },
+    "MoveTowardsRestrictionGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.MoveTowardsRestrictionGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.PathfinderMob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "speedModifier",
+              "type": "double"
+            }
+          ]
+        }
+      ]
+    },
+    "MoveTowardsTargetGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.MoveTowardsTargetGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.PathfinderMob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "speedModifier",
+              "type": "double"
+            },
+            {
+              "name": "within",
+              "type": "float"
+            }
+          ]
+        }
+      ]
+    },
+    "OcelotAttackGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.OcelotAttackGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.Mob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            }
+          ]
+        }
+      ]
+    },
+    "OfferFlowerGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.OfferFlowerGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.animal.golem.IronGolem"
+          ],
+          "params": [
+            {
+              "name": "golem",
+              "type": "mob"
+            }
+          ]
+        }
+      ]
+    },
+    "OpenDoorGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.OpenDoorGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.Mob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "closeDoor",
+              "type": "boolean"
+            }
+          ]
+        }
+      ]
+    },
+    "PanicGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.PanicGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.PathfinderMob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "speedModifier",
+              "type": "double"
+            }
+          ]
+        },
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.PathfinderMob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "speedModifier",
+              "type": "double"
+            },
+            {
+              "name": "panicCausingDamageTypes",
+              "type": "other:java.util.function.Function<net.minecraft.world.entity.PathfinderMob, net.minecraft.tags.TagKey<net.minecraft.world.damagesource.DamageType>>"
+            }
+          ]
+        },
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.PathfinderMob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "speedModifier",
+              "type": "double"
+            },
+            {
+              "name": "arg2",
+              "type": "damageTag"
+            }
+          ]
+        }
+      ]
+    },
+    "PathfindToRaidGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.PathfindToRaidGoal",
+      "generic": true,
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.raid.Raider"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            }
+          ]
+        }
+      ]
+    },
+    "RandomLookAroundGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.RandomLookAroundGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.Mob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            }
+          ]
+        }
+      ]
+    },
+    "RandomStandGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.RandomStandGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.animal.equine.AbstractHorse"
+          ],
+          "params": [
+            {
+              "name": "horse",
+              "type": "mob"
+            }
+          ]
+        }
+      ]
+    },
+    "RandomStrollGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.RandomStrollGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.PathfinderMob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "speedModifier",
+              "type": "double"
+            }
+          ]
+        },
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.PathfinderMob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "speedModifier",
+              "type": "double"
+            },
+            {
+              "name": "interval",
+              "type": "int"
+            }
+          ]
+        },
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.PathfinderMob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "speedModifier",
+              "type": "double"
+            },
+            {
+              "name": "interval",
+              "type": "int"
+            },
+            {
+              "name": "checkNoActionTime",
+              "type": "boolean"
+            }
+          ]
+        }
+      ]
+    },
+    "RandomSwimmingGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.RandomSwimmingGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.PathfinderMob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "speedModifier",
+              "type": "double"
+            },
+            {
+              "name": "interval",
+              "type": "int"
+            }
+          ]
+        }
+      ]
+    },
+    "RangedAttackGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.RangedAttackGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.monster.RangedAttackMob"
+          ],
+          "params": [
+            {
+              "name": "rangedAttackMob",
+              "type": "mob"
+            },
+            {
+              "name": "speedModifier",
+              "type": "double"
+            },
+            {
+              "name": "attackIntervalMin",
+              "type": "int"
+            },
+            {
+              "name": "attackRadius",
+              "type": "float"
+            }
+          ]
+        },
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.monster.RangedAttackMob"
+          ],
+          "params": [
+            {
+              "name": "rangedAttackMob",
+              "type": "mob"
+            },
+            {
+              "name": "speedModifier",
+              "type": "double"
+            },
+            {
+              "name": "attackIntervalMin",
+              "type": "int"
+            },
+            {
+              "name": "attackIntervalMax",
+              "type": "int"
+            },
+            {
+              "name": "attackRadius",
+              "type": "float"
+            }
+          ]
+        }
+      ]
+    },
+    "RangedBowAttackGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.RangedBowAttackGoal",
+      "generic": true,
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.monster.Monster",
+            "net.minecraft.world.entity.monster.RangedAttackMob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "speedModifier",
+              "type": "double"
+            },
+            {
+              "name": "attackIntervalMin",
+              "type": "int"
+            },
+            {
+              "name": "arg3",
+              "type": "float"
+            }
+          ]
+        }
+      ]
+    },
+    "RangedCrossbowAttackGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.RangedCrossbowAttackGoal",
+      "generic": true,
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.monster.Monster",
+            "net.minecraft.world.entity.monster.RangedAttackMob",
+            "net.minecraft.world.entity.monster.CrossbowAttackMob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "speedModifier",
+              "type": "double"
+            },
+            {
+              "name": "arg2",
+              "type": "float"
+            }
+          ]
+        }
+      ]
+    },
+    "RemoveBlockGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.RemoveBlockGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.PathfinderMob"
+          ],
+          "params": [
+            {
+              "name": "blockToRemove",
+              "type": "block"
+            },
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "speedModifier",
+              "type": "double"
+            },
+            {
+              "name": "verticalSearchRange",
+              "type": "int"
+            }
+          ]
+        }
+      ]
+    },
+    "RestrictSunGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.RestrictSunGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.PathfinderMob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            }
+          ]
+        }
+      ]
+    },
+    "RunAroundLikeCrazyGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.RunAroundLikeCrazyGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.animal.equine.AbstractHorse"
+          ],
+          "params": [
+            {
+              "name": "horse",
+              "type": "mob"
+            },
+            {
+              "name": "speedModifier",
+              "type": "double"
+            }
+          ]
+        }
+      ]
+    },
+    "SitWhenOrderedToGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.SitWhenOrderedToGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.TamableAnimal"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            }
+          ]
+        }
+      ]
+    },
+    "SpearUseGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.SpearUseGoal",
+      "generic": true,
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.monster.Monster"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "speedModifierWhenCharging",
+              "type": "double"
+            },
+            {
+              "name": "speedModifierWhenRepositioning",
+              "type": "double"
+            },
+            {
+              "name": "arg3",
+              "type": "float"
+            },
+            {
+              "name": "arg4",
+              "type": "float"
+            }
+          ]
+        }
+      ]
+    },
+    "StrollThroughVillageGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.StrollThroughVillageGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.PathfinderMob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "arg1",
+              "type": "int"
+            }
+          ]
+        }
+      ]
+    },
+    "SwellGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.SwellGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.monster.Creeper"
+          ],
+          "params": [
+            {
+              "name": "creeper",
+              "type": "mob"
+            }
+          ]
+        }
+      ]
+    },
+    "TemptGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.TemptGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.PathfinderMob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "speedModifier",
+              "type": "double"
+            },
+            {
+              "name": "items",
+              "type": "itemTest"
+            },
+            {
+              "name": "canScare",
+              "type": "boolean"
+            }
+          ]
+        },
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.PathfinderMob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "speedModifier",
+              "type": "double"
+            },
+            {
+              "name": "items",
+              "type": "itemTest"
+            },
+            {
+              "name": "canScare",
+              "type": "boolean"
+            },
+            {
+              "name": "stopDistance",
+              "type": "double"
+            }
+          ]
+        }
+      ]
+    },
+    "TradeWithPlayerGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.TradeWithPlayerGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.npc.villager.AbstractVillager"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            }
+          ]
+        }
+      ]
+    },
+    "TryFindLiquidGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.TryFindLiquidGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.PathfinderMob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "fluidTag",
+              "type": "fluidTag"
+            }
+          ]
+        }
+      ]
+    },
+    "UseItemGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.UseItemGoal",
+      "generic": true,
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.Mob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "item",
+              "type": "itemStack"
+            },
+            {
+              "name": "finishUsingSound",
+              "type": "sound"
+            },
+            {
+              "name": "canUseSelector",
+              "type": "other:java.util.function.Predicate<? super T>"
+            }
+          ]
+        }
+      ]
+    },
+    "WaterAvoidingRandomFlyingGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.WaterAvoidingRandomFlyingGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.PathfinderMob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "speedModifier",
+              "type": "double"
+            }
+          ]
+        }
+      ]
+    },
+    "WaterAvoidingRandomStrollGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.PathfinderMob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "speedModifier",
+              "type": "double"
+            }
+          ]
+        },
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.PathfinderMob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "speedModifier",
+              "type": "double"
+            },
+            {
+              "name": "probability",
+              "type": "float"
+            }
+          ]
+        }
+      ]
+    },
+    "ZombieAttackGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.ZombieAttackGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.monster.zombie.Zombie"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "speedModifier",
+              "type": "double"
+            },
+            {
+              "name": "followingTargetEvenIfNotSeen",
+              "type": "boolean"
+            }
+          ]
+        }
+      ]
+    },
+    "DefendVillageTargetGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.target.DefendVillageTargetGoal",
+      "target": true,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.animal.golem.IronGolem"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            }
+          ]
+        }
+      ],
+      "setters": [
+        {
+          "name": "setUnseenMemoryTicks",
+          "params": [
+            {
+              "name": "unseenMemoryTicks",
+              "type": "int"
+            }
+          ]
+        }
+      ]
+    },
+    "HurtByTargetGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal",
+      "target": true,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.PathfinderMob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "toIgnoreDamage",
+              "type": "entityClasses"
+            }
+          ]
+        }
+      ],
+      "setters": [
+        {
+          "name": "setAlertOthers",
+          "params": [
+            {
+              "name": "toIgnoreAlert",
+              "type": "entityClasses"
+            }
+          ]
+        },
+        {
+          "name": "setUnseenMemoryTicks",
+          "params": [
+            {
+              "name": "unseenMemoryTicks",
+              "type": "int"
+            }
+          ]
+        }
+      ]
+    },
+    "NearestAttackableTargetGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal",
+      "generic": true,
+      "target": true,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.Mob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "targetType",
+              "type": "entityClass",
+              "bound": "net.minecraft.world.entity.LivingEntity"
+            },
+            {
+              "name": "mustSee",
+              "type": "boolean"
+            }
+          ]
+        },
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.Mob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "targetType",
+              "type": "entityClass",
+              "bound": "net.minecraft.world.entity.LivingEntity"
+            },
+            {
+              "name": "mustSee",
+              "type": "boolean"
+            },
+            {
+              "name": "mustReach",
+              "type": "boolean"
+            }
+          ]
+        },
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.Mob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "targetType",
+              "type": "entityClass",
+              "bound": "net.minecraft.world.entity.LivingEntity"
+            },
+            {
+              "name": "mustSee",
+              "type": "boolean"
+            },
+            {
+              "name": "arg3",
+              "type": "selector"
+            }
+          ]
+        },
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.Mob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "targetType",
+              "type": "entityClass",
+              "bound": "net.minecraft.world.entity.LivingEntity"
+            },
+            {
+              "name": "arg2",
+              "type": "int"
+            },
+            {
+              "name": "mustSee",
+              "type": "boolean"
+            },
+            {
+              "name": "mustReach",
+              "type": "boolean"
+            },
+            {
+              "name": "arg5",
+              "type": "selector"
+            }
+          ]
+        }
+      ],
+      "setters": [
+        {
+          "name": "setUnseenMemoryTicks",
+          "params": [
+            {
+              "name": "unseenMemoryTicks",
+              "type": "int"
+            }
+          ]
+        }
+      ]
+    },
+    "NearestAttackableWitchTargetGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.target.NearestAttackableWitchTargetGoal",
+      "generic": true,
+      "target": true,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.raid.Raider"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "targetType",
+              "type": "entityClass",
+              "bound": "net.minecraft.world.entity.LivingEntity"
+            },
+            {
+              "name": "arg2",
+              "type": "int"
+            },
+            {
+              "name": "mustSee",
+              "type": "boolean"
+            },
+            {
+              "name": "mustReach",
+              "type": "boolean"
+            },
+            {
+              "name": "arg5",
+              "type": "selector"
+            }
+          ]
+        }
+      ],
+      "setters": [
+        {
+          "name": "setUnseenMemoryTicks",
+          "params": [
+            {
+              "name": "unseenMemoryTicks",
+              "type": "int"
+            }
+          ]
+        }
+      ]
+    },
+    "NearestHealableRaiderTargetGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.target.NearestHealableRaiderTargetGoal",
+      "generic": true,
+      "target": true,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.raid.Raider"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "targetType",
+              "type": "entityClass",
+              "bound": "net.minecraft.world.entity.LivingEntity"
+            },
+            {
+              "name": "mustSee",
+              "type": "boolean"
+            },
+            {
+              "name": "arg3",
+              "type": "selector"
+            }
+          ]
+        }
+      ],
+      "setters": [
+        {
+          "name": "setUnseenMemoryTicks",
+          "params": [
+            {
+              "name": "unseenMemoryTicks",
+              "type": "int"
+            }
+          ]
+        }
+      ]
+    },
+    "NonTameRandomTargetGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.target.NonTameRandomTargetGoal",
+      "generic": true,
+      "target": true,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.TamableAnimal"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "targetType",
+              "type": "entityClass",
+              "bound": "net.minecraft.world.entity.LivingEntity"
+            },
+            {
+              "name": "mustSee",
+              "type": "boolean"
+            },
+            {
+              "name": "arg3",
+              "type": "selector"
+            }
+          ]
+        }
+      ],
+      "setters": [
+        {
+          "name": "setUnseenMemoryTicks",
+          "params": [
+            {
+              "name": "unseenMemoryTicks",
+              "type": "int"
+            }
+          ]
+        }
+      ]
+    },
+    "OwnerHurtByTargetGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.target.OwnerHurtByTargetGoal",
+      "target": true,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.TamableAnimal"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            }
+          ]
+        }
+      ],
+      "setters": [
+        {
+          "name": "setUnseenMemoryTicks",
+          "params": [
+            {
+              "name": "unseenMemoryTicks",
+              "type": "int"
+            }
+          ]
+        }
+      ]
+    },
+    "OwnerHurtTargetGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.target.OwnerHurtTargetGoal",
+      "target": true,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.TamableAnimal"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            }
+          ]
+        }
+      ],
+      "setters": [
+        {
+          "name": "setUnseenMemoryTicks",
+          "params": [
+            {
+              "name": "unseenMemoryTicks",
+              "type": "int"
+            }
+          ]
+        }
+      ]
+    },
+    "ResetUniversalAngerTargetGoal": {
+      "class": "net.minecraft.world.entity.ai.goal.target.ResetUniversalAngerTargetGoal",
+      "generic": true,
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.Mob",
+            "net.minecraft.world.entity.NeutralMob"
+          ],
+          "params": [
+            {
+              "name": "mob",
+              "type": "mob"
+            },
+            {
+              "name": "alertOthersOfSameType",
+              "type": "boolean"
+            }
+          ]
+        }
+      ]
+    },
+    "SkeletonTrapGoal": {
+      "class": "net.minecraft.world.entity.animal.equine.SkeletonTrapGoal",
+      "target": false,
+      "constructors": [
+        {
+          "mobBounds": [
+            "net.minecraft.world.entity.animal.equine.SkeletonHorse"
+          ],
+          "params": [
+            {
+              "name": "horse",
+              "type": "mob"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "entities": {
+    "minecraft:allay": [
+      "net.minecraft.world.entity.animal.allay.Allay",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:armadillo": [
+      "net.minecraft.world.entity.animal.armadillo.Armadillo",
+      "net.minecraft.world.entity.animal.Animal",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:armor_stand": [
+      "net.minecraft.world.entity.decoration.ArmorStand",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:axolotl": [
+      "net.minecraft.world.entity.animal.axolotl.Axolotl",
+      "net.minecraft.world.entity.animal.Animal",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:bat": [
+      "net.minecraft.world.entity.ambient.Bat",
+      "net.minecraft.world.entity.ambient.AmbientCreature",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:bee": [
+      "net.minecraft.world.entity.animal.bee.Bee",
+      "net.minecraft.world.entity.animal.Animal",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:blaze": [
+      "net.minecraft.world.entity.monster.Blaze",
+      "net.minecraft.world.entity.monster.Monster",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:bogged": [
+      "net.minecraft.world.entity.monster.skeleton.Bogged",
+      "net.minecraft.world.entity.monster.skeleton.AbstractSkeleton",
+      "net.minecraft.world.entity.monster.Monster",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:breeze": [
+      "net.minecraft.world.entity.monster.breeze.Breeze",
+      "net.minecraft.world.entity.monster.Monster",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:camel": [
+      "net.minecraft.world.entity.animal.camel.Camel",
+      "net.minecraft.world.entity.animal.equine.AbstractHorse",
+      "net.minecraft.world.entity.animal.Animal",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:camel_husk": [
+      "net.minecraft.world.entity.animal.camel.CamelHusk",
+      "net.minecraft.world.entity.animal.camel.Camel",
+      "net.minecraft.world.entity.animal.equine.AbstractHorse",
+      "net.minecraft.world.entity.animal.Animal",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:cat": [
+      "net.minecraft.world.entity.animal.feline.Cat",
+      "net.minecraft.world.entity.TamableAnimal",
+      "net.minecraft.world.entity.animal.Animal",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:cave_spider": [
+      "net.minecraft.world.entity.monster.spider.CaveSpider",
+      "net.minecraft.world.entity.monster.spider.Spider",
+      "net.minecraft.world.entity.monster.Monster",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:chicken": [
+      "net.minecraft.world.entity.animal.chicken.Chicken",
+      "net.minecraft.world.entity.animal.Animal",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:cod": [
+      "net.minecraft.world.entity.animal.fish.Cod",
+      "net.minecraft.world.entity.animal.fish.AbstractSchoolingFish",
+      "net.minecraft.world.entity.animal.fish.AbstractFish",
+      "net.minecraft.world.entity.animal.fish.WaterAnimal",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:copper_golem": [
+      "net.minecraft.world.entity.animal.golem.CopperGolem",
+      "net.minecraft.world.entity.animal.golem.AbstractGolem",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:cow": [
+      "net.minecraft.world.entity.animal.cow.Cow",
+      "net.minecraft.world.entity.animal.cow.AbstractCow",
+      "net.minecraft.world.entity.animal.Animal",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:creaking": [
+      "net.minecraft.world.entity.monster.creaking.Creaking",
+      "net.minecraft.world.entity.monster.Monster",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:creeper": [
+      "net.minecraft.world.entity.monster.Creeper",
+      "net.minecraft.world.entity.monster.Monster",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:dolphin": [
+      "net.minecraft.world.entity.animal.dolphin.Dolphin",
+      "net.minecraft.world.entity.animal.AgeableWaterCreature",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:donkey": [
+      "net.minecraft.world.entity.animal.equine.Donkey",
+      "net.minecraft.world.entity.animal.equine.AbstractChestedHorse",
+      "net.minecraft.world.entity.animal.equine.AbstractHorse",
+      "net.minecraft.world.entity.animal.Animal",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:drowned": [
+      "net.minecraft.world.entity.monster.zombie.Drowned",
+      "net.minecraft.world.entity.monster.zombie.Zombie",
+      "net.minecraft.world.entity.monster.Monster",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:elder_guardian": [
+      "net.minecraft.world.entity.monster.ElderGuardian",
+      "net.minecraft.world.entity.monster.Guardian",
+      "net.minecraft.world.entity.monster.Monster",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:ender_dragon": [
+      "net.minecraft.world.entity.boss.enderdragon.EnderDragon",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:enderman": [
+      "net.minecraft.world.entity.monster.Enderman",
+      "net.minecraft.world.entity.monster.Monster",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:endermite": [
+      "net.minecraft.world.entity.monster.Endermite",
+      "net.minecraft.world.entity.monster.Monster",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:evoker": [
+      "net.minecraft.world.entity.monster.illager.Evoker",
+      "net.minecraft.world.entity.monster.illager.SpellcasterIllager",
+      "net.minecraft.world.entity.monster.illager.AbstractIllager",
+      "net.minecraft.world.entity.raid.Raider",
+      "net.minecraft.world.entity.monster.PatrollingMonster",
+      "net.minecraft.world.entity.monster.Monster",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:fox": [
+      "net.minecraft.world.entity.animal.fox.Fox",
+      "net.minecraft.world.entity.animal.Animal",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:frog": [
+      "net.minecraft.world.entity.animal.frog.Frog",
+      "net.minecraft.world.entity.animal.Animal",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:ghast": [
+      "net.minecraft.world.entity.monster.Ghast",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:giant": [
+      "net.minecraft.world.entity.monster.Giant",
+      "net.minecraft.world.entity.monster.Monster",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:glow_squid": [
+      "net.minecraft.world.entity.animal.squid.GlowSquid",
+      "net.minecraft.world.entity.animal.squid.Squid",
+      "net.minecraft.world.entity.animal.AgeableWaterCreature",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:goat": [
+      "net.minecraft.world.entity.animal.goat.Goat",
+      "net.minecraft.world.entity.animal.Animal",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:guardian": [
+      "net.minecraft.world.entity.monster.Guardian",
+      "net.minecraft.world.entity.monster.Monster",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:happy_ghast": [
+      "net.minecraft.world.entity.animal.happyghast.HappyGhast",
+      "net.minecraft.world.entity.animal.Animal",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:hoglin": [
+      "net.minecraft.world.entity.monster.hoglin.Hoglin",
+      "net.minecraft.world.entity.animal.Animal",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:horse": [
+      "net.minecraft.world.entity.animal.equine.Horse",
+      "net.minecraft.world.entity.animal.equine.AbstractHorse",
+      "net.minecraft.world.entity.animal.Animal",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:husk": [
+      "net.minecraft.world.entity.monster.zombie.Husk",
+      "net.minecraft.world.entity.monster.zombie.Zombie",
+      "net.minecraft.world.entity.monster.Monster",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:illusioner": [
+      "net.minecraft.world.entity.monster.illager.Illusioner",
+      "net.minecraft.world.entity.monster.illager.SpellcasterIllager",
+      "net.minecraft.world.entity.monster.illager.AbstractIllager",
+      "net.minecraft.world.entity.raid.Raider",
+      "net.minecraft.world.entity.monster.PatrollingMonster",
+      "net.minecraft.world.entity.monster.Monster",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:iron_golem": [
+      "net.minecraft.world.entity.animal.golem.IronGolem",
+      "net.minecraft.world.entity.animal.golem.AbstractGolem",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:llama": [
+      "net.minecraft.world.entity.animal.equine.Llama",
+      "net.minecraft.world.entity.animal.equine.AbstractChestedHorse",
+      "net.minecraft.world.entity.animal.equine.AbstractHorse",
+      "net.minecraft.world.entity.animal.Animal",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:magma_cube": [
+      "net.minecraft.world.entity.monster.cubemob.MagmaCube",
+      "net.minecraft.world.entity.monster.cubemob.AbstractCubeMob",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:mannequin": [
+      "net.minecraft.world.entity.decoration.Mannequin",
+      "net.minecraft.world.entity.Avatar",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:mooshroom": [
+      "net.minecraft.world.entity.animal.cow.MushroomCow",
+      "net.minecraft.world.entity.animal.cow.AbstractCow",
+      "net.minecraft.world.entity.animal.Animal",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:mule": [
+      "net.minecraft.world.entity.animal.equine.Mule",
+      "net.minecraft.world.entity.animal.equine.AbstractChestedHorse",
+      "net.minecraft.world.entity.animal.equine.AbstractHorse",
+      "net.minecraft.world.entity.animal.Animal",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:nautilus": [
+      "net.minecraft.world.entity.animal.nautilus.Nautilus",
+      "net.minecraft.world.entity.animal.nautilus.AbstractNautilus",
+      "net.minecraft.world.entity.TamableAnimal",
+      "net.minecraft.world.entity.animal.Animal",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:ocelot": [
+      "net.minecraft.world.entity.animal.feline.Ocelot",
+      "net.minecraft.world.entity.animal.Animal",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:panda": [
+      "net.minecraft.world.entity.animal.panda.Panda",
+      "net.minecraft.world.entity.animal.Animal",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:parched": [
+      "net.minecraft.world.entity.monster.skeleton.Parched",
+      "net.minecraft.world.entity.monster.skeleton.AbstractSkeleton",
+      "net.minecraft.world.entity.monster.Monster",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:parrot": [
+      "net.minecraft.world.entity.animal.parrot.Parrot",
+      "net.minecraft.world.entity.animal.parrot.ShoulderRidingEntity",
+      "net.minecraft.world.entity.TamableAnimal",
+      "net.minecraft.world.entity.animal.Animal",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:phantom": [
+      "net.minecraft.world.entity.monster.Phantom",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:pig": [
+      "net.minecraft.world.entity.animal.pig.Pig",
+      "net.minecraft.world.entity.animal.Animal",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:piglin": [
+      "net.minecraft.world.entity.monster.piglin.Piglin",
+      "net.minecraft.world.entity.monster.piglin.AbstractPiglin",
+      "net.minecraft.world.entity.monster.Monster",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:piglin_brute": [
+      "net.minecraft.world.entity.monster.piglin.PiglinBrute",
+      "net.minecraft.world.entity.monster.piglin.AbstractPiglin",
+      "net.minecraft.world.entity.monster.Monster",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:pillager": [
+      "net.minecraft.world.entity.monster.illager.Pillager",
+      "net.minecraft.world.entity.monster.illager.AbstractIllager",
+      "net.minecraft.world.entity.raid.Raider",
+      "net.minecraft.world.entity.monster.PatrollingMonster",
+      "net.minecraft.world.entity.monster.Monster",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:player": [
+      "net.minecraft.world.entity.player.Player",
+      "net.minecraft.world.entity.Avatar",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:polar_bear": [
+      "net.minecraft.world.entity.animal.polarbear.PolarBear",
+      "net.minecraft.world.entity.animal.Animal",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:pufferfish": [
+      "net.minecraft.world.entity.animal.fish.Pufferfish",
+      "net.minecraft.world.entity.animal.fish.AbstractFish",
+      "net.minecraft.world.entity.animal.fish.WaterAnimal",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:rabbit": [
+      "net.minecraft.world.entity.animal.rabbit.Rabbit",
+      "net.minecraft.world.entity.animal.Animal",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:ravager": [
+      "net.minecraft.world.entity.monster.Ravager",
+      "net.minecraft.world.entity.raid.Raider",
+      "net.minecraft.world.entity.monster.PatrollingMonster",
+      "net.minecraft.world.entity.monster.Monster",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:salmon": [
+      "net.minecraft.world.entity.animal.fish.Salmon",
+      "net.minecraft.world.entity.animal.fish.AbstractSchoolingFish",
+      "net.minecraft.world.entity.animal.fish.AbstractFish",
+      "net.minecraft.world.entity.animal.fish.WaterAnimal",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:sheep": [
+      "net.minecraft.world.entity.animal.sheep.Sheep",
+      "net.minecraft.world.entity.animal.Animal",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:shulker": [
+      "net.minecraft.world.entity.monster.Shulker",
+      "net.minecraft.world.entity.animal.golem.AbstractGolem",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:silverfish": [
+      "net.minecraft.world.entity.monster.Silverfish",
+      "net.minecraft.world.entity.monster.Monster",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:skeleton": [
+      "net.minecraft.world.entity.monster.skeleton.Skeleton",
+      "net.minecraft.world.entity.monster.skeleton.AbstractSkeleton",
+      "net.minecraft.world.entity.monster.Monster",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:skeleton_horse": [
+      "net.minecraft.world.entity.animal.equine.SkeletonHorse",
+      "net.minecraft.world.entity.animal.equine.AbstractHorse",
+      "net.minecraft.world.entity.animal.Animal",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:slime": [
+      "net.minecraft.world.entity.monster.cubemob.Slime",
+      "net.minecraft.world.entity.monster.cubemob.AbstractCubeMob",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:sniffer": [
+      "net.minecraft.world.entity.animal.sniffer.Sniffer",
+      "net.minecraft.world.entity.animal.Animal",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:snow_golem": [
+      "net.minecraft.world.entity.animal.golem.SnowGolem",
+      "net.minecraft.world.entity.animal.golem.AbstractGolem",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:spider": [
+      "net.minecraft.world.entity.monster.spider.Spider",
+      "net.minecraft.world.entity.monster.Monster",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:squid": [
+      "net.minecraft.world.entity.animal.squid.Squid",
+      "net.minecraft.world.entity.animal.AgeableWaterCreature",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:stray": [
+      "net.minecraft.world.entity.monster.skeleton.Stray",
+      "net.minecraft.world.entity.monster.skeleton.AbstractSkeleton",
+      "net.minecraft.world.entity.monster.Monster",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:strider": [
+      "net.minecraft.world.entity.monster.Strider",
+      "net.minecraft.world.entity.animal.Animal",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:sulfur_cube": [
+      "net.minecraft.world.entity.monster.cubemob.SulfurCube",
+      "net.minecraft.world.entity.monster.cubemob.AbstractCubeMob",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:tadpole": [
+      "net.minecraft.world.entity.animal.frog.Tadpole",
+      "net.minecraft.world.entity.animal.fish.AbstractFish",
+      "net.minecraft.world.entity.animal.fish.WaterAnimal",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:trader_llama": [
+      "net.minecraft.world.entity.animal.equine.TraderLlama",
+      "net.minecraft.world.entity.animal.equine.Llama",
+      "net.minecraft.world.entity.animal.equine.AbstractChestedHorse",
+      "net.minecraft.world.entity.animal.equine.AbstractHorse",
+      "net.minecraft.world.entity.animal.Animal",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:tropical_fish": [
+      "net.minecraft.world.entity.animal.fish.TropicalFish",
+      "net.minecraft.world.entity.animal.fish.AbstractSchoolingFish",
+      "net.minecraft.world.entity.animal.fish.AbstractFish",
+      "net.minecraft.world.entity.animal.fish.WaterAnimal",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:turtle": [
+      "net.minecraft.world.entity.animal.turtle.Turtle",
+      "net.minecraft.world.entity.animal.Animal",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:vex": [
+      "net.minecraft.world.entity.monster.Vex",
+      "net.minecraft.world.entity.monster.Monster",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:villager": [
+      "net.minecraft.world.entity.npc.villager.Villager",
+      "net.minecraft.world.entity.npc.villager.AbstractVillager",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:vindicator": [
+      "net.minecraft.world.entity.monster.illager.Vindicator",
+      "net.minecraft.world.entity.monster.illager.AbstractIllager",
+      "net.minecraft.world.entity.raid.Raider",
+      "net.minecraft.world.entity.monster.PatrollingMonster",
+      "net.minecraft.world.entity.monster.Monster",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:wandering_trader": [
+      "net.minecraft.world.entity.npc.wanderingtrader.WanderingTrader",
+      "net.minecraft.world.entity.npc.villager.AbstractVillager",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:warden": [
+      "net.minecraft.world.entity.monster.warden.Warden",
+      "net.minecraft.world.entity.monster.Monster",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:witch": [
+      "net.minecraft.world.entity.monster.Witch",
+      "net.minecraft.world.entity.raid.Raider",
+      "net.minecraft.world.entity.monster.PatrollingMonster",
+      "net.minecraft.world.entity.monster.Monster",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:wither": [
+      "net.minecraft.world.entity.boss.wither.WitherBoss",
+      "net.minecraft.world.entity.monster.Monster",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:wither_skeleton": [
+      "net.minecraft.world.entity.monster.skeleton.WitherSkeleton",
+      "net.minecraft.world.entity.monster.skeleton.AbstractSkeleton",
+      "net.minecraft.world.entity.monster.Monster",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:wolf": [
+      "net.minecraft.world.entity.animal.wolf.Wolf",
+      "net.minecraft.world.entity.TamableAnimal",
+      "net.minecraft.world.entity.animal.Animal",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:zoglin": [
+      "net.minecraft.world.entity.monster.Zoglin",
+      "net.minecraft.world.entity.monster.Monster",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:zombie": [
+      "net.minecraft.world.entity.monster.zombie.Zombie",
+      "net.minecraft.world.entity.monster.Monster",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:zombie_horse": [
+      "net.minecraft.world.entity.animal.equine.ZombieHorse",
+      "net.minecraft.world.entity.animal.equine.AbstractHorse",
+      "net.minecraft.world.entity.animal.Animal",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:zombie_nautilus": [
+      "net.minecraft.world.entity.animal.nautilus.ZombieNautilus",
+      "net.minecraft.world.entity.animal.nautilus.AbstractNautilus",
+      "net.minecraft.world.entity.TamableAnimal",
+      "net.minecraft.world.entity.animal.Animal",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:zombie_villager": [
+      "net.minecraft.world.entity.monster.zombie.ZombieVillager",
+      "net.minecraft.world.entity.monster.zombie.Zombie",
+      "net.minecraft.world.entity.monster.Monster",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ],
+    "minecraft:zombified_piglin": [
+      "net.minecraft.world.entity.monster.zombie.ZombifiedPiglin",
+      "net.minecraft.world.entity.monster.zombie.Zombie",
+      "net.minecraft.world.entity.monster.Monster",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Entity"
+    ]
+  },
+  "bases": {
+    "animal": [
+      "java.lang.Object",
+      "net.minecraft.core.TypedInstance",
+      "net.minecraft.core.component.DataComponentGetter",
+      "net.minecraft.network.syncher.SyncedDataHolder",
+      "net.minecraft.util.debug.DebugValueSource",
+      "net.minecraft.world.Nameable",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.Attackable",
+      "net.minecraft.world.entity.Entity",
+      "net.minecraft.world.entity.EquipmentUser",
+      "net.minecraft.world.entity.ItemOwner",
+      "net.minecraft.world.entity.Leashable",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.SlotProvider",
+      "net.minecraft.world.entity.Targeting",
+      "net.minecraft.world.entity.animal.Animal",
+      "net.minecraft.world.level.entity.EntityAccess",
+      "net.minecraft.world.level.entity.UniquelyIdentifyable",
+      "net.minecraft.world.scores.ScoreHolder",
+      "net.minecraft.world.waypoints.Waypoint",
+      "net.minecraft.world.waypoints.WaypointTransmitter"
+    ],
+    "tameable": [
+      "java.lang.Object",
+      "net.minecraft.core.TypedInstance",
+      "net.minecraft.core.component.DataComponentGetter",
+      "net.minecraft.network.syncher.SyncedDataHolder",
+      "net.minecraft.util.debug.DebugValueSource",
+      "net.minecraft.world.Nameable",
+      "net.minecraft.world.entity.AgeableMob",
+      "net.minecraft.world.entity.Attackable",
+      "net.minecraft.world.entity.Entity",
+      "net.minecraft.world.entity.EquipmentUser",
+      "net.minecraft.world.entity.ItemOwner",
+      "net.minecraft.world.entity.Leashable",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.OwnableEntity",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.SlotProvider",
+      "net.minecraft.world.entity.TamableAnimal",
+      "net.minecraft.world.entity.Targeting",
+      "net.minecraft.world.entity.animal.Animal",
+      "net.minecraft.world.level.entity.EntityAccess",
+      "net.minecraft.world.level.entity.UniquelyIdentifyable",
+      "net.minecraft.world.scores.ScoreHolder",
+      "net.minecraft.world.waypoints.Waypoint",
+      "net.minecraft.world.waypoints.WaypointTransmitter"
+    ],
+    "hostile": [
+      "java.lang.Object",
+      "net.minecraft.core.TypedInstance",
+      "net.minecraft.core.component.DataComponentGetter",
+      "net.minecraft.network.syncher.SyncedDataHolder",
+      "net.minecraft.util.debug.DebugValueSource",
+      "net.minecraft.world.Nameable",
+      "net.minecraft.world.entity.Attackable",
+      "net.minecraft.world.entity.Entity",
+      "net.minecraft.world.entity.EquipmentUser",
+      "net.minecraft.world.entity.ItemOwner",
+      "net.minecraft.world.entity.Leashable",
+      "net.minecraft.world.entity.LivingEntity",
+      "net.minecraft.world.entity.Mob",
+      "net.minecraft.world.entity.PathfinderMob",
+      "net.minecraft.world.entity.SlotProvider",
+      "net.minecraft.world.entity.Targeting",
+      "net.minecraft.world.entity.monster.Enemy",
+      "net.minecraft.world.entity.monster.Monster",
+      "net.minecraft.world.level.entity.EntityAccess",
+      "net.minecraft.world.level.entity.UniquelyIdentifyable",
+      "net.minecraft.world.scores.ScoreHolder",
+      "net.minecraft.world.waypoints.Waypoint",
+      "net.minecraft.world.waypoints.WaypointTransmitter"
+    ]
+  }
+}
