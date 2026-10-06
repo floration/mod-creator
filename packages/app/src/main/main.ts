@@ -4,7 +4,7 @@ import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { app, BrowserWindow, dialog, ipcMain, shell } from "electron";
-import { VanillaAssets, createProject, modrinthVersions, searchModrinth, dependentsOf, parseBlockbench, parseStructure, findMinecraftJar, generate, loadProject, renameEdits, type CreateOptions, type ElementSpec } from "@modcreator/core";
+import { VanillaAssets, createProject, modrinthVersions, searchModrinth, dependentsOf, parseBlockbench, parseStructure, oggChannels, findMinecraftJar, generate, loadProject, renameEdits, type CreateOptions, type ElementSpec } from "@modcreator/core";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 let window: BrowserWindow | null = null;
@@ -119,15 +119,15 @@ ipcMain.handle("structure:load", async (_e, root: string, rel: string) => {
 });
 
 /**
- * Copy an .nbt a structure block saved into the project's art/ folder. The dialog starts in the dev client's saves,
- * where Run client's worlds keep them under generated/<namespace>/structure/.
+ * Copy a structure (.nbt) or sound (.ogg) into the project's art/ folder, after checking it is one. Structures start
+ * the dialog in the dev client's saves, where Run client's worlds keep them under generated/<namespace>/structure/.
  */
-ipcMain.handle("structure:import", async (_e, root: string) => {
+ipcMain.handle("file:import", async (_e, root: string, kind: "nbt" | "ogg") => {
   const saves = path.join(root, "run", "saves");
   const result = await dialog.showOpenDialog({
-    title: "Choose a structure file",
-    defaultPath: existsSync(saves) ? saves : root,
-    filters: [{ name: "Structure", extensions: ["nbt"] }],
+    title: kind === "nbt" ? "Choose a structure file" : "Choose an Ogg Vorbis sound",
+    defaultPath: kind === "nbt" && existsSync(saves) ? saves : root,
+    filters: [{ name: kind === "nbt" ? "Structure" : "Ogg Vorbis", extensions: [kind] }],
     properties: ["openFile"],
   });
   const from = result.filePaths[0];
@@ -135,9 +135,11 @@ ipcMain.handle("structure:import", async (_e, root: string) => {
   const rel = `art/${path.basename(from).toLowerCase().replace(/[^a-z0-9_.-]/g, "_")}`;
   const to = inside(root, rel);
   if (path.resolve(from) !== to) {
-    parseStructure(await readFile(from)); // refuse files that aren't structures
+    const data = await readFile(from);
+    if (kind === "nbt") parseStructure(data);
+    else if (oggChannels(data) === null) throw new Error(`${path.basename(from)} isn't Ogg Vorbis`);
     await mkdir(path.dirname(to), { recursive: true });
-    await writeFile(to, await readFile(from));
+    await writeFile(to, data);
   }
   return rel;
 });
@@ -145,7 +147,7 @@ ipcMain.handle("structure:import", async (_e, root: string) => {
 ipcMain.handle("file:dataUrl", async (_e, root: string, rel: string) => {
   const file = inside(root, rel);
   if (!existsSync(file)) return null;
-  const mime = file.endsWith(".png") ? "image/png" : "application/octet-stream";
+  const mime = file.endsWith(".png") ? "image/png" : file.endsWith(".ogg") ? "audio/ogg" : "application/octet-stream";
   return `data:${mime};base64,${(await readFile(file)).toString("base64")}`;
 });
 

@@ -2,6 +2,7 @@ import {
   ARMOR_PIECES,
   type AdvancementSpec,
   type StructureSpec,
+  type SoundSpec,
   type Criterion,
   TREE_PARTS,
   registeredItems,
@@ -814,6 +815,33 @@ function structureFiles(out: Output, st: StructureSpec) {
   });
 }
 
+// ---- Sounds ----
+
+/** `assets/<mod>/sounds.json`: one event per sound spec, its files copied to `sounds/<id>/<n>.ogg`. */
+function soundFiles(out: Output, sounds: SoundSpec[]) {
+  if (!sounds.length) return;
+  const modId = out.modId;
+  const events: Record<string, unknown> = {};
+  for (const s of sounds) {
+    out.lang[`subtitles.${modId}.${s.id}`] = s.name;
+    events[s.id] = {
+      subtitle: `subtitles.${modId}.${s.id}`,
+      sounds: s.sound.files.map((f, i) => {
+        out.copy(f.file, `assets/${modId}/sounds/${s.id}/${i + 1}.ogg`);
+        const name = `${modId}:${s.id}/${i + 1}`;
+        const extra = {
+          ...(f.volume !== 1 ? { volume: f.volume } : {}),
+          ...(f.pitch !== 1 ? { pitch: f.pitch } : {}),
+          ...(f.weight !== 1 ? { weight: f.weight } : {}),
+          ...(s.sound.stream ? { stream: true } : {}),
+        };
+        return Object.keys(extra).length ? { name, ...extra } : name;
+      }),
+    };
+  }
+  out.set(`assets/${modId}/sounds.json`, events);
+}
+
 /** Every generated resource file for the project. */
 export function resourceFiles(project: Project, elements: ElementSpec[]): ResourceFiles {
   const out = new Output(project.modId);
@@ -834,5 +862,6 @@ export function resourceFiles(project: Project, elements: ElementSpec[]): Resour
       case "recipe": out.set(`data/${project.modId}/recipe/${e.id}.json`, recipeJson(project.modId, e)); break;
     }
   }
+  soundFiles(out, elements.filter((e): e is SoundSpec => e.kind === "sound"));
   return out.finish();
 }

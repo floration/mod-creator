@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it } from "vitest";
-import { createProject, generate, itemIconArt, loadProject, parseStructure, plan, registeredItems, resolveRef, writeStructure } from "../src/index.js";
+import { createProject, generate, itemIconArt, loadProject, oggChannels, parseStructure, plan, registeredItems, resolveRef, writeStructure } from "../src/index.js";
 
 const RUBY = fileURLToPath(new URL("../../../examples/ruby", import.meta.url));
 const AZUREGROVE = fileURLToPath(new URL("../../../examples/azuregrove", import.meta.url));
@@ -72,7 +72,7 @@ describe("Azure Grove example", () => {
     const loaded = await loadProject(AZUREGROVE);
     expect(loaded.issues).toEqual([]);
     expect(new Set(loaded.elements.map((e) => e.spec.kind))).toEqual(
-      new Set(["block", "item", "recipe", "ore", "tool", "armor", "tree", "plant", "mob", "biome", "advancement", "structure"]),
+      new Set(["block", "item", "recipe", "ore", "tool", "armor", "tree", "plant", "mob", "biome", "advancement", "structure", "sound"]),
     );
   });
 
@@ -270,6 +270,61 @@ describe("structures", () => {
       expect.arrayContaining([expect.stringMatching(/^error structure.separation/), expect.stringMatching(/^error structure.biomes.0/)]),
     );
     expect(of("azure_shrine")).toHaveLength(2);
+  });
+});
+
+/** The first page of an Ogg Vorbis file, as far as the channel check reads. */
+function oggHeader(channels: number): Buffer {
+  const page = Buffer.alloc(27 + 1 + 30);
+  page.write("OggS", 0, "latin1");
+  page[26] = 1; // one segment
+  page[27] = 30;
+  page[28] = 1;
+  page.write("vorbis", 29, "latin1");
+  page[28 + 11] = channels;
+  return page;
+}
+
+describe("sounds", () => {
+  it("writes sounds.json, copies the files and registers the event", async () => {
+    const files = plan(await loadProject(AZUREGROVE));
+    const sounds = JSON.parse(files.get("src/generated/resources/assets/azuregrove/sounds.json") as string);
+    expect(sounds.bluetusk_grunt).toEqual({
+      subtitle: "subtitles.azuregrove.bluetusk_grunt",
+      sounds: ["azuregrove:bluetusk_grunt/1", { name: "azuregrove:bluetusk_grunt/2", pitch: 0.9, weight: 2 }],
+    });
+    expect(files.get("src/generated/resources/assets/azuregrove/sounds/bluetusk_grunt/2.ogg")).toEqual({ copy: "art/bluetusk_grunt_2.ogg" });
+    const java = files.get("src/generated/java/com/example/azuregrove/generated/ModContent.java") as string;
+    expect(java).toContain('public static final SoundEvent BLUETUSK_GRUNT_SOUND = registerSound("bluetusk_grunt");');
+    const bluetusk = files.get("src/generated/java/com/example/azuregrove/generated/entity/Bluetusk.java") as string;
+    expect(bluetusk).toContain('Identifier.parse("azuregrove:bluetusk_grunt")');
+    expect(bluetusk).toContain('Identifier.parse("minecraft:entity.pig.hurt")');
+  });
+
+  it("reads the channel count of an Ogg Vorbis file", async () => {
+    expect(oggChannels(await readFile(path.join(AZUREGROVE, "art/bluetusk_grunt_1.ogg")))).toBe(1);
+    expect(oggChannels(oggHeader(2))).toBe(2);
+    expect(oggChannels(Buffer.from("RIFF....WAVEfmt "))).toBeNull();
+  });
+
+  it("reports files that aren't Ogg Vorbis, stereo files and mob sounds that don't exist", async () => {
+    const dir = await copyOf(AZUREGROVE);
+    await writeFile(path.join(dir, "art/stereo.ogg"), oggHeader(2));
+    await writeFile(path.join(dir, "art/wave.ogg"), "RIFF....WAVEfmt ");
+    await editSpec(dir, "spec/sounds/bluetusk_grunt.json", (json) => {
+      json.sound.files = [{ file: "art/stereo.ogg" }, { file: "art/wave.ogg" }, { file: "art/grunt.mp3" }];
+    });
+    await editSpec(dir, "spec/mobs/bluetusk.json", (json) => { json.mob.sounds = { ambient: "bluetusk_growl", hurt: "minecraft:entity.pig.hurt" }; });
+    const issues = (await loadProject(dir)).issues.map((i) => `${i.severity} ${i.file} ${i.field}`);
+    expect(issues).toEqual(
+      expect.arrayContaining([
+        "warning spec/sounds/bluetusk_grunt.json sound.files.0.file",
+        "error spec/sounds/bluetusk_grunt.json sound.files.1.file",
+        "error spec/sounds/bluetusk_grunt.json sound.files.2.file",
+        "error spec/mobs/bluetusk.json mob.sounds.ambient",
+      ]),
+    );
+    expect(issues.filter((i) => i.includes("mob.sounds"))).toHaveLength(1);
   });
 });
 

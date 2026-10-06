@@ -467,7 +467,7 @@ export const AdvancementSpecSchema = z.object({
     frame: AdvancementFrame.default("task"),
     /** For a tab's first advancement: a 16x16 texture tiled behind the tab. Defaults to vanilla stone. */
     background: z.string().optional(),
-    criteria: z.array(Criterion).min(1),
+    criteria: z.array(Criterion).min(1, "Add at least one criterion"),
     /** Done when every criterion is met, or when any one is. */
     requires: z.enum(["all", "any"]).default("all"),
     /** Pop up a toast and post in chat when it is earned. */
@@ -502,7 +502,7 @@ export const StructureSpecSchema = z.object({
     /** The `.nbt` file a structure block saved, copied into the project. */
     file: z.string(),
     /** Biomes it can start in: ids from this mod, vanilla ids or biome tags like `#minecraft:is_forest`. */
-    biomes: z.array(Ref).min(1),
+    biomes: z.array(Ref).min(1, "List at least one biome"),
     /** Average distance between two of them, in chunks. Villages use 34, igloos 32. */
     spacing: z.number().int().min(2).max(4096).default(32),
     /** Smallest distance between two of them, in chunks. Must be less than spacing. */
@@ -517,6 +517,35 @@ export const StructureSpecSchema = z.object({
 });
 export type StructureSpec = z.infer<typeof StructureSpecSchema>;
 
+/**
+ * A sound event made from `.ogg` files: each time it plays, one of the files is picked by weight. Mobs and other
+ * specs name it by id, and `/playsound <modid>:<id>` plays it.
+ */
+export const SoundSpecSchema = z.object({
+  kind: z.literal("sound"),
+  $schema: z.string().optional(),
+  id: LocalId,
+  /** The subtitle shown when subtitles are on, like "Bluetusk grunts". */
+  name: z.string().min(1),
+  sound: z.object({
+    files: z
+      .array(
+        z.object({
+          /** An Ogg Vorbis file. Mono files fade with distance; stereo ones play at the same volume everywhere. */
+          file: z.string(),
+          volume: z.number().min(0).max(1).default(1),
+          pitch: z.number().min(0.5).max(2).default(1),
+          /** How often this file is picked compared with the others. */
+          weight: z.number().int().min(1).max(100).default(1),
+        }),
+      )
+      .min(1, "Add at least one .ogg file"),
+    /** Stream it from disk instead of loading it whole, for music and other long sounds. */
+    stream: z.boolean().default(false),
+  }),
+});
+export type SoundSpec = z.infer<typeof SoundSpecSchema>;
+
 export const ElementSpecSchema = z.discriminatedUnion("kind", [
   BlockSpecSchema,
   ItemSpecSchema,
@@ -530,6 +559,7 @@ export const ElementSpecSchema = z.discriminatedUnion("kind", [
   OreSpecSchema,
   AdvancementSpecSchema,
   StructureSpecSchema,
+  SoundSpecSchema,
 ]);
 export type ElementSpec = z.infer<typeof ElementSpecSchema>;
 export type ElementKind = ElementSpec["kind"];
@@ -548,6 +578,7 @@ export const KIND_FOLDERS: Record<ElementKind, string> = {
   ore: "worldgen",
   advancement: "advancements",
   structure: "structures",
+  sound: "sounds",
 };
 
 export const SCHEMAS = {
@@ -564,6 +595,7 @@ export const SCHEMAS = {
   ore: OreSpecSchema,
   advancement: AdvancementSpecSchema,
   structure: StructureSpecSchema,
+  sound: SoundSpecSchema,
 } as const;
 
 /** JSON Schema for each spec kind, written to `.modcreator/schema/` for editor autocomplete. */

@@ -414,7 +414,9 @@ export function MobEditor(p: EditorProps) {
         <TextField {...f} path={["mob", "sounds", "ambient"]} label="Ambient" optional placeholder={custom ? "minecraft:entity.bee.loop" : `minecraft:entity.${model}.ambient`} />
         <TextField {...f} path={["mob", "sounds", "hurt"]} label="Hurt" optional placeholder={custom ? "minecraft:entity.bee.hurt" : `minecraft:entity.${model}.hurt`} />
         <TextField {...f} path={["mob", "sounds", "death"]} label="Death" optional placeholder={custom ? "minecraft:entity.bee.death" : `minecraft:entity.${model}.death`} />
-        <span className="field-hint">{custom ? "Leave empty for no sound." : `Leave empty to use the ${model}'s own sounds.`}</span>
+        <span className="field-hint">
+          A sound from this mod by id, or a vanilla one starting with minecraft:. {custom ? "Leave empty for no sound." : `Leave empty to use the ${model}'s own sounds.`}
+        </span>
       </Section>
     </>
   );
@@ -716,7 +718,7 @@ export function OreEditor(p: EditorProps) {
   );
 }
 
-export type Kind = "block" | "item" | "recipe" | "ore" | "tool" | "armor" | "tree" | "plant" | "mob" | "biome" | "advancement" | "structure";
+export type Kind = "block" | "item" | "recipe" | "ore" | "tool" | "armor" | "tree" | "plant" | "mob" | "biome" | "advancement" | "structure" | "sound";
 
 /** Starting point for a new spec of each kind. */
 export function newSpec(kind: Kind, id: string): Draft {
@@ -754,6 +756,8 @@ export function newSpec(kind: Kind, id: string): Draft {
       return { ...base, tags: [], biome: { temperature: 0.7, downfall: 0.8, colors: { sky: "#78a7ff", water: "#3f76e4" }, replaces: [{ biome: "minecraft:plains", share: 0.25 }], trees: [], plants: [], spawns: [] } };
     case "recipe":
       return { $schema: base.$schema, kind, id, recipe: RECIPE_TEMPLATES.shaped({ item: "", count: 1 }) };
+    case "sound":
+      return { ...base, sound: { files: [] } };
     case "structure":
       return { ...base, structure: { file: `art/${id}.nbt`, biomes: ["minecraft:plains"], spacing: 32, separation: 8, placement: "surface", y: 0, terrain: "beard_thin" } };
     case "advancement":

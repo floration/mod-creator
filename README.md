@@ -2,7 +2,7 @@
 
 A desktop tool for building Minecraft 26.3+ Fabric mods with forms, previews and plain files instead of hand-written registration code.
 
-Every block, item, tool, armor set, recipe, ore vein, tree, plant, mob, biome, structure and quest is one small JSON file in the mod's `spec/` folder. The app is an editor for those files. A generator turns them into Java and resource files in `src/generated/`, and the mod stays a normal Gradle project you can open in IntelliJ at any time.
+Every block, item, tool, armor set, recipe, ore vein, tree, plant, mob, biome, structure, sound and quest is one small JSON file in the mod's `spec/` folder. The app is an editor for those files. A generator turns them into Java and resource files in `src/generated/`, and the mod stays a normal Gradle project you can open in IntelliJ at any time.
 
 Design doc: [Mod Creator Architecture](https://claude.ai/code/artifact/ab83630b-aecd-4450-b781-0d67d2fd176f)
 
@@ -72,8 +72,9 @@ gems/
     mobs/<id>.json         animals on the vanilla pig or cow body, or a Blockbench model
     biomes/<id>.json       Overworld biomes
     structures/<id>.json   buildings saved with a structure block, and where they spawn
+    sounds/<id>.json       sound events made from .ogg files
     advancements/<id>.json quests, as vanilla advancements
-  art/                     textures (PNG), Blockbench models (.bbmodel) and structures (.nbt)
+  art/                     textures (PNG), Blockbench models (.bbmodel), structures (.nbt) and sounds (.ogg)
   src/main/                yours: never touched by the generator
   src/generated/           the generator's: rewritten on every run, do not edit
   build.gradle, settings.gradle, gradle.properties, gradlew
@@ -92,7 +93,7 @@ Rules the generator follows:
 Two example mods show every supported field:
 
 - [`examples/ruby`](examples/ruby): an ore that drops gems with Fortune, a storage block, a lamp with a custom Java class, a gem item, shaped, shapeless and smelting recipes, a ruby ore vein that generates between Y -16 and 48, the Glowmoth, a tameable flying mob with its own Blockbench model whose wings flap, and a two-step quest tab (find a ruby, then tame a Glowmoth).
-- [`examples/azuregrove`](examples/azuregrove): one of each of the other kinds. Azurite ore and bricks (with brick stairs, slab and wall), the Azure Plum food, an Azurite Sword and armor set, the Azurewood tree (fancy oak shape, its leaves drop plums) and its full wood set, Azure Grass, the Bluetusk (a blue pig that eats plums and fights back), the Grove Lurker (a hostile one that comes out at night), the Azure Grove biome, which takes over part of Plains and Forest and grows all of them, an Azure Grove quest tab with seven quests that use every kind of criterion and reward, and the Azure Shrine, a small azurite brick structure that spawns in the biome.
+- [`examples/azuregrove`](examples/azuregrove): one of each of the other kinds. Azurite ore and bricks (with brick stairs, slab and wall), the Azure Plum food, an Azurite Sword and armor set, the Azurewood tree (fancy oak shape, its leaves drop plums) and its full wood set, Azure Grass, the Bluetusk (a blue pig that eats plums, fights back and grunts with its own sound), the Grove Lurker (a hostile one that comes out at night), the Azure Grove biome, which takes over part of Plains and Forest and grows all of them, an Azure Grove quest tab with seven quests that use every kind of criterion and reward, and the Azure Shrine, a small azurite brick structure that spawns in the biome.
 
 ### Shapes and wood sets
 
@@ -121,6 +122,10 @@ Build something in **Run client**, save it with a structure block (Save mode; th
 
 The generator makes a one-piece jigsaw structure, like Minecraft's abandoned camps: the template, a start pool, the structure, a structure set and a `has_structure/<id>` biome tag. Blocks from this mod in the file have to exist in the project, or the check reports them.
 
+### Sounds
+
+A sound is one or more Ogg Vorbis files; each time it plays, one is picked by weight, at its own volume and pitch. **Import .ogg** copies a file into `art/` and ▶ plays it in the app. Make sounds that come from a place (a mob, a block) mono: stereo files play equally loud everywhere, and the check warns about them. The **Subtitle** shows when subtitles are on. A mob's ambient, hurt and death sounds can name a sound from this mod by id (the Bluetusk's `bluetusk_grunt`) or a vanilla one like `minecraft:entity.bee.loop`. In game, `/playsound <modid>:<id> master @s` plays it.
+
 ### Quests
 
 Quests are vanilla advancements, so they show in the game's advancements screen (L) with no extra mod. Each one has a title, a description, an icon, a frame (task, goal or challenge) and what completes it: obtaining items, killing, breeding or taming a mob, visiting a biome, crafting a recipe, eating something or placing a block. With several criteria, **Done when** picks whether all of them or any one is needed. Rewards are experience, items and recipes unlocked in the recipe book.
@@ -148,4 +153,4 @@ Minecraft 26.3, Fabric Loader 0.19.5, Fabric Loom 1.18.2 (`net.fabricmc.fabric-l
 
 ## Status
 
-Milestones 2 and 3 of the design doc are in: the project skeleton, blocks, items and recipes. So are ore veins, food, tools, armor, trees, plants, mobs (on vanilla bodies or Blockbench models) and biomes. Mobs can be animals, neutral, tameable or hostile, and fly. Blocks can have stairs, slabs, walls, fences, doors and other shapes, and trees a full wood set. Project settings, Modrinth search and quests (advancements, with a quest line view) and structures from structure block files are in the app. Next up: sounds and effects.
+Milestones 2 and 3 of the design doc are in: the project skeleton, blocks, items and recipes. So are ore veins, food, tools, armor, trees, plants, mobs (on vanilla bodies or Blockbench models) and biomes. Mobs can be animals, neutral, tameable or hostile, and fly. Blocks can have stairs, slabs, walls, fences, doors and other shapes, and trees a full wood set. Project settings, Modrinth search and quests (advancements, with a quest line view) structures from structure block files, and sounds from .ogg files are in the app. Next up: status effects and potions.

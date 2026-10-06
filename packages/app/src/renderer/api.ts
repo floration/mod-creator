@@ -76,8 +76,8 @@ export interface ModCreatorApi {
   loadBlockbench(root: string, rel: string): Promise<{ model: EntityModelDef | null; error: string | null }>;
   /** Read a structure block's .nbt; `error` says why it can't be used. */
   loadStructure(root: string, rel: string): Promise<{ structure: StructureTemplate | null; error: string | null }>;
-  /** Pick an .nbt and copy it into art/. Returns its project path, or null when cancelled. */
-  importStructure(root: string): Promise<string | null>;
+  /** Pick a structure (.nbt) or sound (.ogg) and copy it into art/. Returns its project path, or null when cancelled. */
+  importFile(root: string, kind: "nbt" | "ogg"): Promise<string | null>;
   dataUrl(root: string, rel: string): Promise<string | null>;
   /** Write a PNG, given as a data: URL, to a project-relative path. */
   saveArt(root: string, rel: string, dataUrl: string): Promise<void>;
