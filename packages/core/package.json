@@ -37,6 +37,10 @@
     "./vanilla-models": {
       "types": "./dist/vanillaModels.d.ts",
       "default": "./dist/vanillaModels.js"
+    },
+    "./tint": {
+      "types": "./dist/tint.d.ts",
+      "default": "./dist/tint.js"
     }
   },
   "files": [

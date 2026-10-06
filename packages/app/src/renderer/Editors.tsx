@@ -1,12 +1,13 @@
 import { useContext, useEffect, useMemo, useState } from "react";
 import { EMPTY_SLOTS, listFromSlots, patternFromSlots, sameShape, slotsFromList, slotsFromPattern, type Slots } from "@modcreator/core/recipe-grid";
-import { ARMOR_PIECES, CreativeTab, EquipSound, MobBehavior, OreHost, Rarity, SoundType, ToolTier, TreeShape, VANILLA_EFFECTS, shapeBlocks, type ElementSpec } from "@modcreator/core/schema";
+import { ARMOR_PIECES, CreativeTab, EquipSound, MobBehavior, OreHost, OreShape, Rarity, SoundType, ToolTier, TreeShape, VANILLA_EFFECTS, shapeBlocks, type ElementSpec } from "@modcreator/core/schema";
 import {
   CheckField,
   ColorField,
   ListField,
   NumberField,
   OptionalGroup,
+  Row,
   RowsField,
   Section,
   SelectField,
@@ -21,7 +22,8 @@ import { api } from "./api";
 import { blockbenchSheetLayout, mobSheetLayout } from "./Preview";
 import { TextureContext, TextureField } from "./TextureField";
 import { GoalsEditor, ModelPicker } from "./MobParts";
-import { VANILLA_MOBS } from "@modcreator/core/vanilla-mobs";
+import { VANILLA_MOBS, textureId } from "@modcreator/core/vanilla-mobs";
+import { TagListField, TagTextField, elementTagType, useItemOptions } from "./TagField";
 import { ItemContext, ItemIconView, ItemPicker, acceptsItem, dragItem, droppedItem, itemInfo } from "./items";
 
 interface EditorProps {
@@ -37,7 +39,9 @@ function Common(p: EditorProps & { nameHint?: string; idHint?: string; tab?: boo
       <TextField {...f} path={["name"]} label="Display name" hint={p.nameHint} />
       <TextField {...f} path={["id"]} label="Id" hint={p.idHint ?? "Lowercase, used in registry names and file names"} />
       {p.tab !== false && <SelectField {...f} path={["creativeTab"]} label="Creative tab" options={CreativeTab.options} optional />}
-      {p.tags !== "" && <ListField {...f} path={["tags"]} label="Tags" placeholder={p.tags ?? "minecraft:mineable/pickaxe, minecraft:needs_iron_tool"} />}
+      {p.tags !== "" && (
+        <TagListField {...f} path={["tags"]} label="Tags" type={elementTagType(p.draft.kind) ?? "block"} placeholder={p.tags ?? "minecraft:mineable/pickaxe, minecraft:needs_iron_tool"} hint="Type to search Minecraft's, Fabric's and this mod's tags. A new name makes a new tag" />
+      )}
       {p.customClass !== false && (
         <TextField
           {...f}
@@ -354,6 +358,7 @@ export function MobEditor(p: EditorProps) {
   const sheet: [number, number] = bb.model ? [bb.model.textureWidth, bb.model.textureHeight] : (vanilla?.textureSize ?? [64, 64]);
   const babySheet: [number, number] = custom ? sheet : (vanilla?.babyTextureSize ?? sheet);
   const items = useContext(ItemContext);
+  const itemOptions = useItemOptions();
   const { walk, idle } = bb.model ? pickAnimations(bb.model) : { walk: null, idle: null };
   const behavior: string = getAt(p.draft, ["mob", "behavior"]) ?? "animal";
 
@@ -369,7 +374,7 @@ export function MobEditor(p: EditorProps) {
   /** Copy the vanilla mob's own texture into art/ as a starting point to paint over. */
   const copyVanillaTexture = async (baby: boolean) => {
     if (!world || !vanilla?.texture) return;
-    const url = await api().vanillaTexture(vanilla.texture);
+    const url = await api().vanillaTexture(textureId(vanilla.texture));
     if (!url) return;
     const file = `art/${getAt(p.draft, ["id"]) || "mob"}${baby ? "_baby" : ""}.png`;
     await api().saveArt(world.root, file, url);
@@ -425,8 +430,10 @@ export function MobEditor(p: EditorProps) {
         {(behavior !== "animal" || getAt(p.draft, ["mob", "goals"])) && (
           <NumberField {...f} path={["mob", "attackDamage"]} label="Attack damage" step={0.5} min={0} max={100} hint="Per hit, in half hearts. Zombie 3, wolf 4" />
         )}
-        <TextField
+        <TagTextField
           {...f}
+          type="item"
+          extra={itemOptions}
           path={["mob", "food"]}
           label="Food"
           optional={behavior === "hostile"}
@@ -742,29 +749,99 @@ export function RecipeEditor(p: EditorProps) {
   );
 }
 
+const SHAPE_HINTS: Record<string, string> = {
+  blob: "A lump of ore like iron or diamond",
+  scattered: "The same number of blocks spread out one by one, like ancient debris",
+  disk: "A flat round patch on river, lake and ocean floors, like clay or sand",
+  geode: "A hollow ball in layers like an amethyst geode. The ore block is its inner layer",
+};
+
+/** What a new disk or geode starts with when a vein switches to that shape. */
+const SHAPE_DEFAULTS: Record<string, object> = {
+  disk: { radiusMin: 2, radiusMax: 3, halfHeight: 1, replaces: ["minecraft:dirt", "minecraft:sand", "minecraft:gravel", "minecraft:clay"] },
+  geode: { outerBlock: "minecraft:smooth_basalt", middleBlock: "minecraft:calcite", buddingChance: 0.083, crystals: [], crackChance: 0.95 },
+};
+
 export function OreEditor(p: EditorProps) {
   const f = { draft: p.draft, errors: p.errors, onChange: p.onChange };
   const replaces = getAt(p.draft, ["ore", "replaces"]) ?? "stone_and_deepslate";
+  const shape: string = getAt(p.draft, ["ore", "shape"]) ?? "blob";
+  const setShape = (draft: Draft) => {
+    const next: string = getAt(draft, ["ore", "shape"]) ?? "blob";
+    if (SHAPE_DEFAULTS[next] && getAt(draft, ["ore", next]) === undefined) draft = setAt(draft, ["ore", next], SHAPE_DEFAULTS[next]);
+    // A geode is one rare ball; start it at vanilla's 1 in 24 chunks instead of a few per chunk.
+    if (next === "geode" && getAt(draft, ["ore", "chunksPerVein"]) === undefined) draft = setAt(draft, ["ore", "chunksPerVein"], 24);
+    p.onChange(draft);
+  };
+  const vein = shape === "blob" || shape === "scattered";
+  const presets = useContext(ItemContext)?.vanilla?.orePresets ?? [];
+  const fromVanilla = (id: string) => {
+    const preset = presets.find((x) => x.id === id);
+    if (!preset) return;
+    // Keep this ore's own blocks; take the shape, size, rarity and heights from the game.
+    const ore = getAt(p.draft, ["ore"]) ?? {};
+    p.onChange(setAt(p.draft, ["ore"], { block: ore.block ?? "", ...(ore.deepslateBlock ? { deepslateBlock: ore.deepslateBlock } : {}), ...preset.ore }));
+  };
   return (
     <>
       <Section title="General">
         <TextField {...f} path={["name"]} label="Name" />
         <TextField {...f} path={["id"]} label="Id" />
       </Section>
-      <Section title="Vein">
-        <TextField {...f} path={["ore", "block"]} label="Ore block" hint="A block from this mod, or minecraft:..." />
-        <SelectField {...f} path={["ore", "replaces"]} label="Generates in" options={OreHost.options} hint="Netherrack generates in the Nether, end stone in the End, the rest in the Overworld" />
-        {(replaces === "deepslate" || replaces === "stone_and_deepslate") && (
+      <Section title="Shape">
+        {presets.length > 0 && (
+          <Row label="Start from vanilla" hint="Copies the shape, size, rarity and heights of one of the game's own ores, read from your Minecraft jar. Your blocks stay">
+            <select value="" onChange={(e) => fromVanilla(e.target.value)}>
+              <option value="">(pick one)</option>
+              {presets.map((x) => (
+                <option key={x.id} value={x.id}>
+                  {x.name}
+                </option>
+              ))}
+            </select>
+          </Row>
+        )}
+        <SelectField {...f} onChange={setShape} path={["ore", "shape"]} label="Shape" options={OreShape.options} hint={SHAPE_HINTS[shape]} />
+        <TextField {...f} path={["ore", "block"]} label={shape === "geode" ? "Inner layer block" : "Ore block"} hint="A block from this mod, or minecraft:..." />
+        {shape !== "disk" && (
+          <SelectField {...f} path={["ore", "replaces"]} label="Generates in" options={OreHost.options} hint="Netherrack generates in the Nether, end stone in the End, the rest in the Overworld" />
+        )}
+        {vein && (replaces === "deepslate" || replaces === "stone_and_deepslate") && (
           <TextField {...f} path={["ore", "deepslateBlock"]} label="Deepslate variant" optional hint="Optional. Used where the vein replaces deepslate; defaults to the ore block" />
         )}
-        <NumberField {...f} path={["ore", "veinSize"]} label="Blocks per vein" min={1} max={64} hint="Iron 9, gold 9, diamond 4" />
-        <NumberField {...f} path={["ore", "veinsPerChunk"]} label="Veins per chunk" min={1} max={128} hint="Iron 10, diamond 7" />
-        <NumberField {...f} path={["ore", "airExposureSkip"]} label="Skip chance next to air" step={0.1} min={0} max={1} hint="0 to 1. Diamond uses 0.5 so fewer ores show in caves" />
+        {vein && <NumberField {...f} path={["ore", "veinSize"]} label="Blocks per vein" min={1} max={64} hint="Iron 9, gold 9, diamond 4. Ancient debris (scattered) is 2" />}
+        {vein && (
+          <NumberField {...f} path={["ore", "airExposureSkip"]} label="Skip chance next to air" step={0.1} min={0} max={1} hint="0 to 1. Diamond uses 0.5; 1 buries the vein so it never shows in caves" />
+        )}
       </Section>
-      <Section title="Height">
-        <NumberField {...f} path={["ore", "minY"]} label="Lowest Y" min={-64} max={320} />
-        <NumberField {...f} path={["ore", "maxY"]} label="Highest Y" min={-64} max={320} />
-        <SelectField {...f} path={["ore", "distribution"]} label="Spread" options={["uniform", "triangle"]} hint="Triangle makes veins most common halfway between the two heights" />
+      {shape === "disk" && (
+        <Section title="Disk">
+          <NumberField {...f} path={["ore", "disk", "radiusMin"]} label="Smallest radius" min={1} max={8} hint="Clay 2, sand 2" />
+          <NumberField {...f} path={["ore", "disk", "radiusMax"]} label="Largest radius" min={1} max={8} hint="Clay 3, sand 6" />
+          <NumberField {...f} path={["ore", "disk", "halfHeight"]} label="Half height" min={0} max={4} hint="Blocks above and below the floor it replaces. Clay 1, sand 2" />
+          <ListField {...f} path={["ore", "disk", "replaces"]} label="Replaces" hint="Floor blocks it turns into the ore block, comma separated" />
+        </Section>
+      )}
+      {shape === "geode" && (
+        <Section title="Geode">
+          <TextField {...f} path={["ore", "geode", "outerBlock"]} label="Outer shell" hint="Amethyst geodes use minecraft:smooth_basalt" />
+          <TextField {...f} path={["ore", "geode", "middleBlock"]} label="Middle layer" hint="Amethyst geodes use minecraft:calcite" />
+          <TextField {...f} path={["ore", "geode", "buddingBlock"]} label="Budding block" optional hint="Optional. Swapped in for some of the inner layer, like budding amethyst. Crystals grow only on it" />
+          <NumberField {...f} path={["ore", "geode", "buddingChance"]} label="Budding share" step={0.01} min={0} max={1} hint="0 to 1. Amethyst 0.083" />
+          <ListField {...f} path={["ore", "geode", "crystals"]} label="Crystals" hint="Blocks placed on the budding blocks, comma separated, like minecraft:amethyst_cluster" />
+          <NumberField {...f} path={["ore", "geode", "crackChance"]} label="Crack chance" step={0.05} min={0} max={1} hint="0 to 1. Amethyst 0.95" />
+        </Section>
+      )}
+      <Section title={shape === "disk" ? "How many" : "How many and where"}>
+        <NumberField {...f} path={["ore", "veinsPerChunk"]} label={shape === "disk" ? "Disks per chunk" : "Veins per chunk"} min={1} max={128} hint="Iron 10, diamond 7, sand disks 3" />
+        <NumberField {...f} path={["ore", "chunksPerVein"]} label="Or one in this many chunks" min={1} max={1000} hint="Optional, for rarer ones. Replaces the count above. Geodes 24, large diamond veins 9" />
+        {shape !== "disk" && (
+          <>
+            <NumberField {...f} path={["ore", "minY"]} label="Lowest Y" min={-64} max={320} />
+            <NumberField {...f} path={["ore", "maxY"]} label="Highest Y" min={-64} max={320} />
+            <SelectField {...f} path={["ore", "distribution"]} label="Spread" options={["uniform", "triangle"]} hint="Triangle makes veins most common halfway between the two heights" />
+          </>
+        )}
       </Section>
     </>
   );
@@ -783,7 +860,7 @@ export function newSpec(kind: Kind, id: string): Draft {
     case "item":
       return { ...base, item: { texture: art() } };
     case "ore":
-      return { ...base, ore: { block: "", replaces: "stone_and_deepslate", veinSize: 8, veinsPerChunk: 4, minY: -64, maxY: 64, distribution: "uniform" } };
+      return { ...base, ore: { shape: "blob", block: "", replaces: "stone_and_deepslate", veinSize: 8, veinsPerChunk: 4, minY: -64, maxY: 64, distribution: "uniform" } };
     case "tool":
       return { ...base, creativeTab: "combat", tool: { type: "sword", texture: art(), tier: "iron", durability: 250, miningSpeed: 6, attackDamage: 5, attackSpeed: -2.4, enchantability: 14 } };
     case "armor":

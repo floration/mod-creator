@@ -1,0 +1,18 @@
+{
+  "$schema": "../../.modcreator/schema/tool.json",
+  "kind": "tool",
+  "id": "azurite_shovel",
+  "name": "Azurite Shovel",
+  "creativeTab": "tools_and_utilities",
+  "tool": {
+    "type": "shovel",
+    "texture": "art/azurite_shovel.png",
+    "tier": "iron",
+    "durability": 600,
+    "miningSpeed": 7,
+    "attackDamage": 4,
+    "attackSpeed": -3.0,
+    "enchantability": 18,
+    "repairItem": "azurite"
+  }
+}

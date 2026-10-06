@@ -104,6 +104,9 @@ export const goalId = (className: string) =>
 
 const GOALS_BY_ID = new Map(Object.entries(VANILLA_MOBS.goals).map(([cls, g]) => [goalId(cls), g]));
 
+/** A model's `textures/entity/pig/pig.png` as the texture id the app loads it by, `minecraft:entity/pig/pig`. */
+export const textureId = (asset: string) => `minecraft:${asset.replace(/^textures\//, "").replace(/\.png$/, "")}`;
+
 /** Every vanilla goal id, sorted. */
 export const VANILLA_GOAL_IDS = [...GOALS_BY_ID.keys()].sort();
 

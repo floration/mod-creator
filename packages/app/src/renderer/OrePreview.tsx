@@ -9,9 +9,40 @@ const MARKS = [
   { y: -64, label: "Bedrock (-64)" },
 ];
 
-/** Side view of the world's height showing where an ore vein can generate and how its veins are spread. */
+/** Cross-sections of each shape, a grid of cells: o = ore, s = shell, m = middle layer, i = inner layer, x = stone around it. */
+const SHAPE_CELLS: Record<string, string[]> = {
+  blob: ["xxxxxxx", "xxooxxx", "xooooxx", "xxoooox", "xxxooxx", "xxxxxxx"],
+  scattered: ["xxxxxxx", "xoxxxxx", "xxxxxox", "xxxoxxx", "xxxxxxx", "xoxxxox"],
+  disk: ["~~~~~~~", "~~~~~~~", "xooooox", "xxoooxx", "xxxxxxx", "xxxxxxx"],
+  geode: ["xxsssxx", "xsmmmsx", "smi.ims", "smi.ims", "xsmmmsx", "xxsssxx"],
+};
+const CELL_COLORS: Record<string, string> = { o: "#d6455d", i: "#d6455d", m: "#e8e4dc", s: "#4f5258", x: "#7d7d7d", "~": "#3a6fb0", ".": "#1b1c20" };
+
+function ShapeSketch({ shape }: { shape: string }) {
+  const rows = SHAPE_CELLS[shape] ?? SHAPE_CELLS.blob;
+  const cell = 14;
+  return (
+    <g transform="translate(400 40)">
+      <text x={0} y={-10} fontSize="12" fill="#9a9ca3">Cross-section</text>
+      {rows.flatMap((row, y) =>
+        [...row].map((c, x) => <rect key={`${x},${y}`} x={x * cell} y={y * cell} width={cell - 1} height={cell - 1} fill={CELL_COLORS[c]} />),
+      )}
+    </g>
+  );
+}
+
+const HOW: Record<string, string> = {
+  blob: "veins",
+  scattered: "scattered patches",
+  disk: "disks",
+  geode: "geodes",
+};
+
+/** Side view of the world's height showing where an ore can generate and how it is spread, with a sketch of its shape. */
 export function OrePreview({ draft }: { draft: Draft }) {
   const ore = draft.ore ?? {};
+  const shape: string = ore.shape ?? "blob";
+  const disk = shape === "disk";
   const minY = Number(ore.minY ?? -64);
   const maxY = Number(ore.maxY ?? 64);
   const height = 560;
@@ -30,7 +61,8 @@ export function OrePreview({ draft }: { draft: Draft }) {
         <rect x={x0} y={Y(WORLD_MAX)} width={width} height={Y(63) - Y(WORLD_MAX)} fill="#3a5a7a" opacity="0.35" />
         <rect x={x0} y={Y(63)} width={width} height={Y(0) - Y(63)} fill="#7d7d7d" opacity="0.35" />
         <rect x={x0} y={Y(0)} width={width} height={Y(WORLD_MIN) - Y(0)} fill="#4a4a52" opacity="0.6" />
-        {maxY >= minY &&
+        {disk && <rect x={x0} y={Y(63) - 2} width={width} height={6} fill="#d6455d" opacity="0.85" />}
+        {!disk && maxY >= minY &&
           (triangle ? (
             <polygon points={`${x0},${lo} ${x0 + width},${mid} ${x0},${hi}`} fill="#d6455d" opacity="0.85" />
           ) : (
@@ -42,12 +74,23 @@ export function OrePreview({ draft }: { draft: Draft }) {
             <text x={x0 - 12} y={Y(m.y) + 4} textAnchor="end" fontSize="12" fill="#9a9ca3">{m.label}</text>
           </g>
         ))}
-        <text x={x0 + width + 12} y={hi + 4} fontSize="13" fill="#e6e7ea">Y {maxY}</text>
-        <text x={x0 + width + 12} y={lo + 4} fontSize="13" fill="#e6e7ea">Y {minY}</text>
+        {!disk && (
+          <>
+            <text x={x0 + width + 12} y={hi + 4} fontSize="13" fill="#e6e7ea">Y {maxY}</text>
+            <text x={x0 + width + 12} y={lo + 4} fontSize="13" fill="#e6e7ea">Y {minY}</text>
+          </>
+        )}
+        <ShapeSketch shape={shape} />
       </svg>
       <p className="muted">
-        {ore.veinsPerChunk ?? 4} veins per chunk, up to {ore.veinSize ?? 8} blocks each,{" "}
-        {triangle ? "most common at the middle height" : "spread evenly between the two heights"}.
+        {ore.chunksPerVein ? `One ${HOW[shape]?.replace(/s$/, "") ?? "vein"} in ${ore.chunksPerVein} chunks` : `${ore.veinsPerChunk ?? 4} ${HOW[shape] ?? "veins"} per chunk`}
+        {shape === "blob" && `, up to ${ore.veinSize ?? 8} blocks each`}
+        {shape === "scattered" && `, ${ore.veinSize ?? 8} blocks spread out`}
+        {disk
+          ? ", on the floors of rivers, lakes and oceans."
+          : triangle
+            ? ", most common at the middle height."
+            : ", spread evenly between the two heights."}
       </p>
     </div>
   );

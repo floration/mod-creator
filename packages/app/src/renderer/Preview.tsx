@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { pickAnimations, sampleChannel, type EntityModelDef, type ModelAnimation, type ModelPartDef } from "@modcreator/core/blockbench";
-import { VANILLA_MOBS } from "@modcreator/core/vanilla-mobs";
+import { VANILLA_MOBS, textureId } from "@modcreator/core/vanilla-mobs";
 import { VANILLA_MODELS, type PartPose, type VanillaGeometry, type VanillaPart } from "@modcreator/core/vanilla-models";
 import { api, type ElementSpec } from "./api";
 
@@ -221,7 +221,7 @@ async function vanillaMob(load: Loader, model: string, texture: string, scale: n
   // No texture yet: show the vanilla one from the player's Minecraft jar, if the app found it.
   const fallback = VANILLA_MOBS.models[model]?.texture;
   if (!tex && fallback) {
-    const url = await api().vanillaTexture(fallback).catch(() => null);
+    const url = await api().vanillaTexture(textureId(fallback)).catch(() => null);
     if (url) tex = await pixelTexture(url);
   }
   const material = shaded(tex);

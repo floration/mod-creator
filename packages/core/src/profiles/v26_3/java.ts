@@ -437,7 +437,8 @@ export function modContentJava(project: Project, elements: ElementSpec[]): strin
   const oreCode = ores.map(
     (o) =>
       `\t\t// ${o.name} (spec/worldgen/${o.id}.json)\n` +
-      `\t\tBiomeModifications.addFeature(BiomeSelectors.${SELECTORS[o.ore.replaces]}(), GenerationStep.Decoration.UNDERGROUND_ORES,\n` +
+      `\t\tBiomeModifications.addFeature(BiomeSelectors.${o.ore.shape === "disk" ? "foundInOverworld" : SELECTORS[o.ore.replaces]}(), ` +
+      `GenerationStep.Decoration.${o.ore.shape === "geode" ? "LOCAL_MODIFICATIONS" : "UNDERGROUND_ORES"},\n` +
       `\t\t\t\tResourceKey.create(Registries.PLACED_FEATURE, id("${o.id}")));`,
   );
   const registerBody = [...tabCode, ...body, ...oreCode];

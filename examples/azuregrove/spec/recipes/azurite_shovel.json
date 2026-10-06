@@ -1,0 +1,11 @@
+{
+  "$schema": "../../.modcreator/schema/recipe.json",
+  "kind": "recipe",
+  "id": "azurite_shovel",
+  "recipe": {
+    "type": "shaped",
+    "pattern": ["A", "S", "S"],
+    "key": { "A": "azurite", "S": "minecraft:stick" },
+    "result": { "item": "azurite_shovel" }
+  }
+}

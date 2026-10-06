@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState, type DragEvent } from "react";
 import { itemIconArt, registeredItems } from "@modcreator/core/schema";
+import { TagContext } from "./TagField";
 import { api, type CatalogEntry, type ElementSpec, type ItemIcon, type VanillaCatalog } from "./api";
 
 /** What the item slots need to know about the open project and the player's Minecraft install. */
@@ -208,7 +209,17 @@ export function ItemPicker({ held, onHold }: { held: string | null; onHold: (ref
   const match = (e: CatalogEntry) => !q || e.name.toLowerCase().includes(q) || e.id.includes(q);
 
   const own = useMemo<CatalogEntry[]>(() => ownItems(world.elements).map(({ id, name }) => ({ id, name })), [world.elements]);
-  const lists = { mod: own, minecraft: world.vanilla?.items ?? [], tags: world.vanilla?.tags ?? [] };
+  // Minecraft's item tags, then Fabric's shared `c:` ones and the mod's own, which recipes can use too.
+  const tagSources = useContext(TagContext)?.sources;
+  const tags = useMemo<CatalogEntry[]>(() => {
+    const vanilla = world.vanilla?.tags ?? [];
+    const known = new Set(vanilla.map((e) => e.id));
+    const more = [...(tagSources?.fabric.item ?? []), ...(tagSources?.mod.item ?? [])]
+      .filter((t) => !known.has(`#${t.id}`) && Boolean(known.add(`#${t.id}`)))
+      .map((t) => ({ id: `#${t.id}`, name: t.name ? `Any ${t.name}` : `Any ${titleCase(t.id.split(":").pop()!)}` }));
+    return [...vanilla, ...more];
+  }, [world.vanilla, tagSources]);
+  const lists = { mod: own, minecraft: world.vanilla?.items ?? [], tags };
   const LIMIT = 150;
   const shown = lists[tab].filter(match);
   // An id typed by hand, for items from other mods or anything the lists don't have.

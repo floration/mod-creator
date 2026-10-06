@@ -430,6 +430,18 @@ export function checkReferences(root: string, elements: LoadedElement[]): Issue[
       checkBlock(file, "ore.block", spec.ore.block);
       if (spec.ore.deepslateBlock) checkBlock(file, "ore.deepslateBlock", spec.ore.deepslateBlock);
       if (spec.ore.maxY < spec.ore.minY) err(file, "ore.maxY", "maxY must be at least minY");
+      const { disk, geode } = spec.ore;
+      if (spec.ore.shape === "disk") {
+        if (disk.radiusMax < disk.radiusMin) err(file, "ore.disk.radiusMax", "radiusMax must be at least radiusMin");
+        disk.replaces.forEach((r, i) => checkBlock(file, `ore.disk.replaces.${i}`, r));
+      }
+      if (spec.ore.shape === "geode") {
+        checkBlock(file, "ore.geode.outerBlock", geode.outerBlock);
+        checkBlock(file, "ore.geode.middleBlock", geode.middleBlock);
+        if (geode.buddingBlock) checkBlock(file, "ore.geode.buddingBlock", geode.buddingBlock);
+        geode.crystals.forEach((c, i) => checkBlock(file, `ore.geode.crystals.${i}`, c));
+        if (geode.crystals.length && !geode.buddingBlock) err(file, "ore.geode.buddingBlock", "Crystals only grow on a budding block; pick one");
+      }
     } else if (spec.kind === "advancement") {
       checkAdvancement(file, spec);
     } else if (spec.kind === "sound") {

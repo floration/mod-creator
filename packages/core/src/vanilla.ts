@@ -1,6 +1,7 @@
 import { existsSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { zipIds, zipTags, type TagCatalog } from "./tags.js";
 import { ZipFile } from "./zip.js";
 
 /**
@@ -44,11 +45,111 @@ function split(id: string): [string, string] {
   return i < 0 ? ["minecraft", id] : [id.slice(0, i), id.slice(i + 1)];
 }
 
+/** A vanilla ore, geode or disk turned into spec fields, to start an ore from. Its blocks are left out except a geode's and disk's surroundings. */
+export interface OrePreset {
+  /** The placed feature's id, like `minecraft:ore_diamond_large`. */
+  id: string;
+  name: string;
+  /** Fields for a spec's `ore` object. */
+  ore: Record<string, unknown>;
+}
+
+/** Lowest and highest Y of the Overworld; the Nether and the End run from 0 to 255. */
+const OVERWORLD: [number, number] = [-64, 319];
+const NETHER_OR_END: [number, number] = [0, 255];
+const SHAPES: Record<string, string> = { "minecraft:ore": "blob", "minecraft:scattered_ore": "scattered", "minecraft:disk": "disk", "minecraft:geode": "geode" };
+
+/** A vertical anchor (`{ absolute }`, `{ above_bottom }`, `{ below_top }`) as a Y in a dimension, kept in the spec's -64..320. */
+function anchorY(a: any, [bottom, top]: [number, number]): number | null {
+  const y = typeof a?.absolute === "number" ? a.absolute : typeof a?.above_bottom === "number" ? bottom + a.above_bottom : typeof a?.below_top === "number" ? top - a.below_top : null;
+  return y === null ? null : Math.max(-64, Math.min(320, y));
+}
+
+/** An int provider (a number or `{ type, min_inclusive, max_inclusive }`) as its range. */
+function intRange(p: any): [number, number] | null {
+  if (typeof p === "number") return [p, p];
+  if (typeof p?.value === "number") return [p.value, p.value];
+  if (typeof p?.min_inclusive === "number" && typeof p?.max_inclusive === "number") return [p.min_inclusive, p.max_inclusive];
+  return null;
+}
+
+const blockId = (state: any): string | null => (typeof state === "string" ? state : typeof state?.id === "string" ? state.id : typeof state?.Name === "string" ? state.Name : null);
+
+/** Which host a vanilla ore's targets replace, read from the tags and blocks its rules test. */
+function oreHost(targets: any[]): string {
+  const text = JSON.stringify(targets);
+  if (text.includes("netherrack") || text.includes("base_stone_nether")) return "netherrack";
+  if (text.includes("end_stone")) return "end_stone";
+  const stone = text.includes("stone_ore_replaceables");
+  const deep = text.includes("deepslate_ore_replaceables");
+  return stone && deep ? "stone_and_deepslate" : deep ? "deepslate" : "stone";
+}
+
+/**
+ * Spec fields for a vanilla placed feature and the feature it places, or null when the feature isn't a shape
+ * the ore spec has. Read from the jar so the list follows the game version.
+ */
+export function vanillaOrePreset(id: string, placed: any, feature: any): OrePreset | null {
+  const shape = SHAPES[feature?.type];
+  if (!shape || !Array.isArray(placed?.placement)) return null;
+  const ore: Record<string, unknown> = { shape };
+  if (shape === "blob" || shape === "scattered") {
+    if (typeof feature.size === "number") ore.veinSize = Math.max(1, Math.min(64, feature.size));
+    ore.airExposureSkip = feature.discard_chance_on_air_exposure ?? 0;
+    ore.replaces = oreHost(feature.targets ?? []);
+  } else if (shape === "disk") {
+    const radius = intRange(feature.radius);
+    const state = blockId(feature.state_provider?.fallback ?? feature.state_provider);
+    const targets: unknown[] = typeof feature.target?.blocks === "string" ? [feature.target.blocks] : (feature.target?.blocks ?? []);
+    ore.disk = {
+      radiusMin: Math.max(1, Math.min(8, radius?.[0] ?? 2)),
+      radiusMax: Math.max(1, Math.min(8, radius?.[1] ?? 3)),
+      halfHeight: Math.max(0, Math.min(4, feature.half_height ?? 1)),
+      replaces: targets.filter((b): b is string => typeof b === "string" && b !== state),
+    };
+  } else {
+    const b = feature.blocks ?? {};
+    const chance = feature.use_alternate_layer0_chance ?? 0;
+    const crystals = (b.inner_placements ?? []).map(blockId).filter(Boolean);
+    ore.geode = {
+      outerBlock: blockId(b.outer_layer_provider) ?? "minecraft:smooth_basalt",
+      middleBlock: blockId(b.middle_layer_provider) ?? "minecraft:calcite",
+      ...(chance > 0 && blockId(b.alternate_inner_layer_provider) ? { buddingBlock: blockId(b.alternate_inner_layer_provider) } : {}),
+      buddingChance: chance,
+      crystals: chance > 0 ? crystals : [],
+      crackChance: feature.crack?.generate_crack_chance ?? 0.95,
+    };
+  }
+  const world = ore.replaces === "netherrack" || ore.replaces === "end_stone" ? NETHER_OR_END : OVERWORLD;
+  for (const step of placed.placement) {
+    if (step?.type === "minecraft:count") {
+      const count = intRange(step.count);
+      if (count) ore.veinsPerChunk = Math.max(1, Math.min(128, Math.round((count[0] + count[1]) / 2)));
+    } else if (step?.type === "minecraft:rarity_filter" && typeof step.chance === "number") {
+      ore.chunksPerVein = Math.max(1, Math.min(1000, step.chance));
+    } else if (step?.type === "minecraft:height_range") {
+      const h = step.height ?? {};
+      const min = anchorY(h.min_inclusive, world);
+      const max = anchorY(h.max_inclusive, world);
+      if (min !== null && max !== null) {
+        ore.minY = min;
+        ore.maxY = max;
+        ore.distribution = h.type === "minecraft:trapezoid" ? "triangle" : "uniform";
+      }
+    }
+  }
+  if (ore.veinsPerChunk === undefined && ore.chunksPerVein === undefined) ore.veinsPerChunk = 1;
+  return { id, name: titleCase(split(id)[1]), ore };
+}
+
 /** Item names, icons and tags read straight from a Minecraft client jar, so nothing from Mojang is shipped with the tool. */
 export class VanillaAssets {
   private lang: Record<string, string>;
   private icons = new Map<string, ItemIcon | null>();
-  private catalogCache: { items: CatalogEntry[]; tags: CatalogEntry[] } | null = null;
+  private catalogCache: { items: CatalogEntry[]; tags: CatalogEntry[]; orePresets: OrePreset[] } | null = null;
+  private tagCache: TagCatalog | null = null;
+  private idCache = new Map<string, string[]>();
+  private textureList: string[] | null = null;
 
   constructor(private readonly zip: ZipFile) {
     this.lang = this.json("assets/minecraft/lang/en_us.json") ?? {};
@@ -68,27 +169,56 @@ export class VanillaAssets {
     }
   }
 
-  /** A PNG from the game's assets as a data URL, like `textures/entity/zombie/zombie.png`. Null if it isn't there. */
-  texture(asset: string): string | null {
-    if (!/^textures\/[a-z0-9_/.-]+\.png$/.test(asset)) return null;
-    const png = this.zip.read(`assets/minecraft/${asset}`);
-    return png ? `data:image/png;base64,${png.toString("base64")}` : null;
-  }
-
-  /** Every item and item tag in the game, sorted by display name. */
-  catalog(): { items: CatalogEntry[]; tags: CatalogEntry[] } {
+  /** Every item and item tag in the game, sorted by display name, and the game's ores, geodes and disks. */
+  catalog(): { items: CatalogEntry[]; tags: CatalogEntry[]; orePresets: OrePreset[] } {
     if (this.catalogCache) return this.catalogCache;
     const items: CatalogEntry[] = [];
     const tags: CatalogEntry[] = [];
+    const orePresets: OrePreset[] = [];
     for (const name of this.zip.names()) {
+      const placed = /^data\/minecraft\/worldgen\/placed_feature\/([a-z0-9_]+)\.json$/.exec(name);
+      if (placed) {
+        const json = this.json(name);
+        const feature = typeof json?.feature === "string" ? this.json(`data/minecraft/worldgen/feature/${split(json.feature)[1]}.json`) : null;
+        const preset = feature && vanillaOrePreset(`minecraft:${placed[1]}`, json, feature);
+        if (preset) orePresets.push(preset);
+      }
       let m = /^assets\/minecraft\/items\/([a-z0-9_]+)\.json$/.exec(name);
       if (m && m[1] !== "air") items.push({ id: `minecraft:${m[1]}`, name: this.name(`minecraft:${m[1]}`) });
       m = /^data\/minecraft\/tags\/item\/([a-z0-9_/]+)\.json$/.exec(name);
       if (m) tags.push({ id: `#minecraft:${m[1]}`, name: this.name(`#minecraft:${m[1]}`) });
     }
     const byName = (a: CatalogEntry, b: CatalogEntry) => a.name.localeCompare(b.name);
-    this.catalogCache = { items: items.sort(byName), tags: tags.sort(byName) };
+    this.catalogCache = { items: items.sort(byName), tags: tags.sort(byName), orePresets: orePresets.sort(byName) };
     return this.catalogCache;
+  }
+
+  /** Every tag file in the jar, by registry: block, item, entity_type, worldgen/biome and the rest. */
+  tags(): TagCatalog {
+    return (this.tagCache ??= zipTags(this.zip));
+  }
+
+  /** Ids in a data-driven registry: `worldgen/biome` gives `minecraft:plains` and the rest. */
+  ids(registry: string): string[] {
+    if (!this.idCache.has(registry)) this.idCache.set(registry, zipIds(this.zip, registry));
+    return this.idCache.get(registry)!;
+  }
+
+  /** Every texture in the jar as an id like `minecraft:block/iron_ore`, sorted, for picking one to tint. */
+  textures(): string[] {
+    this.textureList ??= [...this.zip.names()]
+      .map((name) => /^assets\/minecraft\/textures\/([a-z0-9_./-]+)\.png$/.exec(name)?.[1])
+      .filter((p): p is string => !!p)
+      .map((p) => `minecraft:${p}`)
+      .sort();
+    return this.textureList;
+  }
+
+  /** One texture's PNG bytes, by the same kind of id. */
+  texture(id: string): Buffer | null {
+    const [ns, p] = split(id);
+    if (!/^[a-z0-9_./-]+$/.test(p) || p.includes("..")) return null;
+    return this.zip.read(`assets/${ns}/textures/${p}.png`);
   }
 
   /** English display name: `minecraft:glowstone` -> `Glowstone`, `#minecraft:planks` -> `Any Planks`. */
