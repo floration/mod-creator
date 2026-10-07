@@ -1,7 +1,7 @@
 {
   "name": "@modcreator/core",
-  "version": "0.1.0",
-  "description": "Spec schemas, loader and code generator for Mod Creator",
+  "version": "0.2.0",
+  "description": "Spec schemas, loader and code generator for Floration",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

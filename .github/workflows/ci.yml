@@ -43,7 +43,7 @@ jobs:
       - run: npm ci
         env:
           ELECTRON_SKIP_BINARY_DOWNLOAD: "1"
-      - name: Build the Mod Creator CLI
+      - name: Build the Floration CLI
         run: npm run build -w @modcreator/core -w @modcreator/cli
       - uses: actions/setup-java@v4
         with:

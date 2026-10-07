@@ -18,7 +18,7 @@ export function gradleProperties(project: Project, cliPath: string | null): stri
 org.gradle.parallel=true
 org.gradle.configuration-cache=false
 
-# Toolchain pinned by the Mod Creator 26.3 profile
+# Toolchain pinned by the Floration 26.3 profile
 minecraft_version=${VERSIONS.minecraft}
 loader_version=${VERSIONS.loader}
 loom_version=${VERSIONS.loom}
@@ -27,7 +27,7 @@ fabric_api_version=${VERSIONS.fabricApi}
 maven_group=${project.package}
 archives_base_name=${project.modId}
 
-# Mod Creator CLI (packages/cli/dist/index.js in the mod-creator repo), absolute or relative to this folder.
+# Floration CLI (packages/cli/dist/index.js in the mod-creator repo), absolute or relative to this folder.
 # When set, every build regenerates src/generated from spec/ first. Remove the line to build without it.
 ${cliPath ? `modcreator_cli=${cliPath}` : "#modcreator_cli="}
 `;
@@ -58,7 +58,7 @@ export function buildGradle(_project: Project): string {
 }
 
 // modcreator.json is read on every build, so the version and Modrinth dependencies set there
-// (in the Mod Creator app or by hand) apply without editing this file.
+// (in the Floration app or by hand) apply without editing this file.
 def ${GRADLE_READS_PROJECT} = new groovy.json.JsonSlurper().parse(file('modcreator.json'))
 
 version = ${GRADLE_READS_PROJECT}.version
@@ -91,7 +91,7 @@ dependencies {
 \t${GRADLE_READS_PROJECT}.dependencies?.each { implementation "maven.modrinth:\${it.slug}:\${it.version}" }
 }
 
-// Mod Creator writes generated code and assets here. Hand-written files stay in src/main.
+// Floration writes generated code and assets here. Hand-written files stay in src/main.
 sourceSets {
 \tmain {
 \t\tjava.srcDir 'src/generated/java'
@@ -102,7 +102,7 @@ sourceSets {
 def modcreatorCli = providers.gradleProperty('modcreator_cli')
 def generateModContent = tasks.register('generateModContent', Exec) {
 \tgroup = 'mod creator'
-\tdescription = 'Regenerates src/generated from spec/ with the Mod Creator CLI.'
+\tdescription = 'Regenerates src/generated from spec/ with the Floration CLI.'
 \tonlyIf { modcreatorCli.isPresent() }
 \tinputs.file('modcreator.json')
 \tinputs.files(fileTree('spec'), fileTree('art'))
@@ -182,7 +182,7 @@ import net.fabricmc.api.ModInitializer;
 
 import ${project.package}.generated.ModContent;
 
-/** Your mod's entrypoint. Mod Creator created this file once; it is yours to edit. */
+/** Your mod's entrypoint. Floration created this file once; it is yours to edit. */
 public class ${name} implements ModInitializer {
 \t@Override
 \tpublic void onInitialize() {

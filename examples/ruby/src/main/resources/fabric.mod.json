@@ -3,9 +3,9 @@
   "id": "ruby",
   "version": "${version}",
   "name": "Ruby",
-  "description": "Mod Creator example: a ruby ore, gem, block and lamp.",
+  "description": "Floration example: a ruby ore, gem, block and lamp.",
   "authors": [
-    "Mod Creator"
+    "Floration"
   ],
   "license": "All-Rights-Reserved",
   "environment": "*",

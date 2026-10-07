@@ -28,7 +28,7 @@ export interface CreateOptions {
   cliPath?: string | null;
 }
 
-/** Create a new, buildable 26.3 Fabric mod project managed by Mod Creator. */
+/** Create a new, buildable 26.3 Fabric mod project managed by Floration. */
 export async function createProject(dir: string, options: CreateOptions): Promise<Project> {
   dir = path.resolve(dir);
   if (existsSync(dir) && (await readdir(dir)).length > 0) {

@@ -1,4 +1,4 @@
-// Reads every vanilla mob model and AI goal out of a Minecraft client jar, for Mod Creator's mob editor.
+// Reads every vanilla mob model and AI goal out of a Minecraft client jar, for Floration's mob editor.
 //
 // Run by scripts/extract-vanilla.mjs with the client jar and its libraries on the classpath:
 //   java -cp <jars> scripts/vanilla/ExtractVanilla.java <out.json>

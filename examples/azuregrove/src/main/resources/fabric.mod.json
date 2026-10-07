@@ -3,9 +3,9 @@
   "id": "azuregrove",
   "version": "${version}",
   "name": "Azure Grove",
-  "description": "Mod Creator example: one of each content type, around a blue Azure Grove biome.",
+  "description": "Floration example: one of each content type, around a blue Azure Grove biome.",
   "authors": [
-    "Mod Creator"
+    "Floration"
   ],
   "license": "All-Rights-Reserved",
   "environment": "*",
