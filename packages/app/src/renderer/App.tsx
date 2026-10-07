@@ -15,6 +15,7 @@ import { Preview } from "./Preview";
 import { ProjectEditor } from "./ProjectEditor";
 import { TextureContext, type TextureWorld } from "./TextureField";
 import { TagContext, type TagWorld } from "./TagField";
+import appIcon from "../../assets/icon.png";
 
 const KINDS: { kind: Kind; folder: string; title: string }[] = [
   { kind: "block", folder: "blocks", title: "Blocks" },
@@ -262,7 +263,7 @@ export function App() {
 
   const save = useCallback(async () => {
     if (!root || !selected || !draft) return;
-    if (conflict === "changed" && !confirm("This file was changed outside Mod Creator. Save over those changes?")) return;
+    if (conflict === "changed" && !confirm("This file was changed outside Floration. Save over those changes?")) return;
     // A broken modcreator.json would stop the project from opening at all, so it only saves when valid.
     if (selected === PROJECT_FILE && !ProjectSchema.safeParse(draft).success) {
       alert("Fix the highlighted settings first.");
@@ -453,7 +454,7 @@ export function App() {
               <div className="conflict">
                 <span>
                   {conflict === "changed"
-                    ? "This file was changed outside Mod Creator while you had unsaved edits."
+                    ? "This file was changed outside Floration while you had unsaved edits."
                     : "This file was deleted or can no longer be read (see Problems) while you had unsaved edits."}
                 </span>
                 <span className="spacer" />
@@ -571,7 +572,10 @@ function Welcome({ error, onOpen }: { error: string | null; onOpen: (dir: string
 
   return (
     <div className="welcome">
-      <h1>Mod Creator</h1>
+      <h1 className="app-title">
+        <img src={appIcon} alt="" width={40} height={40} />
+        Floration <span className="muted version">{__APP_VERSION__}</span>
+      </h1>
       <p className="muted">Build Minecraft 26.3 Fabric mods from forms. Everything is saved as plain files you can also edit by hand.</p>
       {error && <p className="bad">{error}</p>}
       <div className="welcome-cards">

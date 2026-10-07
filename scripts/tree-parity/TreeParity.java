@@ -42,7 +42,7 @@ import net.minecraft.world.level.material.FluidState;
 /**
  * Grows each tree config in configs.json with Minecraft's own trunk and foliage placers, the way TreeFeature
  * does in open air on flat grass at y 64, and records each tree as a SHA-1 of its sorted blocks ("x,y,z,log:y"
- * lines, y relative to the sapling). The Mod Creator preview (treegen.ts) must grow exactly the same blocks;
+ * lines, y relative to the sapling). The Floration preview (treegen.ts) must grow exactly the same blocks;
  * packages/core/test/treegen.test.ts checks it against this output, kept in test/fixtures/vanilla-trees.json.
  * See README.md here for how to run it.
  *

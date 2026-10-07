@@ -1,7 +1,7 @@
 {
   "name": "@modcreator/app",
-  "version": "0.1.0",
-  "description": "Mod Creator desktop app: spec editor, 3D preview and build buttons",
+  "version": "0.2.0",
+  "description": "Floration desktop app: spec editor, 3D preview and build buttons",
   "type": "module",
   "main": "dist/main/main.js",
   "scripts": {
@@ -10,7 +10,7 @@
     "start": "npm run build && electron ."
   },
   "dependencies": {
-    "@modcreator/core": "0.1.0",
+    "@modcreator/core": "0.2.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "three": "^0.186.1"

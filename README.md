@@ -1,10 +1,12 @@
-# Mod Creator
+# Floration
 
 A desktop tool for building Minecraft 26.3+ Fabric mods with forms, previews and plain files instead of hand-written registration code.
 
 Every block, item, tool, armor set, recipe, ore vein, tree, plant, mob, biome, structure, sound and advancement is one small JSON file in the mod's `spec/` folder. The app is an editor for those files. A generator turns them into Java and resource files in `src/generated/`, and the mod stays a normal Gradle project you can open in IntelliJ at any time.
 
-Design doc: [Mod Creator Architecture](https://claude.ai/code/artifact/ab83630b-aecd-4450-b781-0d67d2fd176f)
+Every pull request raises the patch version by one (`npm run bump`); see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+Design doc: [Floration Architecture](https://claude.ai/code/artifact/ab83630b-aecd-4450-b781-0d67d2fd176f)
 
 ## What you need
 
@@ -28,7 +30,7 @@ npm test
 npm run app -- --project ../../examples/ruby
 ```
 
-`npm run app`, or double-clicking `Mod Creator.cmd` on Windows, updates the tool before it opens: it pulls `main` from GitHub, reinstalls packages if they changed, rebuilds, then starts the app. It skips the update when you're offline, on another branch, or have uncommitted changes to the tool's code, and `npm run app -- --no-update` skips it on purpose. Your mod projects are never touched by this.
+`npm run app`, or double-clicking `Floration.cmd` on Windows, updates the tool before it opens: it pulls `main` from GitHub, reinstalls packages if they changed, rebuilds, then starts the app. It skips the update when you're offline, on another branch, or have uncommitted changes to the tool's code, and `npm run app -- --no-update` skips it on purpose. Your mod projects are never touched by this.
 
 `--project` is relative to `packages/app`. Without it, the app reopens the last project or shows the welcome screen.
 

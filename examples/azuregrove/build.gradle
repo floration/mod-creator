@@ -3,7 +3,7 @@ plugins {
 }
 
 // modcreator.json is read on every build, so the version and Modrinth dependencies set there
-// (in the Mod Creator app or by hand) apply without editing this file.
+// (in the Floration app or by hand) apply without editing this file.
 def MODCREATOR_PROJECT = new groovy.json.JsonSlurper().parse(file('modcreator.json'))
 
 version = MODCREATOR_PROJECT.version
@@ -36,7 +36,7 @@ dependencies {
 	MODCREATOR_PROJECT.dependencies?.each { implementation "maven.modrinth:${it.slug}:${it.version}" }
 }
 
-// Mod Creator writes generated code and assets here. Hand-written files stay in src/main.
+// Floration writes generated code and assets here. Hand-written files stay in src/main.
 sourceSets {
 	main {
 		java.srcDir 'src/generated/java'
@@ -47,7 +47,7 @@ sourceSets {
 def modcreatorCli = providers.gradleProperty('modcreator_cli')
 def generateModContent = tasks.register('generateModContent', Exec) {
 	group = 'mod creator'
-	description = 'Regenerates src/generated from spec/ with the Mod Creator CLI.'
+	description = 'Regenerates src/generated from spec/ with the Floration CLI.'
 	onlyIf { modcreatorCli.isPresent() }
 	inputs.file('modcreator.json')
 	inputs.files(fileTree('spec'), fileTree('art'))

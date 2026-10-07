@@ -29,14 +29,14 @@ import net.minecraft.world.level.levelgen.feature.trunkplacers.TrunkPlacer;
 
 /**
  * Reads Minecraft's own tree configs out of the jar (TreeFeatures, the code that builds the vanilla trees) and
- * writes the trunk placer, foliage placer and minimum size of each shape Mod Creator offers to
+ * writes the trunk placer, foliage placer and minimum size of each shape Floration offers to
  * packages/core/src/profiles/v26_3/vanillaTrees.json. Rerun it against a new Minecraft version's jar and the
  * shapes follow; TreeParity.java then checks the preview still grows them right.
  *
  * Usage: java -cp <minecraft jar + its libraries> ExtractTrees.java out.json
  */
 public class ExtractTrees {
-	/** Mod Creator's shape name -> the vanilla feature it copies. */
+	/** Floration's shape name -> the vanilla feature it copies. */
 	static final Map<String, String> SHAPES = new LinkedHashMap<>();
 	static {
 		SHAPES.put("oak", "oak");

@@ -336,7 +336,7 @@ export const GoalArg = z.union([z.number(), z.boolean(), z.string(), z.array(z.s
 
 /**
  * One AI goal: any vanilla goal, by name (`panic`, `avoid_entity`, `nearest_attackable_target`...). Arguments are
- * the goal constructor's parameters by name; Mod Creator picks the constructor they fit. Lower priorities win.
+ * the goal constructor's parameters by name; Floration picks the constructor they fit. Lower priorities win.
  */
 export const MobGoal = z.object({
   goal: z.enum(VANILLA_GOAL_IDS as [string, ...string[]]),

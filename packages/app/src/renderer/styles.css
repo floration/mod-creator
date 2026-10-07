@@ -199,6 +199,9 @@ table.rows td.has-error input { border-color: var(--error); }
 
 .welcome { max-width: 880px; margin: 64px auto; padding: 0 24px; }
 .welcome h1 { margin-bottom: 4px; }
+.app-title { display: flex; align-items: center; gap: 12px; }
+.app-title img { image-rendering: pixelated; }
+.app-title .version { font-size: 14px; font-weight: normal; align-self: flex-end; margin-bottom: 6px; }
 .welcome-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px; }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 8px; }
 .card h2 { margin: 0; font-size: 16px; }

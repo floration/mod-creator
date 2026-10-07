@@ -25,7 +25,7 @@ checks="$structures$trees"
 if [ -n "$checks" ]; then
   pack=run/world/datapacks/modcreator_check
   mkdir -p "$pack/data/check/function" "$pack/data/minecraft/tags/function"
-  echo '{"pack":{"description":"Mod Creator CI check","pack_format":121,"min_format":121,"max_format":121}}' > "$pack/pack.mcmeta"
+  echo '{"pack":{"description":"Floration CI check","pack_format":121,"min_format":121,"max_format":121}}' > "$pack/pack.mcmeta"
   echo '{"values":["check:load"]}' > "$pack/data/minecraft/tags/function/load.json"
   printf 'scoreboard objectives add check dummy\nforceload add -32 -32 255 31\nschedule function check:place 100t\n' > "$pack/data/check/function/load.mcfunction"
   : > "$pack/data/check/function/place.mcfunction"

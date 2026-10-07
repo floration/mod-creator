@@ -47,7 +47,7 @@ ipcMain.handle("project:initial", () => projectArg);
 
 ipcMain.handle("project:pick", async () => {
   const result = await dialog.showOpenDialog(window!, {
-    title: "Open a Mod Creator project",
+    title: "Open a Floration project",
     properties: ["openDirectory"],
   });
   return result.canceled ? null : result.filePaths[0];
@@ -300,6 +300,9 @@ ipcMain.handle("shell:open", async (_e, root: string, rel: string) => {
   await shell.openPath(inside(root, rel));
 });
 
+// Groups the window under Floration on the Windows taskbar instead of under Electron.
+if (process.platform === "win32") app.setAppUserModelId("Floration");
+
 app.whenReady().then(() => {
   // No visible File/Edit/View bar, but a hidden menu keeps its shortcuts: copy, paste, undo, zoom,
   // reload (Ctrl+R) and developer tools (Ctrl+Shift+I).
@@ -314,7 +317,8 @@ app.whenReady().then(() => {
   window = new BrowserWindow({
     width: 1400,
     height: 900,
-    title: "Mod Creator",
+    title: "Floration",
+    icon: path.join(here, "..", "..", "assets", process.platform === "win32" ? "icon.ico" : "icon.png"),
     backgroundColor: "#1e1f22",
     webPreferences: {
       preload: path.join(here, "preload.cjs"),
@@ -333,7 +337,7 @@ app.whenReady().then(() => {
       cancelId: 1,
       title: "Unsaved changes",
       message: "You have unsaved changes.",
-      detail: "Close Mod Creator and lose them?",
+      detail: "Close Floration and lose them?",
     });
     if (choice === 0) event.preventDefault();
   });

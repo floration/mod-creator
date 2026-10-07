@@ -134,7 +134,7 @@ const supported = (p: GoalParam) => !p.type.startsWith("other:");
 export function goalProblem(goal: VanillaGoal, behavior: string): string | null {
   const have = new Set(VANILLA_MOBS.bases[baseOf(behavior)]);
   const usable = goal.constructors.filter((c) => c.params.every(supported));
-  if (!usable.length) return "Its constructors take Java values Mod Creator can't write in a spec";
+  if (!usable.length) return "Its constructors take Java values Floration can't write in a spec";
   const fits = usable.filter((c) => (c.mobBounds ?? []).every((b) => have.has(b)));
   if (fits.length) return null;
   const need = [...new Set(usable.flatMap((c) => c.mobBounds ?? []).filter((b) => !have.has(b)))].map(simpleName);

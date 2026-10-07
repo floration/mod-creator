@@ -133,7 +133,7 @@ function status(world: TagWorld | null, options: TagOption[], value: string): { 
   const loaded = ns === "minecraft" ? Object.keys(sources?.minecraft ?? {}).length > 0 : ns === "c" ? Object.keys(sources?.fabric ?? {}).length > 0 : false;
   return loaded
     ? { kind: "unknown", title: `${ns === "c" ? "Fabric" : "Minecraft"} has no tag called ${bare}. Check the spelling.` }
-    : { kind: "known", title: `From ${ns}; Mod Creator can't check it` };
+    : { kind: "known", title: `From ${ns}; Floration can't check it` };
 }
 
 interface InputProps {
