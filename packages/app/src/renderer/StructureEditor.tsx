@@ -207,7 +207,8 @@ export function StructurePreview({ file, version }: { file: string; version: num
     view.current = { scene, camera, controls, object: null };
     const resize = () => {
       const { clientWidth: w, clientHeight: h } = el;
-      renderer.setSize(w, h);
+      // false: CSS sizes the canvas, so setting it here can't feed back into the observed size.
+      renderer.setSize(w, h, false);
       camera.aspect = w / Math.max(h, 1);
       camera.updateProjectionMatrix();
     };

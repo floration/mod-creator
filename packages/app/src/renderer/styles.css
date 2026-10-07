@@ -46,10 +46,14 @@ button.icon { padding: 0 8px; line-height: 20px; }
 
 .app {
   display: grid;
-  grid-template-columns: 240px 1fr;
-  grid-template-rows: auto 1fr 220px;
+  /* minmax(0, …) and overflow: hidden keep wide or tall content (a canvas, a long log line) from
+     growing the window past the screen. Otherwise a page scrollbar appears, the previews shrink to
+     fit, the scrollbar goes away again, and the layout flickers between the two sizes. */
+  grid-template-columns: 240px minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) 220px;
   grid-template-areas: "toolbar toolbar" "sidebar editor" "sidebar panel";
   height: 100vh;
+  overflow: hidden;
 }
 .toolbar {
   grid-area: toolbar;
@@ -59,7 +63,10 @@ button.icon { padding: 0 8px; line-height: 20px; }
   padding: 8px 12px;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
+  min-width: 0;
 }
+.toolbar > * { flex-shrink: 0; white-space: nowrap; }
+.toolbar > .muted { flex-shrink: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .project-name { font-size: 15px; }
 
 .sidebar { grid-area: sidebar; overflow-y: auto; overflow-x: hidden; background: var(--surface); border-right: 1px solid var(--border); padding: 8px; }
@@ -95,7 +102,7 @@ button.icon { padding: 0 8px; line-height: 20px; }
 .new-id { display: flex; gap: 4px; padding: 4px; }
 .editor-head .new-id { padding: 0; }
 
-.editor { grid-area: editor; display: flex; flex-direction: column; min-height: 0; }
+.editor { grid-area: editor; display: flex; flex-direction: column; min-height: 0; min-width: 0; }
 .editor-head { display: flex; gap: 8px; align-items: center; padding: 8px 12px; border-bottom: 1px solid var(--border); }
 .conflict { display: flex; gap: 8px; align-items: center; padding: 8px 12px; border-bottom: 1px solid var(--border); background: color-mix(in srgb, var(--warning) 18%, var(--surface)); }
 .editor-body { display: flex; flex: 1; min-height: 0; }
@@ -172,12 +179,13 @@ table.rows td.has-error input { border-color: var(--error); }
 .picker-entry.held { background: var(--surface-2); border-color: var(--accent); }
 .picker-note { grid-column: 1 / -1; padding: 8px; font-size: 12px; color: var(--muted); }
 
-.preview { flex: 1; position: relative; min-width: 0; border-left: 1px solid var(--border); }
-.preview-canvas { position: absolute; inset: 0; }
+.preview { flex: 1; position: relative; min-width: 0; overflow: hidden; border-left: 1px solid var(--border); }
+.preview-canvas { position: absolute; inset: 0; overflow: hidden; }
+.preview-canvas > canvas { display: block; width: 100%; height: 100%; }
 .preview-note { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); }
 .preview-toggle { position: absolute; left: 12px; bottom: 12px; display: flex; gap: 6px; align-items: center; color: var(--muted); font-size: 13px; }
 
-.panel { grid-area: panel; display: flex; flex-direction: column; min-height: 0; border-top: 1px solid var(--border); background: var(--surface); }
+.panel { grid-area: panel; display: flex; flex-direction: column; min-height: 0; min-width: 0; border-top: 1px solid var(--border); background: var(--surface); }
 .tabs { display: flex; gap: 4px; align-items: center; padding: 4px 8px; border-bottom: 1px solid var(--border); }
 .tabs button { background: none; border: none; color: var(--muted); }
 .tabs button.active { color: var(--text); box-shadow: inset 0 -2px var(--accent); border-radius: 0; }
