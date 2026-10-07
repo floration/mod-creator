@@ -89,6 +89,8 @@ export interface StructureTemplate {
   /** Positions and palette indexes. Blocks missing from the list keep whatever terrain is there. */
   blocks: { pos: [number, number, number]; state: number }[];
   entities: number;
+  /** The palette uses the pre-26.3 `Name`/`Properties` keys. */
+  legacyPalette: boolean;
 }
 
 /** Read a structure block's `.nbt` file. Throws with a readable message when it isn't one. */
@@ -102,10 +104,13 @@ export function parseStructure(data: Buffer): StructureTemplate {
   // Files with several palettes (shipwrecks) list them under `palettes`; the first is used.
   const rawPalette = Array.isArray(root.palette) ? root.palette : Array.isArray(root.palettes) && Array.isArray(root.palettes[0]) ? root.palettes[0] : null;
   if (!rawPalette) throw new Error("This NBT file has no block palette, so it isn't a structure. Save one with a structure block");
+  // 26.3 writes `{id, properties}`; files from older versions have `{Name, Properties}`, which the game upgrades on load.
+  let legacyPalette = false;
   const palette = rawPalette.map((p) => {
-    const e = p as { Name?: NbtValue; Properties?: NbtValue };
-    const props = (e.Properties ?? {}) as Record<string, NbtValue>;
-    return { name: String(e.Name ?? "minecraft:air"), properties: Object.fromEntries(Object.entries(props).map(([k, v]) => [k, String(v)])) };
+    const e = p as { id?: NbtValue; properties?: NbtValue; Name?: NbtValue; Properties?: NbtValue };
+    if (e.id === undefined && e.Name !== undefined) legacyPalette = true;
+    const props = (e.properties ?? e.Properties ?? {}) as Record<string, NbtValue>;
+    return { name: String(e.id ?? e.Name ?? "minecraft:air"), properties: Object.fromEntries(Object.entries(props).map(([k, v]) => [k, String(v)])) };
   });
   const blocks = (Array.isArray(root.blocks) ? root.blocks : []).map((b) => {
     const e = b as { pos?: NbtValue; state?: NbtValue };
@@ -117,6 +122,7 @@ export function parseStructure(data: Buffer): StructureTemplate {
     palette,
     blocks,
     entities: Array.isArray(root.entities) ? root.entities.length : 0,
+    legacyPalette,
   };
 }
 
@@ -133,8 +139,8 @@ class Writer {
   done() { return Buffer.concat(this.parts); }
 }
 
-/** Write a structure as a gzipped `.nbt`, the way a structure block saves it. */
-export function writeStructure(t: Omit<StructureTemplate, "entities">): Buffer {
+/** Write a structure as a gzipped `.nbt`, the way a 26.3 structure block saves it (palette entries are `{id, properties}`). */
+export function writeStructure(t: Omit<StructureTemplate, "entities" | "legacyPalette">): Buffer {
   const w = new Writer();
   w.named(10, "");
   w.intList("size", t.size);
@@ -156,14 +162,14 @@ export function writeStructure(t: Omit<StructureTemplate, "entities">): Buffer {
   for (const p of t.palette) {
     const props = Object.entries(p.properties);
     if (props.length) {
-      w.named(10, "Properties");
+      w.named(10, "properties");
       for (const [k, v] of props) {
         w.named(8, k);
         w.string(v);
       }
       w.byte(0);
     }
-    w.named(8, "Name");
+    w.named(8, "id");
     w.string(p.name);
     w.byte(0);
   }

@@ -67,9 +67,23 @@ class Output {
   }
 
   finish(): ResourceFiles {
-    if (Object.keys(this.lang).length) this.set(`assets/${this.modId}/lang/en_us.json`, this.lang);
     for (const [file, values] of this.tags) this.set(file, { replace: false, values });
+    this.tagNames();
+    if (Object.keys(this.lang).length) this.set(`assets/${this.modId}/lang/en_us.json`, this.lang);
     return this.files;
+  }
+
+  /**
+   * Names for the item tags this mod adds (`tag.item.<ns>.<path>`, slashes as dots), so recipe viewers can show them and
+   * Fabric doesn't warn about untranslated tags. Vanilla and `c:` tags already have names from the game and Fabric.
+   */
+  private tagNames() {
+    for (const file of this.files.keys()) {
+      const m = /^data\/([^/]+)\/tags\/item\/(.+)\.json$/.exec(file);
+      if (!m || m[1] === "minecraft" || m[1] === "c") continue;
+      const key = `tag.item.${m[1]}.${m[2].replaceAll("/", ".")}`;
+      this.lang[key] ??= m[2].split(/[/_]/).filter(Boolean).map((w) => w[0].toUpperCase() + w.slice(1)).join(" ");
+    }
   }
 }
 

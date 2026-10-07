@@ -1,6 +1,7 @@
 import { cp, mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import os from "node:os";
+import { gunzipSync, gzipSync } from "node:zlib";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it } from "vitest";
@@ -231,6 +232,14 @@ describe("advancements", () => {
     expect(lang["advancements.azuregrove.lurker_hunter.description"]).toBe("Defeat a Grove Lurker and a Bluetusk");
   });
 
+  it("names the mod's item tags so Fabric doesn't warn about untranslated tags", async () => {
+    const files = plan(await loadProject(AZUREGROVE));
+    const lang = JSON.parse(files.get("src/generated/resources/assets/azuregrove/lang/en_us.json") as string);
+    expect(lang["tag.item.azuregrove.azurewood_logs"]).toBe("Azurewood Logs");
+    expect(lang["tag.item.azuregrove.azurite_repair_items"]).toBe("Azurite Repair Items");
+    expect(Object.keys(lang).filter((k) => k.startsWith("tag.item.minecraft.") || k.startsWith("tag.item.c."))).toEqual([]);
+  });
+
   it("reports missing parents, parent loops and criteria that can't happen", async () => {
     const dir = await copyOf(AZUREGROVE);
     await editSpec(dir, "spec/advancements/azure_grove.json", (json) => { json.advancement.parent = "tusk_rancher"; });
@@ -274,6 +283,20 @@ describe("structures", () => {
     expect(t.size).toEqual([5, 4, 6]);
     expect(t.palette.map((p) => p.name)).toContain("azuregrove:azurite_brick_wall");
     expect(t.palette.find((p) => p.name === "azuregrove:azurite_brick_slab")!.properties).toEqual({ type: "bottom", waterlogged: "false" });
+    // 26.3 reads palette entries as {id, properties}; the old {Name, Properties} keys load as air.
+    expect(t.legacyPalette).toBe(false);
+  });
+
+  it("flags 26.3 structure files that use the old palette keys, since every block in them loads as air", async () => {
+    const legacy = Buffer.from(gunzipSync(writeStructure({ dataVersion: 5023, size: [1, 1, 1], palette: [{ name: "minecraft:stone", properties: {} }], blocks: [{ pos: [0, 0, 0], state: 0 }] })).toString("latin1").replace("\x08\x00\x02id", "\x08\x00\x04Name"), "latin1");
+    const t = parseStructure(legacy);
+    expect(t.legacyPalette).toBe(true);
+    expect(t.palette[0].name).toBe("minecraft:stone");
+
+    const dir = await copyOf(AZUREGROVE);
+    await writeFile(path.join(dir, "art/azure_shrine.nbt"), gzipSync(legacy));
+    const issues = (await loadProject(dir)).issues.filter((i) => i.file === "spec/structures/azure_shrine.json");
+    expect(issues.map((i) => i.message)).toEqual([expect.stringMatching(/old Name\/Properties keys .* reads every block as air/)]);
   });
 
   it("reports blocks the mod doesn't have, files that aren't structures and bad spacing", async () => {

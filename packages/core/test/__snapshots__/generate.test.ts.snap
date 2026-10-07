@@ -2368,7 +2368,15 @@ public record CustomTreeFeature(
   "item.minecraft.lingering_potion.effect.azuregrove.grove_stride": "Lingering Potion of Grove Stride",
   "item.minecraft.tipped_arrow.effect.azuregrove.grove_stride": "Arrow of Grove Stride",
   "enchantment.azuregrove.lurkers_bane": "Lurker's Bane",
-  "subtitles.azuregrove.bluetusk_grunt": "Bluetusk grunts"
+  "subtitles.azuregrove.bluetusk_grunt": "Bluetusk grunts",
+  "tag.item.azuregrove.azurite_axe_repair_items": "Azurite Axe Repair Items",
+  "tag.item.azuregrove.azurite_hoe_repair_items": "Azurite Hoe Repair Items",
+  "tag.item.azuregrove.azurite_pickaxe_repair_items": "Azurite Pickaxe Repair Items",
+  "tag.item.azuregrove.azurite_shovel_repair_items": "Azurite Shovel Repair Items",
+  "tag.item.azuregrove.azurite_sword_repair_items": "Azurite Sword Repair Items",
+  "tag.item.azuregrove.azurite_repair_items": "Azurite Repair Items",
+  "tag.item.azuregrove.azurewood_logs": "Azurewood Logs",
+  "tag.item.azuregrove.sky_willow_logs": "Sky Willow Logs"
 }
 ",
   "src/generated/resources/assets/azuregrove/models/block/azure_grass.json": "{
