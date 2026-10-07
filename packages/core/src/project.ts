@@ -150,6 +150,9 @@ async function checkStructures(root: string, modId: string, elements: LoadedElem
     try {
       const t = parseStructure(await readFile(nbt));
       if (t.blocks.length === 0) at("error", `${spec.structure.file} has no blocks in it`);
+      if (t.legacyPalette && t.dataVersion >= DATA_VERSION) {
+        at("error", `${spec.structure.file} lists its blocks under the old Name/Properties keys but says it is from 26.3, so the game reads every block as air. Save it again with a structure block in 26.3`);
+      }
       if (t.dataVersion > DATA_VERSION) at("warning", `${spec.structure.file} was saved by a newer Minecraft (data version ${t.dataVersion}) than 26.3 (${DATA_VERSION}) and may not load`);
       const missing = [...new Set(t.palette.map((p) => p.name))].filter((n) => n.startsWith(`${modId}:`) && !blocks.has(n.slice(modId.length + 1)));
       if (missing.length) at("error", `${spec.structure.file} uses ${missing.join(", ")}, which this mod doesn't have`);
