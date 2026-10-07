@@ -3,7 +3,7 @@ import { existsSync, watch, type FSWatcher } from "node:fs";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { app, BrowserWindow, dialog, ipcMain, shell } from "electron";
+import { app, BrowserWindow, dialog, ipcMain, Menu, shell } from "electron";
 import { VanillaAssets, createProject, modrinthVersions, searchModrinth, dependentsOf, parseBlockbench, parseStructure, oggChannels, findMinecraftJar, generate, loadProject, conventionTags, findConventionTagsJar, modTags, type TagCatalog, type TagSources, renameEdits, TintRecipe, tintRecipePath, type CreateOptions, type ElementSpec } from "@modcreator/core";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -301,6 +301,16 @@ ipcMain.handle("shell:open", async (_e, root: string, rel: string) => {
 });
 
 app.whenReady().then(() => {
+  // No visible File/Edit/View bar, but a hidden menu keeps its shortcuts: copy, paste, undo, zoom,
+  // reload (Ctrl+R) and developer tools (Ctrl+Shift+I).
+  Menu.setApplicationMenu(
+    Menu.buildFromTemplate([
+      ...(process.platform === "darwin" ? [{ role: "appMenu" } as const] : []),
+      { role: "editMenu" },
+      { role: "viewMenu" },
+      { role: "windowMenu" },
+    ]),
+  );
   window = new BrowserWindow({
     width: 1400,
     height: 900,
@@ -312,6 +322,8 @@ app.whenReady().then(() => {
       sandbox: true,
     },
   });
+  // Hidden for good (autoHideMenuBar would bring it back whenever Alt is pressed).
+  window.setMenuBarVisibility(false);
   // The window cancels closing while a form has unsaved edits; ask here whether to close anyway.
   window.webContents.on("will-prevent-unload", (event) => {
     const choice = dialog.showMessageBoxSync(window!, {
